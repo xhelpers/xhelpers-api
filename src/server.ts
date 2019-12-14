@@ -7,7 +7,27 @@ import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
 import connectMongodb from "./db-mongo";
 import connectMysql from "./db-mysql";
 
-export default async function createServer(serverOptions, options) {
+export default async function createServer({
+  serverOptions,
+  options
+}: {
+  serverOptions: any;
+  options: {
+    enableSSL: boolean;
+    swaggerOptions: any;
+    routeOptions: any;
+    jwt_secret: any;
+    mongodb: {
+      uri: string;
+      connectionOptions: any;
+    };
+    mysql: {
+      sequelizeOptions: any;
+    };
+    enableSSO: boolean;
+    ssoCallback: Function;
+  };
+}) {
   // Hapi server
   const server = new Hapi.Server(
     Object.assign(
@@ -16,7 +36,11 @@ export default async function createServer(serverOptions, options) {
         host: "localhost",
         routes: {
           validate: {
-            failAction: async (request, h, err) => {
+            failAction: async (
+              request: Hapi.Request,
+              h: Hapi.RequestEventHandler,
+              err: any
+            ) => {
               if (process.env.NODE_ENV === "production") {
                 // In prod, log a limited error message and throw the default Bad Request error.
                 console.error("ValidationError:", err.message);
@@ -39,9 +63,12 @@ export default async function createServer(serverOptions, options) {
 
   server.app = {
     // Mongodb connect
-    mongooseContext: await connectMongodb(),
+    mongooseContext: await connectMongodb(
+      options.mongodb.uri,
+      options.mongodb.connectionOptions
+    ),
     // Mysql connect
-    sequelizeContext: await connectMysql()
+    sequelizeContext: await connectMysql(options.mysql.sequelizeOptions)
   };
 
   // Redirect to SSL
@@ -66,12 +93,20 @@ export default async function createServer(serverOptions, options) {
   // Hapi JWT auth
   await server.register(require("hapi-auth-jwt2"));
   server.auth.strategy("jwt", "jwt", {
-    key: process.env.JWT_SECRET,
+    key: options.jwt_secret,
     validate: validateFunc,
     verifyOptions: { algorithms: ["HS256"] }
   });
   server.auth.default("jwt");
 
+  const routeOptions: any = {
+    dir: `${__dirname}/../routes/**`,
+    prefix: "/api",
+    routes: {
+      prefix: "/api"
+    },
+    ...options.routeOptions
+  };
   // Hapi plugins
   await server.register([
     require("vision"),
@@ -82,13 +117,7 @@ export default async function createServer(serverOptions, options) {
     },
     {
       plugin: require("hapi-routes"),
-      options: {
-        dir: `${__dirname}/../routes/**`,
-        prefix: "/api",
-        routes: {
-          prefix: "/api"
-        }
-      }
+      options: routeOptions
     },
     {
       plugin: require("good"),
@@ -116,7 +145,7 @@ export default async function createServer(serverOptions, options) {
   return server;
 }
 
-const validateFunc = async decoded => {
+const validateFunc = async (decoded: any) => {
   return {
     isValid: true,
     credentials: decoded

@@ -1,6 +1,6 @@
 import * as uuid from "uuid";
 
-export default async function logger(type, message, data) {
+export default async function logger(type: string, message: string, data: any) {
   switch (type) {
     case "info":
     case "log":

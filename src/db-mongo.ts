@@ -1,7 +1,10 @@
 import * as mongoose from "mongoose";
 
-export default async function connect() {
-  const mongoUri = process.env.MONGODB_URI;
+export default async function connect(
+  mongoDbUri: string,
+  connectionOptions: mongoose.ConnectionOptions
+) {
+  const mongoUri = mongoDbUri;
   if (!mongoUri) {
     console.log("Settings API: Mongodb disabled;");
     return;
@@ -9,7 +12,8 @@ export default async function connect() {
   try {
     const options: mongoose.ConnectionOptions = {
       useCreateIndex: true,
-      useNewUrlParser: true
+      useNewUrlParser: true,
+      ...connectionOptions
     };
     return await mongoose.connect(mongoUri, options).then(
       () => {
@@ -23,7 +27,7 @@ export default async function connect() {
           `📴 Failed to connect on mongodb: ${mongoose.version}/${mongoUri}\nErr: ${err}`
         );
         setTimeout(async () => {
-          await connect();
+          await connect(mongoDbUri, connectionOptions);
         }, 5000);
       }
     );
@@ -32,7 +36,7 @@ export default async function connect() {
       `📴 Failed to connect on mongodb: ${mongoose.version}/${mongoUri}\nErr: ${err}`
     );
     setTimeout(async () => {
-      await connect();
+      await connect(mongoDbUri, connectionOptions);
     }, 5000);
   }
   return null;

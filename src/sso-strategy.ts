@@ -12,7 +12,7 @@ async function authUser(
   return response;
 }
 
-export async function useAuthGoogle(server, callback) {
+export async function useAuthGoogle(server: any, callback: any) {
   // Google Auth
   server.auth.strategy("google", "bell", {
     provider: "google",
@@ -33,7 +33,7 @@ export async function useAuthGoogle(server, callback) {
         mode: "try"
       }
     },
-    handler: async function(request, h) {
+    handler: async function(request: any, h: any) {
       if (!request.auth.isAuthenticated) {
         return "Authentication failed due to: " + request.auth.error.message;
       }
@@ -69,7 +69,7 @@ export async function useAuthGoogle(server, callback) {
   });
 }
 
-export async function useAuthFacebook(server, callback) {
+export async function useAuthFacebook(server: any, callback: any) {
   //facebook
   server.auth.strategy("facebook", "bell", {
     provider: "facebook",
@@ -89,7 +89,7 @@ export async function useAuthFacebook(server, callback) {
         strategy: "facebook",
         mode: "try"
       },
-      handler: async function(request, h) {
+      handler: async function(request: any, h: any) {
         if (!request.auth.isAuthenticated) {
           return "Authentication failed due to: " + request.auth.error.message;
         }
@@ -125,7 +125,7 @@ export async function useAuthFacebook(server, callback) {
   });
 }
 
-export async function useAuthGitHub(server, callback) {
+export async function useAuthGitHub(server: any, callback: any) {
   // GitHub Auth
   server.auth.strategy("github", "bell", {
     provider: "github",
@@ -147,7 +147,7 @@ export async function useAuthGitHub(server, callback) {
         mode: "try"
       }
     },
-    handler: async function(request, h) {
+    handler: async function(request: any, h: any) {
       if (!request.auth.isAuthenticated) {
         return `Authentication failed due to: ${request.auth.error.message}`;
       }

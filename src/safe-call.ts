@@ -3,7 +3,10 @@ import * as Boom from "boom";
 import handleError from "./error-handler";
 import { promiseMe } from "./promise-me";
 
-export default async function safeCall(request, action) {
+export default async function safeCall(
+  request: { method: any; path: any; auth: { credentials: { user: any } } },
+  action: { (user: any): Promise<any>; (arg0: any): Promise<any> }
+) {
   if (typeof action !== "function") {
     throw 'Parameter "action" must be a function.';
   }
@@ -35,7 +38,11 @@ export default async function safeCall(request, action) {
   }
 }
 
-async function ensureAuthentication(request) {
+async function ensureAuthentication(request: {
+  method?: any;
+  path?: any;
+  auth: any;
+}) {
   if (!request.auth.isAuthenticated) {
     const { message } = request.auth.error || "Auth failed";
     return Boom.unauthorized("Authentication failed due to: " + message);

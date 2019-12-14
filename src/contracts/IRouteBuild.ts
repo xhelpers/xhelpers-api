@@ -1,3 +1,3 @@
 export interface IRouteBuild {
-  build();
+  build(): any;
 }

@@ -1,15 +1,25 @@
 import * as jwt from "jsonwebtoken";
-import * as mongoose from "mongoose";
 
 import { IBaseService } from "./contracts/IBaseService";
+import { Model } from "sequelize-typescript";
+import { db } from "./db-mysql";
 
-export default abstract class BaseServiceMongoose<T extends mongoose.Document>
+type NonAbstract<T> = { [P in keyof T]: T[P] };
+type Constructor<T> = new () => T;
+type NonAbstractTypeOfModel<T> = Constructor<T> & NonAbstract<typeof Model>;
+
+export default abstract class BaseServiceSequelize<T extends Model<T>>
   implements IBaseService {
-  constructor(model: mongoose.Model<T>) {
+  repository: any;
+  constructor(model: NonAbstractTypeOfModel<T>) {
     this.Model = model;
+    this.repository = db.sequelize.getRepository(this.Model);
   }
-  protected Model: mongoose.Model<mongoose.Document>;
-  protected abstract async validate(entity: mongoose.Document, payload: T);
+  protected Model: NonAbstractTypeOfModel<T>;
+  protected abstract async validate(
+    entity: Model | null,
+    payload: T
+  ): Promise<Boolean>;
   protected abstract sentitiveInfo = [];
 
   protected parseSortAsJson(pagination: {
@@ -18,13 +28,12 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     sort: any;
   }) {
     if (!pagination.sort) return {};
-
     let sortQuery: {};
     try {
       sortQuery = JSON.parse(pagination.sort);
     } catch (error) {
       console.log("Invalid sort parameter", error.message);
-      throw 'Invalid parameter "sort", it MUST be a valid JSON / Mongo sort sintax';
+      throw 'Invalid parameter "sort", it MUST be a valid JSON / sort sintax';
     }
     return sortQuery;
   }
@@ -38,7 +47,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       filterQuery = JSON.parse(query);
     } catch (error) {
       console.log("Invalid filter parameter", error);
-      throw 'Invalid parameter "filter", it MUST be a valid JSON / Mongo query sintax';
+      throw 'Invalid parameter "filter", it MUST be a valid JSON / query sintax';
     }
     return filterQuery;
   }
@@ -59,7 +68,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
           updatedAt: user.updatedAt
         }
       },
-      process.env.JWT_SECRET,
+      "options.jwt_secret",
       options
     );
   }
@@ -69,7 +78,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       issuer: process.env.JWT_ISSUER,
       expiresIn: process.env.JWT_EXPIRE
     };
-    return jwt.verify(token, process.env.JWT_SECRET, options);
+    return jwt.verify(token, "options.jwt_secret", options);
   }
 
   public async queryAll(
@@ -99,13 +108,12 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
         const field = query.fields[index];
         select.push(`${field}`);
       }
-      this.sentitiveInfo.forEach(element => {
+      this.sentitiveInfo.forEach((element: any) => {
         var name = element.replace("-", "");
-        select = select.filter(f => f !== name);
+        select = select.filter((f: any) => f !== name);
       });
     }
 
-    const skip = (pagination.page - 1) * pagination.limit;
     if (Object.keys(sort).length <= 0) {
       sort = { _id: -1 };
     }
@@ -118,13 +126,17 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       console.log("\t populateOptions:", populateOptions);
     }
 
-    return await this.Model.find(filter)
-      .populate(populateOptions.path, populateOptions.select)
-      .skip(skip)
-      .limit(pagination.limit)
-      .sort(sort)
-      .select([...select])
-      .lean();
+    const skip = (pagination.page - 1) * pagination.limit;
+    return await this.repository.findAll({
+      limit: pagination.limit,
+      offset: skip
+    });
+    // .populate(populateOptions.path, populateOptions.select)
+    // .skip(skip)
+    // .limit(pagination.limit)
+    // .sort(sort)
+    // .select([...select])
+    // .lean();
   }
   public async getById(
     user: any,
@@ -133,23 +145,23 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     populateOptions?: { path: string | any; select?: string | any }
   ): Promise<T> {
     Object.assign(projection, this.sentitiveInfo);
-    return await this.Model.findById(id)
-      .populate({ ...populateOptions })
-      .select([...projection])
-      .lean();
+    return await this.repository.findByPk(id);
+    // .populate({ ...populateOptions })
+    // .select([...projection])
+    // .lean();
   }
   public async create(user: any, payload: any): Promise<any> {
     await this.validate(null, payload);
     // try to set common const fields
     payload.createdAt = new Date();
     payload.createdBy = user && user.id;
-    var entity = await this.Model.create(payload);
+    var entity = await this.repository.create(payload);
     return {
       id: entity.id
     };
   }
   public async update(user: any, id: any, payload: T): Promise<any> {
-    const entity: any = await this.Model.findById(id);
+    const entity: any = await this.repository.findByPk(id);
     if (!entity) throw "Entity not found";
     await this.validate(entity, payload);
     Object.assign(entity, payload);
@@ -162,8 +174,8 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     };
   }
   public async delete(user: any, id: any): Promise<void> {
-    const entity = await this.Model.findById(id).lean();
+    const entity = await this.repository.findByPk(id);
     if (!entity) throw "Entity not found";
-    await this.Model.deleteOne(id);
+    await this.repository.findByPk(id).then((entity: any) => entity.destroy());
   }
 }

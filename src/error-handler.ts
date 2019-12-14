@@ -2,7 +2,7 @@ import * as Boom from "boom";
 
 import logger from "./logger";
 
-export default function errorHandler(err) {
+export default function errorHandler(err: any) {
   logger("err", "LogInfo:", err);
   if (process.env.LOGLEVEL === "HIGH") {
     logger("info", "Info:", err);

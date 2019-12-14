@@ -15,10 +15,10 @@ export default abstract class BaseRoute<T extends IBaseService>
     this.tags = tags;
   }
   routes: Array<any>;
-  curentRoute: {
+  curentRoute!: {
     method: string;
     path: string;
-    handler: Function;
+    handler?: Function;
     options: {
       tags: any;
       validate: {
@@ -28,7 +28,7 @@ export default abstract class BaseRoute<T extends IBaseService>
         params?: Joi.ObjectSchema;
       };
       auth: any;
-      payload: {
+      payload?: {
         maxBytes: number;
         parse: boolean;
         output: string;
@@ -66,11 +66,25 @@ export default abstract class BaseRoute<T extends IBaseService>
       .description("id of the entity")
   });
 
-  route(method, path, options?, requireAuth: boolean = true): IRouteAdd {
+  route(
+    method: any,
+    path: any,
+    options?: {
+      tags: any;
+      validate: {
+        payload: any;
+        headers?: any;
+        query?: any;
+        params?: Joi.ObjectSchema | undefined;
+      };
+      auth: any;
+      payload: { maxBytes: number; parse: boolean; output: string };
+    },
+    requireAuth: boolean = true
+  ): IRouteAdd {
     this.curentRoute = {
       method,
       path,
-      handler: null,
       options: {
         tags: ["api", ...this.tags],
         validate: {
@@ -95,8 +109,8 @@ export default abstract class BaseRoute<T extends IBaseService>
     return this;
   }
   handler(action: (r: any, h: any, user?: any) => Promise<any>): IRouteBuild {
-    this.curentRoute.handler = async function(request, h) {
-      return safeCall(request, async user => {
+    this.curentRoute.handler = async function(request: any, h: any) {
+      return safeCall(request, async (user: any) => {
         return await action(request, h, user);
       });
     };
