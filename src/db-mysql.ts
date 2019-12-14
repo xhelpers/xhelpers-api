@@ -3,25 +3,16 @@ import { Sequelize, SequelizeOptions } from "sequelize-typescript";
 // @ts-ignore
 import mysql2 from "mysql2";
 
-const fs = require("fs");
-const path = require("path");
 export const db: any = {};
-
 export default async function connect(sequelizeOptions: SequelizeOptions) {
-  const mysqlUri = process.env.MYSQLDB_HOST;
-  if (!mysqlUri) {
+  if (!sequelizeOptions.host) {
     console.log("Settings API: MySQL disabled;");
     return;
   }
   const options: SequelizeOptions = {
-    host: mysqlUri,
-    database: process.env.MYSQLDB_DATABASE,
-    username: process.env.MYSQLDB_USER,
-    password: process.env.MYSQLDB_PASSWORD,
-    storage: process.env.MYSQLDB_STORAGE,
     dialect: "mysql",
     dialectModule: mysql2,
-    models: [__dirname + "/../model/**"],
+    models: [__dirname + "/model/**"],
     repositoryMode: true,
     ...sequelizeOptions
   };
@@ -39,11 +30,13 @@ export default async function connect(sequelizeOptions: SequelizeOptions) {
       return res(sequelize);
     }).then(
       () => {
-        console.log(`🆙  Connected to mysql: ${dbVersion}/${mysqlUri}`);
+        console.log(
+          `🆙  Connected to mysql: ${dbVersion}/${sequelizeOptions.host}`
+        );
       },
       err => {
         console.error(
-          `📴 Failed to connect on mysql: ${dbVersion}/${mysqlUri}\nErr: ${err}`
+          `📴 Failed to connect on mysql: ${dbVersion}/${sequelizeOptions.host}\nErr: ${err}`
         );
         setTimeout(async () => {
           await connect(sequelizeOptions);
@@ -51,7 +44,9 @@ export default async function connect(sequelizeOptions: SequelizeOptions) {
       }
     );
   } catch (err) {
-    console.error(`📴 Failed to connect on mysql: ${mysqlUri}\nErr: ${err}`);
+    console.error(
+      `📴 Failed to connect on mysql: ${sequelizeOptions.host}\nErr: ${err}`
+    );
     setTimeout(async () => {
       await connect(sequelizeOptions);
     }, 5000);
