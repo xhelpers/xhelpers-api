@@ -1,6 +1,6 @@
 {
   "name": "xhelpers-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "lib/index",
   "scripts": {
@@ -28,6 +28,10 @@
     "shared"
   ],
   "author": "wmkdev",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wmkDev/xhelpers-api.git"
+  },
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

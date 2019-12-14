@@ -33,6 +33,8 @@ $ npm i
 ### Hapi Server
 
 ```code
+import createServer from "xhelpers-api/lib/server";
+
 server = await createServer({
     serverOptions: {
       port: process.env.PORT,
@@ -78,6 +80,7 @@ server = await createServer({
 
 ```code
 import Service from "/services/account-login";
+import BaseRoute from "xhelpers-api/lib/base-route";
 
 const httpResourcePath = "account-login";
 
@@ -149,6 +152,9 @@ exports.routes = server => server.route(new RouteAccountLogin().buildRoutes());
 ### Service
 
 ```code
+import AccountLogin from "../../model/account/account_login";
+import BaseServiceSequelize from "xhelpers-api/lib/base-service-sequelize";
+
 // mongoose
 export default class AccountLoginService extends BaseServiceMongoose<
   AccountLogin
@@ -156,26 +162,29 @@ export default class AccountLoginService extends BaseServiceMongoose<
   constructor() {
     super(AccountLogin);
   }
-  sentitiveInfo = ["-__v", "password"];
-  protected async validate(entity: AccountLogin, payload: AccountLogin) {
+  sentitiveInfo: any = ["-__v", "password"];
+  protected async validate(entity: AccountLogin, payload: AccountLogin): Promise<boolean> {
     const invalid = false;
     if (invalid) throw new Error("Invalid payload.");
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 }
 
 // sequelize
-export default class AccountLoginService extends BaseServiceSequelize<
+export default class AccountStatusService extends BaseServiceSequelize<
   AccountLogin
 > {
   constructor() {
     super(AccountLogin);
   }
-  sentitiveInfo = ["password"];
-  protected async validate(entity: AccountLogin, payload: AccountLogin) {
+  sentitiveInfo: any = ["password"];
+  protected async validate(
+    entity: AccountLogin,
+    payload: AccountLogin
+  ): Promise<boolean> {
     const invalid = false;
     if (invalid) throw new Error("Invalid payload.");
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 }
 ```
