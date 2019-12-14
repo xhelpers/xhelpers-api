@@ -60,14 +60,23 @@ server = await createServer({
           }
         ]
       },
-      routeOptions: {},
+      routeOptions: {
+        dir: `${__dirname}/routes/**`
+      },
       jwt_secret: "v3ryH4rdS3cr3t",
       mongodb: {
         uri: "",
         connectionOptions: {}
       },
       mysql: {
-        sequelizeOptions: {}
+        sequelizeOptions: {
+          host: process.env.MYSQLDB_HOST,
+          database: process.env.MYSQLDB_DATABASE,
+          username: process.env.MYSQLDB_USER,
+          password: process.env.MYSQLDB_PASSWORD,
+          storage: process.env.MYSQLDB_STORAGE,
+          models: [__dirname + "/model/**"]
+        },
       },
       enableSSO: false,
       ssoCallback: null
