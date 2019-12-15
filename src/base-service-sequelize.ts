@@ -2,7 +2,7 @@ import * as jwt from "jsonwebtoken";
 
 import { IBaseService } from "./contracts/IBaseService";
 import { Model } from "sequelize-typescript";
-import { db } from "./db-mysql";
+import { db } from "./db-sequelize";
 
 type NonAbstract<T> = { [P in keyof T]: T[P] };
 type Constructor<T> = new () => T;

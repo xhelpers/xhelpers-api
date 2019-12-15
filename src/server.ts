@@ -5,7 +5,7 @@ import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
 
 // Connect to database
 import connectMongodb from "./db-mongo";
-import connectMysql from "./db-mysql";
+import connectSequelize from "./db-sequelize";
 
 export default async function createServer({
   serverOptions,
@@ -21,7 +21,7 @@ export default async function createServer({
       uri: string;
       connectionOptions: any;
     };
-    mysql: {
+    sequelize: {
       sequelizeOptions: any;
     };
     enableSSO: boolean;
@@ -67,8 +67,8 @@ export default async function createServer({
       options.mongodb.uri,
       options.mongodb.connectionOptions
     ),
-    // Mysql connect
-    sequelizeContext: await connectMysql(options.mysql.sequelizeOptions)
+    // Sequelize connect
+    sequelizeContext: await connectSequelize(options.sequelize.sequelizeOptions)
   };
 
   // Redirect to SSL
@@ -100,7 +100,6 @@ export default async function createServer({
   server.auth.default("jwt");
 
   const routeOptions: any = {
-    dir: `${__dirname}/../routes/**`,
     prefix: "/api",
     routes: {
       prefix: "/api"

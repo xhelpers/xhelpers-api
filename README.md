@@ -15,9 +15,10 @@ Stacks:
 - [TypeScript](https://www.typescriptlang.org/).
 - [Node.js](https://nodejs.org/).
 - [Mongodb](https://www.mongodb.com/).
-- [Mongoose](https://mongoosejs.com/).
-- [MySQL](https://www.mysql.com/).
+  - [Mongoose](https://mongoosejs.com/).
 - [Sequelize](https://sequelize.org/).
+  - [MySQL](https://www.mysql.com/).
+  - [PostgreSQL](https://www.postgresql.org/).
 - [Hapi](https://hapi.dev/).
 - [Boom](https://github.com/hapijs/boom).
 - [JWT](https://github.com/dwyl/hapi-auth-jwt2).
@@ -27,7 +28,7 @@ Stacks:
 ## Installation
 
 ```bash
-$ npm i
+$ npm i xhelpers-api
 ```
 
 ## Examples of usage
@@ -68,14 +69,14 @@ server = await createServer({
         uri: "",
         connectionOptions: {}
       },
-      mysql: {
+      sequelize: {
         sequelizeOptions: {
-          host: process.env.MYSQLDB_HOST,
-          database: process.env.MYSQLDB_DATABASE,
-          username: process.env.MYSQLDB_USER,
-          password: process.env.MYSQLDB_PASSWORD,
-          storage: process.env.MYSQLDB_STORAGE,
-          models: [__dirname + "/model/**"]
+          host: process.env.SEQ_SQLDB_HOST,
+          database: process.env.SEQ_SQLDB_DATABASE,
+          username: process.env.SEQ_SQLDB_USER,
+          password: process.env.SEQ_SQLDB_PASSWORD,
+          models: [__dirname + "/model/**"],
+          dialect: "postgres"
         },
       },
       enableSSO: false,
@@ -163,11 +164,43 @@ exports.routes = server => server.route(new RouteAccountLogin().buildRoutes());
 ### Service
 
 ```code
-import AccountLogin from "../../model/account/account_login";
+//contract
+export interface IBaseService {
+  queryAll(
+    user: any,
+    filter: any,
+    pagination: {
+      page: number;
+      limit: number;
+      sort: any;
+    },
+    populateOptions?: {
+      path: string | any;
+      select?: string | any;
+    }
+  ): Promise<any[]>;
+  getById(
+    user: any,
+    id: any,
+    projection: any,
+    populateOptions?: {
+      path: string | any;
+      select?: string | any;
+    }
+  ): Promise<any>;
+  create(user: any, payload: any): Promise<any>;
+  update(user: any, id: any, payload: any): Promise<any>;
+  delete(user: any, id: any): Promise<void>;
+}
+```
+
+```code
+import AccountLogin from "/model/account_login"; // mongoose or sequelize "Model"
 import BaseServiceSequelize from "xhelpers-api/lib/base-service-sequelize";
+import BaseServiceMongoose from "xhelpers-api/lib/base-service-mongoose";
 
 // mongoose
-export default class AccountLoginService extends BaseServiceMongoose<
+export class AccountLoginService extends BaseServiceMongoose<
   AccountLogin
 > {
   constructor() {
@@ -182,13 +215,13 @@ export default class AccountLoginService extends BaseServiceMongoose<
 }
 
 // sequelize
-export default class AccountStatusService extends BaseServiceSequelize<
+export class AccountLoginSqlService extends BaseServiceSequelize<
   AccountLogin
 > {
   constructor() {
     super(AccountLogin);
   }
-  sentitiveInfo: any = ["password"];
+  sentitiveInfo: any = ["id"];
   protected async validate(
     entity: AccountLogin,
     payload: AccountLogin

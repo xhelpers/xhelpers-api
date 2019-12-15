@@ -23,5 +23,5 @@ export interface IBaseService {
   ): Promise<any>;
   create(user: any, payload: any): Promise<any>;
   update(user: any, id: any, payload: any): Promise<any>;
-  delete(user: any, id: any): Promise<void>;
+  delete(user: any, id: any): Promise<any>;
 }
