@@ -70,15 +70,16 @@ export default abstract class BaseRoute<T extends IBaseService>
     method: any,
     path: any,
     options?: {
-      tags: any;
-      validate: {
+      tags?: any;
+      validate?: {
         payload: any;
         headers?: any;
         query?: any;
         params?: Joi.ObjectSchema | undefined;
       };
-      auth: any;
-      payload: { maxBytes: number; parse: boolean; output: string };
+      auth?: any;
+      payload?: { maxBytes: number; parse: boolean; output: string };
+      plugins?: any;
     },
     requireAuth: boolean = true
   ): IRouteAdd {
