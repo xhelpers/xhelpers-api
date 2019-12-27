@@ -90,11 +90,9 @@ export default abstract class BaseRoute<T extends IBaseService>
         tags: ["api", ...this.tags],
         validate: {
           payload: null,
-          // headers: requireAuth ? this.defaultAuthHeader : null
-          headers: null
+          headers: requireAuth ? this.defaultAuthHeader : null
         },
-        // auth: requireAuth ? "jwt" : false,
-        auth: false,
+        auth: requireAuth ? "jwt" : false,
         ...options
       }
     };
