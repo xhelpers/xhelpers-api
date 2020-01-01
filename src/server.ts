@@ -4,30 +4,65 @@ import * as Hapi from "hapi";
 import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
 
 // Connect to database
-import connectMongodb from "./db-mongo";
+import connectMongoose from "./db-mongoose";
 import connectSequelize from "./db-sequelize";
 
 export default async function createServer({
   serverOptions,
   options
 }: {
-  serverOptions: any;
+  serverOptions: {
+    port: number;
+    host: string;
+  };
   options: {
+    swaggerOptions?: any;
+    routeOptions: {
+      dir: string;
+      prefix?: string;
+    };
+    jwt_secret?: string;
+    mongooseOptions?: any;
+    sequelizeOptions?: any;
     enableSSL: boolean;
-    swaggerOptions: any;
-    routeOptions: any;
-    jwt_secret: any;
-    mongodb: {
-      uri: string;
-      connectionOptions: any;
-    };
-    sequelize: {
-      sequelizeOptions: any;
-    };
     enableSSO: boolean;
     ssoCallback: Function;
   };
 }) {
+  console.log("Starting Xhelpers Hapi server API");
+
+  const defaultServerOptions = {
+    port: Number(process.env.PORT || 80),
+    host: process.env.HOST || "localhost",
+    ...serverOptions
+  };
+
+  const defaultOptions = {
+    swaggerOptions: {
+      jsonPath: "/api/documentation/swagger.json",
+      documentationPath: "/api/documentation",
+      swaggerUIPath: "/api/swaggerui/",
+      info: {
+        title: "API",
+        version: "1.0"
+      },
+      grouping: "tags",
+      tags: []
+    },
+    jwt_secret: "v3ryH4rdS3cr3t-!=!v3ryH4Rds3cr3t",
+    routeOptions: {
+      dir: `${__dirname}/routes/**`,
+      prefix: "/api"
+    },
+    enableSSL: process.env.SSL === "true",
+    enableSSO: false,
+    ssoCallback: (
+      user: { email: any; name: any; avatar: any; token: string },
+      userData: { userType: any; meta: any }
+    ) => {},
+    ...options
+  };
+
   // Hapi server
   const server = new Hapi.Server(
     Object.assign(
@@ -57,22 +92,19 @@ export default async function createServer({
           }
         }
       },
-      serverOptions
+      defaultServerOptions
     )
   );
 
   server.app = {
-    // Mongodb connect
-    mongooseContext: await connectMongodb(
-      options.mongodb.uri,
-      options.mongodb.connectionOptions
-    ),
+    // Mongoose connect
+    mongooseContext: await connectMongoose(defaultOptions.mongooseOptions),
     // Sequelize connect
-    sequelizeContext: await connectSequelize(options.sequelize.sequelizeOptions)
+    sequelizeContext: await connectSequelize(defaultOptions.sequelizeOptions)
   };
 
   // Redirect to SSL
-  if (options.enableSSL) {
+  if (defaultOptions.enableSSL) {
     console.log("Settings API: SSL enabled;");
     await server.register({ plugin: require("hapi-require-https") });
   } else {
@@ -80,31 +112,32 @@ export default async function createServer({
   }
 
   // SSO
-  if (options.enableSSO) {
+  if (defaultOptions.enableSSO) {
     console.log("Settings API: SSO enabled;");
     await server.register(require("bell"));
-    await useAuthGitHub(server, options.ssoCallback);
-    await useAuthFacebook(server, options.ssoCallback);
-    await useAuthGoogle(server, options.ssoCallback);
+    await useAuthGitHub(server, defaultOptions.ssoCallback);
+    await useAuthFacebook(server, defaultOptions.ssoCallback);
+    await useAuthGoogle(server, defaultOptions.ssoCallback);
   } else {
     console.log("Settings API: SSO disabled;");
   }
 
   // Hapi JWT auth
-  await server.register(require("hapi-auth-jwt2"));
-  server.auth.strategy("jwt", "jwt", {
-    key: options.jwt_secret,
-    validate: validateFunc,
-    verifyOptions: { algorithms: ["HS256"] }
-  });
-  server.auth.default("jwt");
+  if (defaultOptions.jwt_secret) {
+    await server.register(require("hapi-auth-jwt2"));
+    server.auth.strategy("jwt", "jwt", {
+      key: defaultOptions.jwt_secret,
+      validate: validateFunc,
+      verifyOptions: { algorithms: ["HS256"] }
+    });
+    server.auth.default("jwt");
+  }
 
   const routeOptions: any = {
-    prefix: "/api",
     routes: {
-      prefix: "/api"
+      prefix: defaultOptions.routeOptions.prefix
     },
-    ...options.routeOptions
+    ...defaultOptions.routeOptions
   };
   // Hapi plugins
   await server.register([
@@ -112,7 +145,7 @@ export default async function createServer({
     require("inert"),
     {
       plugin: require("hapi-swagger"),
-      options: options.swaggerOptions
+      options: defaultOptions.swaggerOptions
     },
     {
       plugin: require("hapi-routes"),
@@ -141,6 +174,49 @@ export default async function createServer({
     }
   ]);
 
+  server.events.on("start", () => {
+    console.log("=".repeat(100));
+    console.log(`🆙  Server running at: ${server.info.uri}/api/`);
+    console.log(
+      `🆙  Server docs running at: ${server.info.uri}/api/documentation`
+    );
+    console.log("=".repeat(100));
+
+    console.log(`Routing table:`);
+    server.table().forEach(route => {
+      let iconRoute = "🚧";
+      const ignoreInternalRoute = route.path.startsWith("/api/swaggerui");
+      if (ignoreInternalRoute) return;
+      switch (route.method) {
+        case "get":
+          iconRoute = "🔎 ";
+          break;
+        case "post":
+          iconRoute = "📄 ";
+          break;
+        case "put":
+          iconRoute = "📝 ";
+          break;
+        case "delete":
+          iconRoute = "🚩 ";
+          break;
+        default:
+          break;
+      }
+      const requireAuth = !!route.settings.auth;
+      console.log(
+        `\t${iconRoute} ${route.method} - ${requireAuth ? "🔑 " : ""}\t${
+          route.path
+        }`
+      );
+    });
+    console.log("=".repeat(100));
+  });
+
+  server.events.on("stop", () => {
+    console.info("⛔️📴  Server Stoped");
+  });
+
   return server;
 }
 
@@ -150,3 +226,24 @@ const validateFunc = async (decoded: any) => {
     credentials: decoded
   };
 };
+
+async function test() {
+  const serverOptions: any = {};
+  const options: any = {
+    jwt_secret: "v3ryH4rdS3cr3t-!=!v3ryH4Rds3cr3t",
+    routeOptions: {
+      dir: `${__dirname}/routes/**`,
+      prefix: "/api"
+    },
+    sequelizeOptions: {
+      host: process.env.MYSQLDB_HOST,
+      database: process.env.MYSQLDB_DATABASE,
+      username: process.env.MYSQLDB_USER,
+      password: process.env.MYSQLDB_PASSWORD,
+      storage: process.env.MYSQLDB_STORAGE,
+      models: [__dirname + "/model/**"]
+    }
+  };
+  const server = await createServer({ serverOptions, options });
+  server.start();
+}

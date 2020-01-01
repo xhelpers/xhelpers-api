@@ -25,6 +25,13 @@ Stacks:
 - [SSO bell](https://github.com/hapijs/bell).
 - [Hapi-swagger](https://github.com/glennjones/hapi-swagger).
 
+## Roadmap
+
+- Improve documentation
+- Simplify route and server usage.
+- Add tests !!
+- Add samples
+
 ## Installation
 
 ```bash
@@ -33,60 +40,104 @@ $ npm i xhelpers-api
 
 ## Examples of usage
 
+Server starter log:
+![Serverlog](server.start.png)
+
 ### Hapi Server
+
+Basics "createServer" method:
+
+```code
+Signature:
+createServer({ serverOptions, options }:
+{
+  serverOptions: {
+    port: number;
+    host: string;
+  };
+  options: {
+    swaggerOptions?: any;
+    routeOptions: {
+      dir: string;
+      prefix?: string;
+    };
+    jwt_secret?: string;
+    mongooseOptions?: any;
+    sequelizeOptions?: any;
+    enableSSL: boolean;
+    enableSSO: boolean;
+    ssoCallback: Function;
+  };
+}): Hapi.Server
+
+const defaultServerOptions = {
+    port: Number(process.env.PORT || 80),
+    host: process.env.HOST || "localhost",
+};
+
+const defaultOptions = {
+    swaggerOptions: {
+      jsonPath: "/api/documentation/swagger.json",
+      documentationPath: "/api/documentation",
+      swaggerUIPath: "/api/swaggerui/",
+      info: {
+        title: "API",
+        version: "1.0"
+      },
+      grouping: "tags",
+      tags: []
+    },
+    jwt_secret: "v3ryH4rdS3cr3t",
+    routeOptions: {
+      dir: `${__dirname}/routes/**`,
+      prefix: "/api"
+    },
+    enableSSL: process.env.SSL === "true",
+    enableSSO: false,
+    ssoCallback: (
+      user: { email: any; name: any; avatar: any; token: string },
+      userData: { userType: any; meta: any }
+    ) => {},
+  };
+```
+
+Usage:
 
 ```code
 import createServer from "xhelpers-api/lib/server";
 
-server = await createServer({
-    serverOptions: {
-      port: process.env.PORT,
-      host: process.env.HOST
+let server: any = {};
+async function start() {
+  const serverOptions: any = {};
+  const options: any = {
+    jwt_secret: "v3ryH4Rds3cr3t",
+    swaggerOptions: {
+      jsonPath: "/api/documentation/swagger.json",
+      documentationPath: "/api/documentation",
+      swaggerUIPath: "/api/swaggerui/",
+      info: {
+        title: "API",
+        version: "1.1"
+      }
     },
-    options: {
-      enableSSL: process.env.SSL === "true",
-      swaggerOptions: {
-        jsonPath: "/api/documentation/swagger.json",
-        documentationPath: "/api/documentation",
-        swaggerUIPath: "/api/swaggerui/",
-        info: {
-          title: "API",
-          version: "1.3"
-        },
-        grouping: "tags",
-        tags: [
-          {
-            name: "account",
-            description: "Account API operations"
-          }
-        ]
-      },
-      routeOptions: {
-        dir: `${__dirname}/routes/**`
-      },
-      jwt_secret: "v3ryH4rdS3cr3t",
-      mongodb: {
-        uri: "",
-        connectionOptions: {}
-      },
-      sequelize: {
-        sequelizeOptions: {
-          host: process.env.SEQ_SQLDB_HOST,
-          database: process.env.SEQ_SQLDB_DATABASE,
-          username: process.env.SEQ_SQLDB_USER,
-          password: process.env.SEQ_SQLDB_PASSWORD,
-          models: [__dirname + "/model/**"],
-          dialect: "postgres"
-        },
-      },
-      enableSSO: false,
-      ssoCallback: null
+    routeOptions: {
+      dir: `${__dirname}/routes/**`,
+      prefix: "/api"
+    },
+    sequelizeOptions: {
+      host: process.env.MYSQLDB_HOST,
+      database: process.env.MYSQLDB_DATABASE,
+      username: process.env.MYSQLDB_USER,
+      password: process.env.MYSQLDB_PASSWORD,
+      storage: process.env.MYSQLDB_STORAGE,
+      models: [__dirname + "/model/**"]
     }
-  });
-  await server.start();
+  };
+  server = await createServer({ serverOptions, options });
+  server.start();
+}
+start();
 ```
-
->
 
 ### Routes
 
@@ -233,17 +284,55 @@ export class AccountLoginSqlService extends BaseServiceSequelize<
 }
 ```
 
-### Safe call
+### Models - Mongoose / Sequelize
+
+### Mongoose: account_login
 
 ```code
-// safeCall(
-//  request: { method: any; path: any; auth: { credentials: { user: any } } },
-//  action: { (user: any): Promise<any>; (arg0: any): Promise<any> }
-// )
+import * as mongoose from 'mongoose';
 
-    safeCall(request, async (user: any) => {
-        return await action(request, h, user);
-      })
+export interface AccountLogin extends mongoose.Document {
+  ip_number: string;
+  browser: string;
+  created_at: Date;
+}
+
+const schema = new mongoose.Schema({
+  ip_number: { type: String , required: true},
+  browser: { type: String },
+  created_at: { type: Date, required: true },
+});
+
+schema.set('toJSON', { virtuals: true });
+
+export default mongoose.model<AccountLogin>('AccountLogin', schema, 'account_login');
+```
+
+### Sequelize: account_login
+
+```code
+import {
+  BelongsTo,
+  Column,
+  CreatedAt,
+  ForeignKey,
+  Model,
+  Scopes,
+  Table
+} from "sequelize-typescript";
+
+@Scopes(() => ({}))
+@Table({ tableName: "account_login", updatedAt: false })
+export default class AccountLogin extends Model<AccountLogin> {
+  @Column
+  ip_number: string;
+  @Column
+  browser: string;
+  /* auto */
+  @CreatedAt
+  @Column
+  created_at: Date;
+}
 ```
 
 ## Building

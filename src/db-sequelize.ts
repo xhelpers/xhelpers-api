@@ -4,11 +4,14 @@ import { Sequelize, SequelizeOptions } from "sequelize-typescript";
 import mysql2 from "mysql2";
 
 export const db: any = {};
-export default async function connect(sequelizeOptions: SequelizeOptions) {
-  if (!sequelizeOptions.host) {
+export default async function connect(
+  sequelizeOptions?: SequelizeOptions | undefined
+) {
+  if (!sequelizeOptions) {
     console.log("Settings API: Sequelize disabled;");
     return;
   }
+  console.log("Settings API: Sequelize enabled;");
   const options: SequelizeOptions = {
     dialect: "mysql",
     dialectModule: mysql2,
@@ -20,16 +23,18 @@ export default async function connect(sequelizeOptions: SequelizeOptions) {
     const sequelize = new Sequelize(options);
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
-    const dbVersion = await sequelize.databaseVersion();
+
     return await new Promise(res => {
       return res(sequelize);
     }).then(
-      () => {
+      async () => {
+        const dbVersion = await sequelize.databaseVersion();
         console.log(
           `🆙  Connected to Sequelize: ${dbVersion}/${sequelizeOptions.host}`
         );
       },
-      err => {
+      async err => {
+        const dbVersion = await sequelize.databaseVersion();
         console.error(
           `📴 Failed to connect on Sequelize: ${dbVersion}/${sequelizeOptions.host}\nErr: ${err}`
         );
