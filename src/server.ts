@@ -197,6 +197,9 @@ export default async function createServer({
         case "put":
           iconRoute = "📝 ";
           break;
+        case "patch":
+          iconRoute = "📝 ";
+          break;
         case "delete":
           iconRoute = "🚩 ";
           break;
