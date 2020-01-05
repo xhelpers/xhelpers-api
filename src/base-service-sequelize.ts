@@ -2,6 +2,7 @@ import * as jwt from "jsonwebtoken";
 
 import { IBaseService } from "./contracts/IBaseService";
 import { Model } from "sequelize-typescript";
+import { State } from "joi";
 import { db } from "./db-sequelize";
 
 type NonAbstract<T> = { [P in keyof T]: T[P] };
@@ -22,6 +23,9 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
   ): Promise<Boolean>;
   protected abstract sentitiveInfo = [];
 
+  protected getRepository<TRepo>(sequelizeModel: TRepo): any {
+    return db.sequelize.getRepository(sequelizeModel);
+  }
   protected parseSortAsJson(pagination: {
     page: number;
     limit: number;
@@ -52,6 +56,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     return filterQuery;
   }
 
+  // todo: should receive action !!
   protected async getJwtToken(user: any) {
     const options = {
       issuer: process.env.JWT_ISSUER,
@@ -61,14 +66,10 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       {
         user: {
           id: user.id,
-          email: user.email,
-          name: user.name,
-          createdAt: user.createdAt,
-          firstAccessAt: user.firstAccessAt,
-          updatedAt: user.updatedAt
+          email: user.email
         }
       },
-      "options.jwt_secret",
+      process.env.JWT_SECRET || ".",
       options
     );
   }
@@ -78,7 +79,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       issuer: process.env.JWT_ISSUER,
       expiresIn: process.env.JWT_EXPIRE
     };
-    return jwt.verify(token, "options.jwt_secret", options);
+    return jwt.verify(token, process.env.JWT_SECRET || "", options);
   }
 
   public async queryAll(

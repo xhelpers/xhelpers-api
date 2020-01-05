@@ -49,7 +49,7 @@ export default async function createServer({
       grouping: "tags",
       tags: []
     },
-    jwt_secret: "v3ryH4rdS3cr3t-!=!v3ryH4Rds3cr3t",
+    jwt_secret: process.env.JWT_SECRET,
     routeOptions: {
       dir: `${__dirname}/routes/**`,
       prefix: "/api"
