@@ -1,4 +1,4 @@
-# XHelpers - API
+# XHelpers - API - 1.0.11
 
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
 
@@ -27,9 +27,12 @@ Stacks:
 
 ## Roadmap
 
+- 🔥 Update packages to @hapi/pkg
+- 🔥 Add tests and test each base service !!
+- ➕ Simplify route and server usage.
+- ➕ Update sequelize base service
+- ➕ Create grapql base service
 - Improve documentation
-- Simplify route and server usage.
-- Add tests !!
 - Add samples
 
 ## Installation

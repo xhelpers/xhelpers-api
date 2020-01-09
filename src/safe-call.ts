@@ -19,7 +19,7 @@ export default async function safeCall(
     const user =
       request.auth && request.auth.credentials && request.auth.credentials.user;
     console.timeEnd(`| 2️⃣ | Auth time`);
-    console.log("| 3️⃣ | User:", user && user.name, "id:", user && user.id);
+    console.log("| 3️⃣ | User:", user && user.email, "id:", user && user.id);
 
     console.time(`| 4️⃣ | Function time`);
     let [result, resultErr] = await promiseMe(action(user));
