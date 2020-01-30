@@ -1,9 +1,9 @@
 export interface IBaseService {
   queryAll(
     user: any,
-    filter: any,
-    pagination: {
-      page: number;
+    query?: any,
+    pagination?: {
+      offset: number;
       limit: number;
       sort: any;
     },
@@ -11,7 +11,16 @@ export interface IBaseService {
       path: string | any;
       select?: string | any;
     }
-  ): Promise<any[]>;
+  ): Promise<{
+    metadata: {
+      resultset: {
+        count: number;
+        offset: number;
+        limit: number;
+      };
+    };
+    results: any[];
+  }>;
   getById(
     user: any,
     id: any,

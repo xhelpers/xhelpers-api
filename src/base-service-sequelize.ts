@@ -11,7 +11,7 @@ type NonAbstractTypeOfModel<T> = Constructor<T> & NonAbstract<typeof Model>;
 
 export default abstract class BaseServiceSequelize<T extends Model<T>>
   implements IBaseService {
-  repository: any;
+  repository: NonAbstractTypeOfModel<T>;
   constructor(model: NonAbstractTypeOfModel<T>) {
     this.Model = model;
     this.repository = db.sequelize.getRepository(this.Model);
@@ -26,11 +26,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
   protected getRepository<TRepo>(sequelizeModel: TRepo): any {
     return db.sequelize.getRepository(sequelizeModel);
   }
-  protected parseSortAsJson(pagination: {
-    page: number;
-    limit: number;
-    sort: any;
-  }) {
+  protected parseSortAsJson(pagination: { sort: any }) {
     if (!pagination.sort) return {};
     let sortQuery: {};
     try {
@@ -64,10 +60,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     };
     return jwt.sign(
       {
-        user: {
-          id: user.id,
-          email: user.email
-        }
+        user
       },
       process.env.JWT_SECRET || ".",
       options
@@ -88,15 +81,24 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       filter: {},
       fields: []
     },
-    pagination: { page: number; limit: number; sort: any } = {
-      page: 1,
+    pagination: { offset: number; limit: number; sort: any } = {
+      offset: 1,
       limit: 10,
       sort: { _id: -1 }
     },
     populateOptions: { path: string | any; select?: string | any } = {
       path: null
     }
-  ): Promise<T[]> {
+  ): Promise<{
+    metadata: {
+      resultset: {
+        count: number;
+        offset: number;
+        limit: number;
+      };
+    };
+    results: T[];
+  }> {
     let filter = {};
     let sort = {};
     filter = this.parseFilterAsJson(query.filter);
@@ -127,10 +129,10 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       console.log("\t populateOptions:", populateOptions);
     }
 
-    const skip = (pagination.page - 1) * pagination.limit;
-    return await this.repository.findAll({
+    const data = await this.repository.findAll({
+      where: filter,
       limit: pagination.limit,
-      offset: skip
+      offset: pagination.offset
     });
     // .populate(populateOptions.path, populateOptions.select)
     // .skip(skip)
@@ -138,13 +140,31 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     // .sort(sort)
     // .select([...select])
     // .lean();
+
+    const count = await this.repository.count({
+      where: filter
+    });
+
+    const result = {
+      metadata: {
+        resultset: {
+          count: count,
+          offset: pagination.offset,
+          limit: pagination.limit
+        }
+      },
+      results: data
+    };
+    return Promise.resolve({
+      ...result
+    });
   }
   public async getById(
     user: any,
     id: any,
     projection: any = {},
     populateOptions?: { path: string | any; select?: string | any }
-  ): Promise<T> {
+  ): Promise<T | null> {
     Object.assign(projection, this.sentitiveInfo);
     return await this.repository.findByPk(id);
     // .populate({ ...populateOptions })

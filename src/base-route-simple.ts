@@ -38,8 +38,8 @@ export default abstract class BaseRouteSimple
   }).options({ allowUnknown: true });
 
   protected defaultSearchQuery = Joi.object({
-    page: Joi.number().default(1),
-    limit: Joi.number().default(10)
+    offset: Joi.number().default(0),
+    limit: Joi.number().default(25),
     // sort: Joi.string()
     //   .default()
     //   .allow("", null)

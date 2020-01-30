@@ -1,4 +1,4 @@
-# XHelpers - API - 1.0.11
+# XHelpers - API
 
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
 
@@ -34,6 +34,11 @@ Stacks:
 - ➕ Create grapql base service
 - Improve documentation
 - Add samples
+
+## Versions
+
+- 🔥 1.1.0 - Fixed some bugs on JWT auth.
+- ➕ 1.0.\* - alot of mixed code
 
 ## Installation
 
@@ -108,6 +113,7 @@ Usage:
 
 ```code
 import createServer from "xhelpers-api/lib/server";
+const pkgJson = require("../package.json");
 
 let server: any = {};
 async function start() {
@@ -119,8 +125,8 @@ async function start() {
       documentationPath: "/api/documentation",
       swaggerUIPath: "/api/swaggerui/",
       info: {
-        title: "API",
-        version: "1.1"
+         title: pkgJson.description,
+        version: pkgJson.version
       }
     },
     routeOptions: {
@@ -173,7 +179,7 @@ class RouteAccountLogin extends BaseRoute<Service> {
               fields: r.query.fields
             },
             {
-              page: r.query.page,
+              offset: r.query.offset,
               limit: r.query.limit,
               sort: r.query.sort
             }
@@ -224,7 +230,7 @@ export interface IBaseService {
     user: any,
     filter: any,
     pagination: {
-      page: number;
+      offset: number;
       limit: number;
       sort: any;
     },

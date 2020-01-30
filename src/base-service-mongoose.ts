@@ -16,7 +16,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   protected abstract sentitiveInfo = [];
 
   protected parseSortAsJson(pagination: {
-    page: number;
+    offset: number;
     limit: number;
     sort: any;
   }) {
@@ -53,16 +53,9 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     };
     return jwt.sign(
       {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          createdAt: user.createdAt,
-          firstAccessAt: user.firstAccessAt,
-          updatedAt: user.updatedAt
-        }
+        user
       },
-      "options.jwt_secret",
+      process.env.JWT_SECRET || "",
       options
     );
   }
@@ -72,7 +65,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       issuer: process.env.JWT_ISSUER,
       expiresIn: process.env.JWT_EXPIRE
     };
-    return jwt.verify(token, "options.jwt_secret", options);
+    return jwt.verify(token, process.env.JWT_SECRET || "", options);
   }
 
   public async queryAll(
@@ -81,15 +74,24 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       filter: {},
       fields: []
     },
-    pagination: { page: number; limit: number; sort: any } = {
-      page: 1,
+    pagination: { offset: number; limit: number; sort: any } = {
+      offset: 1,
       limit: 10,
       sort: { _id: -1 }
     },
     populateOptions: { path: string | any; select?: string | any } = {
       path: null
     }
-  ): Promise<T[]> {
+  ): Promise<{
+    metadata: {
+      resultset: {
+        count: number;
+        offset: number;
+        limit: number;
+      };
+    };
+    results: T[];
+  }> {
     let filter = {};
     let sort = {};
     filter = this.parseFilterAsJson(query.filter);
@@ -108,7 +110,6 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       });
     }
 
-    const skip = (pagination.page - 1) * pagination.limit;
     if (Object.keys(sort).length <= 0) {
       sort = { _id: -1 };
     }
@@ -121,13 +122,29 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       console.log("\t populateOptions:", populateOptions);
     }
 
-    return await this.Model.find(filter)
+    const data = await this.Model.find(filter)
       .populate(populateOptions.path, populateOptions.select)
-      .skip(skip)
+      .skip(pagination.offset)
       .limit(pagination.limit)
       .sort(sort)
       .select([...select])
       .lean();
+
+    const count = await this.Model.count(filter);
+
+    const result = {
+      metadata: {
+        resultset: {
+          count: count,
+          offset: pagination.offset,
+          limit: pagination.limit
+        }
+      },
+      results: data
+    };
+    return Promise.resolve({
+      ...result
+    });
   }
   public async getById(
     user: any,
