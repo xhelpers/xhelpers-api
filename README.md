@@ -344,6 +344,39 @@ export default class AccountLogin extends Model<AccountLogin> {
 }
 ```
 
+### Sequelize: Using parameters in route "queryAll"
+
+```
+?
+fields=
+&offset=
+&limit=
+&sort=[["", "ASC|DESC"]]
+&filter={"":""}
+```
+
+- **fields**: Select the existing fields in model, comma separeted.
+
+- **offset**: To skip lines before starting to return the lines.
+
+  > OFFSET 0 is the same as omitting the OFFSET parameter
+
+- **limit**: If the limit is specified, no more than this number of lines will be returned.
+
+  > When using LIMIT it is important to use the SORT parameter to establish a single order for the result lines
+
+- **filter**: Select the existing fields in model and values filter, based in JSON.
+
+  > Example: filter=[{"field name":, "field value"}]
+  >
+  > Template using based sequelize: [Applyng where clauses](https://sequelize.org/master/manual/model-querying-basics.html#applying-where-clauses)
+
+- **sort**: Select the existing fields in the model to order the result, based in JSON.
+
+  > Example: sort=[["field name": "ASC|DESC"]]
+  >
+  > Template using based sequelize: [Ordening and grouping](https://sequelize.org/master/manual/model-querying-basics.html#ordering-and-grouping)
+
 ## Building
 
 ```bash

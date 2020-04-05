@@ -4,6 +4,7 @@ import { IBaseService } from "./contracts/IBaseService";
 import { Model } from "sequelize-typescript";
 import { State } from "joi";
 import { db } from "./db-sequelize";
+import { Op } from "sequelize";
 
 type NonAbstract<T> = { [P in keyof T]: T[P] };
 type Constructor<T> = new () => T;
@@ -26,16 +27,18 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
   protected getRepository<TRepo>(sequelizeModel: TRepo): any {
     return db.sequelize.getRepository(sequelizeModel);
   }
-  protected parseSortAsJson(pagination: { sort: any }) {
-    if (!pagination.sort) return {};
-    let sortQuery: {};
+  protected parseSortAsJson(sort: any) {
+    if (!sort) return [];
+    if (typeof sort === "object") return sort;
+
+    let sortFields = {};
     try {
-      sortQuery = JSON.parse(pagination.sort);
+      sortFields = JSON.parse(sort);
     } catch (error) {
-      console.log("Invalid sort parameter", error.message);
+      console.log("Invalid sort parameter", error);
       throw 'Invalid parameter "sort", it MUST be a valid JSON / sort sintax';
     }
-    return sortQuery;
+    return sortFields;
   }
 
   protected parseFilterAsJson(query: any) {
@@ -50,6 +53,23 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       throw 'Invalid parameter "filter", it MUST be a valid JSON / query sintax';
     }
     return filterQuery;
+  }
+
+  protected parseLimitAndOffset(field: any, name: string) {
+    if (!field) {
+      if (name == "limit") return 10;
+      return 0;
+    }
+    if (typeof field === "number") return field;
+
+    let parseField = 0;
+    try {
+      parseField = parseInt(field.toString());
+    } catch (error) {
+      console.log("Invalid limit or offset parameter", error);
+      throw 'Invalid parameter "limit" or "offset", it MUST be a valid JSON / sintax';
+    }
+    return parseField;
   }
 
   // todo: should receive action !!
@@ -84,7 +104,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     pagination: { offset: number; limit: number; sort: any } = {
       offset: 1,
       limit: 10,
-      sort: { _id: -1 }
+      sort: []
     },
     populateOptions: { path: string | any; select?: string | any } = {
       path: null
@@ -100,16 +120,20 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     results: T[];
   }> {
     let filter = {};
-    let sort = {};
-    filter = this.parseFilterAsJson(query.filter);
-    sort = this.parseSortAsJson(pagination);
+    let sort = [];
+    let limit: number = 10;
+    let offset: number = 1;
 
-    let select: any = this.sentitiveInfo;
+    filter = this.parseFilterAsJson(query.filter);
+    sort = this.parseSortAsJson(pagination.sort);
+    limit = this.parseLimitAndOffset(pagination.limit, "limit");
+    offset = this.parseLimitAndOffset(pagination.offset, "sort");
+
+    let select: any = this.Model.rawAttributes;
     if (query.fields) {
       select = [];
-      for (let index = 0; index < query.fields.length; index++) {
-        const field = query.fields[index];
-        select.push(`${field}`);
+      for (const field of query.fields.split(",")) {
+        select.push(field);
       }
       this.sentitiveInfo.forEach((element: any) => {
         var name = element.replace("-", "");
@@ -117,9 +141,6 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       });
     }
 
-    if (Object.keys(sort).length <= 0) {
-      sort = { _id: -1 };
-    }
     const logLevel = process.env.LOG_LEVEL || "HIGH";
     if (logLevel === "HIGH") {
       console.log("Search params");
@@ -131,24 +152,16 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
 
     const data = await this.repository.findAll({
       where: filter,
-      limit: pagination.limit,
-      offset: pagination.offset
-    });
-    // .populate(populateOptions.path, populateOptions.select)
-    // .skip(skip)
-    // .limit(pagination.limit)
-    // .sort(sort)
-    // .select([...select])
-    // .lean();
-
-    const count = await this.repository.count({
-      where: filter
+      attributes: select,
+      order: sort,
+      limit: limit,
+      offset: offset
     });
 
     const result = {
       metadata: {
         resultset: {
-          count: count,
+          count: data.length,
           offset: pagination.offset,
           limit: pagination.limit
         }
@@ -167,9 +180,6 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
   ): Promise<T | null> {
     Object.assign(projection, this.sentitiveInfo);
     return await this.repository.findByPk(id);
-    // .populate({ ...populateOptions })
-    // .select([...projection])
-    // .lean();
   }
   public async create(user: any, payload: any): Promise<any> {
     await this.validate(null, payload);
