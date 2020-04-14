@@ -33,7 +33,7 @@ export default async function createServer({
 
   const defaultServerOptions = {
     port: Number(process.env.PORT || 80),
-    host: process.env.HOST || "localhost",
+    host: process.env.HOST || "127.0.0.1",
     ...serverOptions
   };
 
@@ -229,24 +229,3 @@ const validateFunc = async (decoded: any) => {
     credentials: decoded
   };
 };
-
-async function test() {
-  const serverOptions: any = {};
-  const options: any = {
-    jwt_secret: "v3ryH4rdS3cr3t-!=!v3ryH4Rds3cr3t",
-    routeOptions: {
-      dir: `${__dirname}/routes/**`,
-      prefix: "/api"
-    },
-    sequelizeOptions: {
-      host: process.env.MYSQLDB_HOST,
-      database: process.env.MYSQLDB_DATABASE,
-      username: process.env.MYSQLDB_USER,
-      password: process.env.MYSQLDB_PASSWORD,
-      storage: process.env.MYSQLDB_STORAGE,
-      models: [__dirname + "/model/**"]
-    }
-  };
-  const server = await createServer({ serverOptions, options });
-  server.start();
-}
