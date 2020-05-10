@@ -37,11 +37,9 @@ This project was made for personal use, it should simplify the process of creati
 ## Roadmap
 
 - 🔥 Add tests for each base service !!
-- ➕ Simplify route and server usage.
-- ➕ Update sequelize base service
 - ➕ Create grapql base service
 - Improve documentation
-- Add samples
+- Add more samples
 
 ## Installation
 
