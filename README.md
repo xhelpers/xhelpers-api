@@ -483,6 +483,20 @@ $ npm run test
   14 passing (2s)
 ```
 
+## Default Routes
+
+
+```code
+🆙  Server doc    : http://127.0.0.1:5000/documentation
+🆙  Server status : http://127.0.0.1:5000/status
+```
+
+### Swagger /documentation
+
+
+### Status
+
+
 ## Support
 
 [Pending]
