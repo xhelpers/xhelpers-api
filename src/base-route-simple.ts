@@ -1,4 +1,5 @@
-import * as Joi from "joi";
+import * as Hapi from "@hapi/hapi";
+import * as Joi from "@hapi/joi";
 
 import { IRouteAdd } from "./contracts/IRouteAdd";
 import { IRouteBuild } from "./contracts/IRouteBuild";
@@ -19,10 +20,10 @@ export default abstract class BaseRouteSimple
     options: {
       tags: any;
       validate: {
-        payload: any;
-        headers?: any;
-        query?: any;
-        params?: Joi.ObjectSchema;
+        payload?: Joi.ObjectSchema<any>;
+        headers?: Joi.ObjectSchema<any>;
+        query?: Joi.ObjectSchema<any>;
+        params?: Joi.ObjectSchema<any>;
       };
       auth: any;
       payload?: {
@@ -33,9 +34,77 @@ export default abstract class BaseRouteSimple
     };
   };
 
+  route(
+    method: string,
+    path: string,
+    options?: {
+      description?: string;
+      notes?: string;
+      tags?: any;
+      validate?: {
+        payload?: Joi.ObjectSchema<any>;
+        headers?: Joi.ObjectSchema<any>;
+        query?: Joi.ObjectSchema<any>;
+        params?: Joi.ObjectSchema<any>;
+      };
+      auth?: any;
+      payload?: { maxBytes: number; parse: boolean; output: string };
+      plugins?: any;
+    },
+    requireAuth: boolean = true
+  ): IRouteAdd {
+    this.curentRoute = {
+      method,
+      path,
+      options: {
+        tags: ["api", ...this.tags],
+        validate: {
+          headers: requireAuth ? this.defaultAuthHeader : undefined,
+        },
+        auth: requireAuth ? "jwt" : false,
+        ...options,
+      },
+    };
+    return this;
+  }
+
+  validate(validate: {
+    payload?: Joi.ObjectSchema<any>;
+    headers?: Joi.ObjectSchema<any>;
+    query?: Joi.ObjectSchema<any>;
+    params?: Joi.ObjectSchema<any>;
+  }): IRouteAdd {
+    Object.assign(this.curentRoute.options.validate, validate);
+    return this;
+  }
+  handler(
+    action: (
+      r: Hapi.Request,
+      h: Hapi.ResponseToolkit,
+      user?: any
+    ) => Promise<Hapi.ResponseObject>
+  ): IRouteBuild {
+    this.curentRoute.handler = async function(request: any, h: any) {
+      return safeCall(request, async (user: any) => {
+        return await action(request, h, user);
+      });
+    };
+    return this;
+  }
+
+  build() {
+    this.routes.push(this.curentRoute);
+  }
+
+  public buildRoutes() {
+    return this.routes;
+  }
+
   protected defaultAuthHeader = Joi.object({
-    authorization: Joi.string().required()
-  }).options({ allowUnknown: true });
+    authorization: Joi.string().required(),
+  })
+    .unknown(true)
+    .options({ allowUnknown: true });
 
   protected defaultSearchQuery = Joi.object({
     offset: Joi.number().default(0),
@@ -60,62 +129,6 @@ export default abstract class BaseRouteSimple
   protected defaultIdProperty = Joi.object({
     id: Joi.any()
       .required()
-      .description("id of the entity")
+      .description("id of the entity"),
   });
-
-  route(
-    method: any,
-    path: any,
-    options?: {
-      tags?: any;
-      validate?: {
-        payload: any;
-        headers?: any;
-        query?: any;
-        params?: Joi.ObjectSchema | undefined;
-      };
-      auth?: any;
-      payload?: { maxBytes: number; parse: boolean; output: string };
-      plugins?: any;
-    },
-    requireAuth: boolean = true
-  ): IRouteAdd {
-    this.curentRoute = {
-      method,
-      path,
-      options: {
-        tags: ["api", ...this.tags],
-        validate: {
-          payload: null,
-          headers: requireAuth ? this.defaultAuthHeader : null
-        },
-        auth: requireAuth ? "jwt" : false,
-        ...options
-      }
-    };
-    return this;
-  }
-  validate(validate: {
-    payload?: any;
-    headers?: any;
-    query?: any;
-    params?: any;
-  }): IRouteAdd {
-    Object.assign(this.curentRoute.options.validate, validate);
-    return this;
-  }
-  handler(action: (r: any, h: any, user?: any) => Promise<any>): IRouteBuild {
-    this.curentRoute.handler = async function(request: any, h: any) {
-      return safeCall(request, async (user: any) => {
-        return await action(request, h, user);
-      });
-    };
-    return this;
-  }
-  build() {
-    this.routes.push(this.curentRoute);
-  }
-  public buildRoutes() {
-    return this.routes;
-  }
 }

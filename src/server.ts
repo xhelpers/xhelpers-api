@@ -1,5 +1,7 @@
 import * as Boom from "boom";
-import * as Hapi from "hapi";
+import * as Hapi from "@hapi/hapi";
+import * as HapiSwagger from "hapi-swagger";
+import * as Vision from "@hapi/vision";
 
 import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
 
@@ -7,9 +9,12 @@ import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
 import connectMongoose from "./db-mongoose";
 import connectSequelize from "./db-sequelize";
 
-export default async function createServer({
+const Inert = require("@hapi/inert");
+const laabr = require("laabr");
+
+export async function createServer({
   serverOptions,
-  options
+  options,
 }: {
   serverOptions: {
     port: number;
@@ -18,8 +23,7 @@ export default async function createServer({
   options: {
     swaggerOptions?: any;
     routeOptions: {
-      dir: string;
-      prefix?: string;
+      routes: string;
     };
     jwt_secret?: string;
     mongooseOptions?: any;
@@ -29,30 +33,32 @@ export default async function createServer({
     ssoCallback: Function;
   };
 }) {
-  console.log("Starting Xhelpers Hapi server API");
+  const envIsNotTest = process.env.NODE_ENV !== "TEST";
+
+  if (envIsNotTest) console.log("Starting Xhelpers Hapi server API");
 
   const defaultServerOptions = {
     port: Number(process.env.PORT || 80),
     host: process.env.HOST || "127.0.0.1",
-    ...serverOptions
+    ...serverOptions,
   };
 
   const defaultOptions = {
     swaggerOptions: {
-      jsonPath: "/api/documentation/swagger.json",
-      documentationPath: "/api/documentation",
-      swaggerUIPath: "/api/swaggerui/",
       info: {
         title: "API",
-        version: "1.0"
+        version: "1.0",
+        contact: {
+          name: "",
+          email: "",
+        },
       },
       grouping: "tags",
-      tags: []
+      tags: [],
     },
     jwt_secret: process.env.JWT_SECRET,
     routeOptions: {
-      dir: `${__dirname}/routes/**`,
-      prefix: "/api"
+      routes: "**/routes/*.js",
     },
     enableSSL: process.env.SSL === "true",
     enableSSO: false,
@@ -60,15 +66,15 @@ export default async function createServer({
       user: { email: any; name: any; avatar: any; token: string },
       userData: { userType: any; meta: any }
     ) => {},
-    ...options
+    ...options,
   };
 
   // Hapi server
   const server = new Hapi.Server(
     Object.assign(
       {
-        port: 3000,
-        host: "localhost",
+        port: defaultServerOptions.port,
+        host: defaultServerOptions.host,
         routes: {
           validate: {
             failAction: async (
@@ -77,20 +83,20 @@ export default async function createServer({
               err: any
             ) => {
               if (process.env.NODE_ENV === "production") {
-                // In prod, log a limited error message and throw the default Bad Request error.
-                console.error("ValidationError:", err.message);
+                console.error("🔥  Error:", err.message);
                 throw Boom.badRequest(`Invalid request payload input`);
               } else {
-                // During development, log and respond with the full error.
-                console.error(err);
+                if (process.env.NODE_ENV === "DEV")
+                  console.error("🔥  Error:", err);
+                if (Boom.isBoom(err)) return err;
                 throw err;
               }
-            }
+            },
           },
           cors: {
-            origin: ["*"]
-          }
-        }
+            origin: ["*"],
+          },
+        },
       },
       defaultServerOptions
     )
@@ -100,26 +106,33 @@ export default async function createServer({
     // Mongoose connect
     mongooseContext: await connectMongoose(defaultOptions.mongooseOptions),
     // Sequelize connect
-    sequelizeContext: await connectSequelize(defaultOptions.sequelizeOptions)
+    sequelizeContext: await connectSequelize(defaultOptions.sequelizeOptions),
   };
+
+  // JWT Secret
+  if (!defaultOptions.jwt_secret) {
+    if (envIsNotTest) console.log("Settings API: JWT disabled;");
+  } else {
+    if (envIsNotTest) console.log("Settings API: JWT enabled;");
+  }
 
   // Redirect to SSL
   if (defaultOptions.enableSSL) {
-    console.log("Settings API: SSL enabled;");
+    if (envIsNotTest) console.log("Settings API: SSL enabled;");
     await server.register({ plugin: require("hapi-require-https") });
   } else {
-    console.log("Settings API: SSL disabled;");
+    if (envIsNotTest) console.log("Settings API: SSL disabled;");
   }
 
   // SSO
   if (defaultOptions.enableSSO) {
-    console.log("Settings API: SSO enabled;");
+    if (envIsNotTest) console.log("Settings API: SSO enabled;");
     await server.register(require("bell"));
     await useAuthGitHub(server, defaultOptions.ssoCallback);
     await useAuthFacebook(server, defaultOptions.ssoCallback);
     await useAuthGoogle(server, defaultOptions.ssoCallback);
   } else {
-    console.log("Settings API: SSO disabled;");
+    if (envIsNotTest) console.log("Settings API: SSO disabled;");
   }
 
   // Hapi JWT auth
@@ -128,96 +141,120 @@ export default async function createServer({
     server.auth.strategy("jwt", "jwt", {
       key: defaultOptions.jwt_secret,
       validate: validateFunc,
-      verifyOptions: { algorithms: ["HS256"] }
+      verifyOptions: { algorithms: ["HS256"] },
     });
     server.auth.default("jwt");
   }
 
   const routeOptions: any = {
-    routes: {
-      prefix: defaultOptions.routeOptions.prefix
-    },
-    ...defaultOptions.routeOptions
+    ...defaultOptions.routeOptions,
   };
   // Hapi plugins
   await server.register([
-    require("vision"),
-    require("inert"),
+    Inert,
+    Vision,
     {
-      plugin: require("hapi-swagger"),
-      options: defaultOptions.swaggerOptions
+      plugin: HapiSwagger,
+      options: defaultOptions.swaggerOptions,
     },
     {
-      plugin: require("hapi-routes"),
-      options: routeOptions
+      plugin: require("hapi-router"),
+      options: routeOptions,
     },
     {
-      plugin: require("good"),
+      plugin: require("hapi-dev-errors"),
       options: {
-        ops: {
-          interval: 1000
+        showErrors: process.env.NODE_ENV !== "production",
+      },
+    },
+    {
+      plugin: require("hapijs-status-monitor"),
+      options: {
+        title: `${defaultOptions.swaggerOptions.info.title} - Status Monitor`,
+        routeConfig: {
+          auth: false,
         },
-        reporters: {
-          consoleReporter: [
-            {
-              module: "good-squeeze",
-              name: "Squeeze",
-              args: [{ response: "*" }]
-            },
-            {
-              module: "good-console"
-            },
-            "stdout"
-          ]
-        }
-      }
-    }
+      },
+    },
+    {
+      plugin: laabr,
+      options: {
+        colored: true,
+        formats: {
+          response:
+            "[:time[iso]] :method :url :status (:responseTime ms) :payload",
+        },
+        hapiPino: {
+          logPayload: true,
+          mergeHapiLogData: true,
+        },
+      },
+    },
   ]);
 
-  server.events.on("start", () => {
-    console.log("=".repeat(100));
-    console.log(`🆙  Server running at: ${server.info.uri}/api/`);
-    console.log(
-      `🆙  Server docs running at: ${server.info.uri}/api/documentation`
-    );
-    console.log("=".repeat(100));
-
-    console.log(`Routing table:`);
-    server.table().forEach(route => {
-      let iconRoute = "🚧";
-      const ignoreInternalRoute = route.path.startsWith("/api/swaggerui");
-      if (ignoreInternalRoute) return;
-      switch (route.method) {
-        case "get":
-          iconRoute = "🔎 ";
-          break;
-        case "post":
-          iconRoute = "📄 ";
-          break;
-        case "put":
-          iconRoute = "📝 ";
-          break;
-        case "patch":
-          iconRoute = "📝 ";
-          break;
-        case "delete":
-          iconRoute = "🚩 ";
-          break;
-        default:
-          break;
-      }
-      const requireAuth = !!route.settings.auth;
-      console.log(
-        `\t${iconRoute} ${route.method} - ${requireAuth ? "🔑 " : ""}\t${
-          route.path
-        }`
-      );
-    });
-    console.log("=".repeat(100));
+  server.route({
+    method: "GET",
+    path: "/health",
+    options: {
+      tags: ["api", "health"],
+      description: "Check if server is up",
+      auth: false,
+    },
+    handler: (request, h) => {
+      return {
+        status: "Server running",
+        code: 200,
+      };
+    },
   });
 
+  if (envIsNotTest) {
+    server.events.on("start", () => {
+      console.log("=".repeat(100));
+      console.log(`🆙  Server api    : ${server.info.uri}/`);
+      console.log(`🆙  Server doc    : ${server.info.uri}/documentation`);
+      console.log(`🆙  Server status : ${server.info.uri}/status`);
+      console.log("=".repeat(100));
+
+      console.log(`Routing table:`);
+      server.table().forEach((route) => {
+        let iconRoute = "🚧";
+        const ignoreInternalRoute = route.path.includes("swaggerui");
+        if (ignoreInternalRoute) return;
+        switch (route.method) {
+          case "get":
+            iconRoute = "🔎 ";
+            break;
+          case "post":
+            iconRoute = "📄 ";
+            break;
+          case "put":
+            iconRoute = "📝 ";
+            break;
+          case "patch":
+            iconRoute = "📝 ";
+            break;
+          case "delete":
+            iconRoute = "🚩 ";
+            break;
+          default:
+            break;
+        }
+        const requireAuth = !!route.settings.auth;
+        console.log(
+          `\t${iconRoute} ${route.method} - ${requireAuth ? "🔑 " : ""}\t${
+            route.path
+          }`
+        );
+      });
+      console.log("=".repeat(100));
+    });
+  }
+
   server.events.on("stop", () => {
-    console.info("⛔️📴  Server Stoped");
+    if (process.env.NODE_ENV !== "TEST") {
+      console.info("⛔️  📴  Server Stoped");
+    }
   });
 
   return server;
@@ -226,6 +263,6 @@ export default async function createServer({
 const validateFunc = async (decoded: any) => {
   return {
     isValid: true,
-    credentials: decoded
+    credentials: decoded,
   };
 };

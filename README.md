@@ -8,7 +8,7 @@
 
 ## Description
 
-This project was made for personal use, it should simplify the process of creating an new api using node js + typescript + singledb(mongo or mysql).
+This project was made for personal use, it should simplify the process of creating an new api using node js + typescript + database (Mongoose/Sequelize).
 
 Stacks:
 
@@ -25,20 +25,23 @@ Stacks:
 - [SSO bell](https://github.com/hapijs/bell).
 - [Hapi-swagger](https://github.com/glennjones/hapi-swagger).
 
+## Versions
+
+- 🔥 2.0.0 - New version (breaking change)
+  - Upgraded packages to @hapi/
+  - Added tests
+  - Added default route /status using 'hapijs-status-monitor'
+- ➕ 1.1.0 - Fixed some bugs on JWT auth.
+- ➕ 1.0.\* - alot of mixed code
+
 ## Roadmap
 
-- 🔥 Update packages to @hapi/pkg
-- 🔥 Add tests and test each base service !!
+- 🔥 Add tests for each base service !!
 - ➕ Simplify route and server usage.
 - ➕ Update sequelize base service
 - ➕ Create grapql base service
 - Improve documentation
 - Add samples
-
-## Versions
-
-- 🔥 1.1.0 - Fixed some bugs on JWT auth.
-- ➕ 1.0.\* - alot of mixed code
 
 ## Installation
 
@@ -64,161 +67,231 @@ createServer({ serverOptions, options }:
     host: string;
   };
   options: {
-    swaggerOptions?: any;
-    routeOptions: {
-      dir: string;
-      prefix?: string;
-    };
     jwt_secret?: string;
-    mongooseOptions?: any;
-    sequelizeOptions?: any;
+    swaggerOptions?: RegisterOptions;
+    routeOptions: {
+      routes: string;
+    };
+    mongooseOptions?: {
+      uri: string;
+      connectionOptions: mongoose.ConnectionOptions;
+    };
+    sequelizeOptions?: SequelizeOptions;
     enableSSL: boolean;
     enableSSO: boolean;
     ssoCallback: Function;
   };
 }): Hapi.Server
-
-const defaultServerOptions = {
-    port: Number(process.env.PORT || 80),
-    host: process.env.HOST || "localhost",
-};
-
-const defaultOptions = {
-    swaggerOptions: {
-      jsonPath: "/api/documentation/swagger.json",
-      documentationPath: "/api/documentation",
-      swaggerUIPath: "/api/swaggerui/",
-      info: {
-        title: "API",
-        version: "1.0"
-      },
-      grouping: "tags",
-      tags: []
-    },
-    jwt_secret: "v3ryH4rdS3cr3t",
-    routeOptions: {
-      dir: `${__dirname}/routes/**`,
-      prefix: "/api"
-    },
-    enableSSL: process.env.SSL === "true",
-    enableSSO: false,
-    ssoCallback: (
-      user: { email: any; name: any; avatar: any; token: string },
-      userData: { userType: any; meta: any }
-    ) => {},
-  };
 ```
 
-Usage:
+#### Usage:
 
 ```code
-import createServer from "xhelpers-api/lib/server";
+import { createServer } from "xhelpers-api/lib/server";
 const pkgJson = require("../package.json");
 
 let server: any = {};
 async function start() {
-  const serverOptions: any = {};
+  const serverOptions: any = {
+    port: 5000,
+    host: process.env.HOST || "127.0.0.1",
+  };
   const options: any = {
     jwt_secret: "v3ryH4Rds3cr3t",
     swaggerOptions: {
-      jsonPath: "/api/documentation/swagger.json",
-      documentationPath: "/api/documentation",
-      swaggerUIPath: "/api/swaggerui/",
       info: {
-         title: pkgJson.description,
-        version: pkgJson.version
-      }
+        title: "Test API",
+        version: "1.0",
+        contact: {
+          name: "todo test",
+          email: "tester@test.com",
+        },
+      },
+      schemes: [process.env.SSL === "true" ? "https" : "http"],
+      grouping: "tags",
     },
     routeOptions: {
-      dir: `${__dirname}/routes/**`,
-      prefix: "/api"
-    },
-    sequelizeOptions: {
-      host: process.env.MYSQLDB_HOST,
-      database: process.env.MYSQLDB_DATABASE,
-      username: process.env.MYSQLDB_USER,
-      password: process.env.MYSQLDB_PASSWORD,
-      storage: process.env.MYSQLDB_STORAGE,
-      models: [__dirname + "/model/**"]
+      routes: "**/routes/*.js",
     }
   };
   server = await createServer({ serverOptions, options });
-  server.start();
+  await server.start();
 }
 start();
+```
+
+#### Output:
+
+```code
+Starting Xhelpers Hapi server API
+Settings API: Mongoose disabled;
+Settings API: Sequelize disabled;
+Settings API: JWT enabled;
+Settings API: SSL disabled;
+Settings API: SSO disabled;
+====================================================================================================
+🆙  Server api    : http://127.0.0.1:5000/
+🆙  Server doc    : http://127.0.0.1:5000/documentation
+🆙  Server status : http://127.0.0.1:5000/status
+====================================================================================================
+Routing table:
+        🔎  get -         /documentation
+        🔎  get -         /health
+        🔎  get -         /status
+        🔎  get -         /swagger.json
+        🔎  get -         /api/auth
+        🔎  get -         /api/todos
+        🔎  get -    🔑   /api/todos/{id}
+        📄  post -        /api/todos
+        📝  patch -  🔑   /api/todos/{id}
+        📝  put -    🔑   /api/todos/{id}
+        🚩  delete - 🔑   /api/todos/{id}
+====================================================================================================
 ```
 
 ### Routes
 
 ```code
-import Service from "/services/account-login";
-import BaseRoute from "xhelpers-api/lib/base-route";
+import * as Joi from "@hapi/joi";
+import * as jwt from "jsonwebtoken";
 
-const httpResourcePath = "account-login";
+import BaseRouteSimple from "xhelpers-api/lib/base-route-simple";
 
-class RouteAccountLogin extends BaseRoute<Service> {
+const httpResourcePath = "todos";
+
+class TodoRoutes extends BaseRouteSimple {
   constructor() {
-    super(new Service(), [httpResourcePath]);
+    super([httpResourcePath]);
 
-    this.route("POST", `/api/${httpResourcePath}`)
-      .validate({ payload: createPayload })
+    this.route(
+      "GET",
+      `/api/auth`,
+      {
+        description: "Create new JWT to tests API",
+        tags: ["api", "auth"],
+      },
+      false
+    )
       .handler(async (r, h, u) => {
-        const entity = await this.service.create(u, r.payload);
-        return h.response(entity).code(200);
-      })
-      .build();
-
-    this.route("GET", `/api/${httpResourcePath}`)
-      .validate({ query: this.defaultSearchQuery })
-      .handler(async (r, h, u) => {
-        return await this.service
-          .queryAll(
-            u,
-            {
-              filter: r.query.filter,
-              fields: r.query.fields
+        const token = jwt.sign(
+          {
+            user: {
+              id: "99999",
             },
-            {
-              offset: r.query.offset,
-              limit: r.query.limit,
-              sort: r.query.sort
-            }
-          )
-          .then(entities => h.response(entities).code(200));
+          },
+          "v3ryH4Rds3cr3t",
+          {
+            issuer: "ApiTesterIssuer",
+            expiresIn: "2h",
+          }
+        );
+
+        return h
+          .response({
+            token: token,
+          })
+          .code(200);
       })
       .build();
 
-    this.route("GET", `/api/${httpResourcePath}/{id}`)
+    this.route(
+      "GET",
+      `/api/${httpResourcePath}`,
+      {
+        description: "Search 'Todos'",
+      },
+      false
+    )
+      .validate({ query: todoDemoPayload })
+      .handler(async (r, h, u) => {
+        return h.response([r.query]).code(200);
+      })
+      .build();
+
+    this.route("GET", `/api/${httpResourcePath}/{id}`, {
+      description: "Get 'Todo' by id",
+    })
       .validate({ params: this.defaultIdProperty })
       .handler(async (r, h, u) => {
-        return await this.service
-          .getById(u, r.params.id)
-          .then(entity =>
-            entity ? h.response(entity).code(200) : Boom.notFound()
-          );
+        return h.response(r.params).code(200);
       })
       .build();
 
-    this.route("PUT", `/api/${httpResourcePath}/{id}`)
-      .validate({ params: this.defaultIdProperty, payload: createPayload })
+    this.route(
+      "POST",
+      `/api/${httpResourcePath}`,
+      {
+        description: "Create new 'Todo'",
+      },
+      false
+    )
+      .validate({ payload: todoDemoPayload })
       .handler(async (r, h, u) => {
-        return await this.service
-          .update(u, r.params.id, r.payload)
-          .then(() => h.response({}).code(200));
+        return h.response(r.payload).code(200);
       })
       .build();
 
-    this.route("DELETE", `/api/${httpResourcePath}/{id}`)
+    this.route("PATCH", `/api/${httpResourcePath}/{id}`, {
+      description: "Update 'Todo' by id",
+    })
+      .validate({ params: this.defaultIdProperty, payload: todoDemoPayload })
+      .handler(async (r, h, u) => {
+        return h
+          .response({
+            ...r.params,
+            ...(r.payload as {}),
+          })
+          .code(200);
+      })
+      .build();
+
+    this.route("PUT", `/api/${httpResourcePath}/{id}`, {
+      description: "Replace 'Todo' by id",
+    })
+      .validate({ params: this.defaultIdProperty, payload: todoDemoPayload })
+      .handler(async (r, h, u) => {
+        return h
+          .response({
+            ...r.params,
+            ...(r.payload as {}),
+          })
+          .code(200);
+      })
+      .build();
+
+    this.route("DELETE", `/api/${httpResourcePath}/{id}`, {
+      description: "Delete 'Todo' by id",
+    })
       .validate({ params: this.defaultIdProperty })
       .handler(async (r, h, u) => {
-        return await this.service
-          .delete(u, r.params.id)
-          .then(() => h.response({}).code(200));
+        return h
+          .response({
+            ...r.params,
+          })
+          .code(200);
       })
       .build();
   }
 }
-exports.routes = server => server.route(new RouteAccountLogin().buildRoutes());
+
+// ****
+// Model validation Joi
+const todoDemoPayload = Joi.object({
+  title: Joi.string()
+    .required()
+    .description("Title"),
+  description: Joi.string()
+    .required()
+    .description("Description"),
+  done: Joi.boolean()
+    .required()
+    .default(false)
+    .description("Todo is done"),
+})
+  .description("Todo payload")
+  .label("TodoPayload");
+
+module.exports = [...new TodoRoutes().buildRoutes()];
 ```
 
 ### Service
@@ -369,13 +442,13 @@ fields=
 
   > Example: filter=[{"field name":, "field value"}]
   >
-  > Template using based sequelize: [Applyng where clauses](https://sequelize.org/master/manual/model-querying-basics.html#applying-where-clauses)
+  > Template based on sequelize: [Applyng where clauses](https://sequelize.org/master/manual/model-querying-basics.html#applying-where-clauses)
 
 - **sort**: Select the existing fields in the model to order the result, based in JSON.
 
   > Example: sort=[["field name": "ASC|DESC"]]
   >
-  > Template using based sequelize: [Ordening and grouping](https://sequelize.org/master/manual/model-querying-basics.html#ordering-and-grouping)
+  > Template based on sequelize: [Ordering and grouping](https://sequelize.org/master/manual/model-querying-basics.html#ordering-and-grouping)
 
 ## Building
 
@@ -386,7 +459,54 @@ $ npm run build
 
 ## Test
 
-[Pending]
+```bash
+$ npm run test
+```
+
+#### Output:
+
+```bash
+  🚧  Testing API Health  🚧
+1589087475331 info server started at: http://127.0.0.1:5005
+    Health API
+[2020-05-10T05:11:15.354Z] GET http://127.0.0.1:5005/documentation 200 (19 ms) {}
+      ✓ /documentation should return 200
+[2020-05-10T05:11:15.358Z] GET http://127.0.0.1:5005/health 200 (1 ms) {}
+      ✓ /health should return 200
+[2020-05-10T05:11:15.360Z] GET http://127.0.0.1:5005/status 200 (1 ms) {}
+      ✓ /status should return 200
+1589087475361 info server stopped at: http://127.0.0.1:5005
+
+  🚧  Resource api/todos  🚧
+1589087476139 info server started at: http://127.0.0.1:5005
+    API api/todos
+[2020-05-10T05:11:16.142Z] POST http://127.0.0.1:5005/api/auth 404 (1 ms) {}
+      ✓ POST api/auth - should return 404 not found
+[2020-05-10T05:11:16.148Z] GET http://127.0.0.1:5005/api/auth 200 (4 ms) {}
+      ✓ GET api/auth - should return 200 with new token
+[2020-05-10T05:11:16.153Z] POST http://127.0.0.1:5005/api/todos 200 (4 ms) {"title":"Test TODO","description":"Description of my todo","done":false}
+      ✓ POST api/todos - should return 200 with new resource created
+[2020-05-10T05:11:16.157Z] POST http://127.0.0.1:5005/api/todos 400 (2 ms) {"title":"","description":"Description of my todo","done":false}
+      ✓ POST api/todos - should return 400 and inform that the title is required
+[2020-05-10T05:11:16.159Z] POST http://127.0.0.1:5005/api/todos 400 (1 ms) {"title":"Test TODO","description":"","done":false}
+      ✓ POST api/todos - should return 400 and inform that the description is required
+[2020-05-10T05:11:16.164Z] PATCH http://127.0.0.1:5005/api/todos/99100 200 (4 ms) {"title":"Test TODO","description":"Description of my todo","done":false}
+      ✓ PATCH api/todos/{id} - should return 200 with modified resource
+[2020-05-10T05:11:16.167Z] PATCH http://127.0.0.1:5005/api/todos/99100 400 (2 ms) {"title":"Test TODO","description":"Description of my todo","done":false,"something":true}
+      ✓ PATCH api/todos/{id} - should return 400 with not allowed keys message
+[2020-05-10T05:11:16.171Z] PATCH http://127.0.0.1:5005/api/todos/99100 401 (1 ms) {}
+      ✓ PATCH api/todos/{id} - should return 401 unauthorized
+[2020-05-10T05:11:16.174Z] GET http://127.0.0.1:5005/api/todos?title=test&description=terr&done=false 200 (2 ms) {}
+      ✓ GET api/todos - should return 200 with one row
+[2020-05-10T05:11:16.177Z] DELETE http://127.0.0.1:5005/api/todos/99100 200 (2 ms) {}
+      ✓ DELETE api/todos/{id} - should return 200
+[2020-05-10T05:11:16.178Z] DELETE http://127.0.0.1:5005/api/todos/99100 401 (0 ms) {}
+      ✓ DELETE api/todos/{id} - should return 401 unauthorized
+1589087476179 info server stopped at: http://127.0.0.1:5005
+
+
+  14 passing (2s)
+```
 
 ## Support
 

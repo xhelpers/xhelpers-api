@@ -7,16 +7,18 @@ export const db: any = {};
 export default async function connect(
   sequelizeOptions?: SequelizeOptions | undefined
 ) {
+  const envIsNotTest = process.env.NODE_ENV !== "TEST";
+
   if (!sequelizeOptions) {
-    console.log("Settings API: Sequelize disabled;");
+    if (envIsNotTest) console.log("Settings API: Sequelize disabled;");
     return;
   }
-  console.log("Settings API: Sequelize enabled;");
+  if (envIsNotTest) console.log("Settings API: Sequelize enabled;");
   const options: SequelizeOptions = {
     dialect: "mysql",
     dialectModule: mysql2,
     repositoryMode: true,
-    ...sequelizeOptions
+    ...sequelizeOptions,
   };
 
   try {
@@ -24,7 +26,7 @@ export default async function connect(
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
 
-    return await new Promise(res => {
+    return await new Promise((res) => {
       return res(sequelize);
     }).then(
       async () => {
@@ -33,7 +35,7 @@ export default async function connect(
           `🆙  Connected to Sequelize: ${dbVersion}/${sequelizeOptions.host}`
         );
       },
-      async err => {
+      async (err) => {
         const dbVersion = await sequelize.databaseVersion();
         console.error(
           `📴 Failed to connect on Sequelize: ${dbVersion}/${sequelizeOptions.host}\nErr: ${err}`

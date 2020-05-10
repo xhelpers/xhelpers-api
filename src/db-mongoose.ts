@@ -8,16 +8,18 @@ export default async function connect(
       }
     | undefined
 ) {
+  const envIsNotTest = process.env.NODE_ENV !== "TEST";
+
   if (!options) {
-    console.log("Settings API: Mongoose disabled;");
+    if (envIsNotTest) console.log("Settings API: Mongoose disabled;");
     return;
   }
-  console.log("Settings API: Mongoose enabled;");
+  if (envIsNotTest) console.log("Settings API: Mongoose enabled;");
   try {
     const defaultOptions: mongoose.ConnectionOptions = {
       useCreateIndex: true,
       useNewUrlParser: true,
-      ...options.connectionOptions
+      ...options.connectionOptions,
     };
     return await mongoose.connect(options.uri, defaultOptions).then(
       () => {
@@ -26,7 +28,7 @@ export default async function connect(
           `🆙  Connected to mongodb: ${mongoose.version}/${options.uri}`
         );
       },
-      err => {
+      (err) => {
         console.error(
           `📴 Failed to connect on mongodb: ${mongoose.version}/${options.uri}\nErr: ${err}`
         );
