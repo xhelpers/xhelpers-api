@@ -63,7 +63,7 @@ createServer({ serverOptions, options }:
   };
   options: {
     jwt_secret?: string;
-    swaggerOptions?: RegisterOptions;
+    swaggerOptions?: hapi-swagger.RegisterOptions;
     routeOptions: {
       routes: string;
     };
@@ -71,7 +71,7 @@ createServer({ serverOptions, options }:
       uri: string;
       connectionOptions: mongoose.ConnectionOptions;
     };
-    sequelizeOptions?: SequelizeOptions;
+    sequelizeOptions?: sequelize-typescript.SequelizeOptions;
     enableSSL: boolean;
     enableSSO: boolean;
     ssoCallback: Function;
