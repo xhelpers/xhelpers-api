@@ -10,7 +10,7 @@
 
 This project was made for personal use, it should simplify the process of creating an new api using node js + typescript + database (Mongoose/Sequelize).
 
-Stacks:
+### Stack:
 
 - [TypeScript](https://www.typescriptlang.org/).
 - [Node.js](https://nodejs.org/).
@@ -48,11 +48,6 @@ Stacks:
 ```bash
 $ npm i xhelpers-api
 ```
-
-## Examples of usage
-
-Server starter log:
-![Serverlog](server.start.png)
 
 ### Hapi Server
 
@@ -163,41 +158,24 @@ class TodoRoutes extends BaseRouteSimple {
   constructor() {
     super([httpResourcePath]);
 
-    this.route(
-      "GET",
-      `/api/auth`,
-      {
+    this.route("GET",`/api/auth`, {
         description: "Create new JWT to tests API",
         tags: ["api", "auth"],
       },
-      false
-    )
+      false)
       .handler(async (r, h, u) => {
-        const token = jwt.sign(
-          {
-            user: {
-              id: "99999",
-            },
-          },
+        const token = jwt.sign({ user: { id: "99999" } },
           "v3ryH4Rds3cr3t",
           {
             issuer: "ApiTesterIssuer",
             expiresIn: "2h",
           }
         );
-
-        return h
-          .response({
-            token: token,
-          })
-          .code(200);
+        return h.response({ token: token }).code(200);
       })
       .build();
 
-    this.route(
-      "GET",
-      `/api/${httpResourcePath}`,
-      {
+    this.route("GET",`/api/${httpResourcePath}`,{
         description: "Search 'Todos'",
       },
       false
@@ -217,10 +195,7 @@ class TodoRoutes extends BaseRouteSimple {
       })
       .build();
 
-    this.route(
-      "POST",
-      `/api/${httpResourcePath}`,
-      {
+    this.route("POST", `/api/${httpResourcePath}`, {
         description: "Create new 'Todo'",
       },
       false
@@ -275,7 +250,7 @@ class TodoRoutes extends BaseRouteSimple {
 }
 
 // ****
-// Model validation Joi
+// Validation Joi
 const todoDemoPayload = Joi.object({
   title: Joi.string()
     .required()
