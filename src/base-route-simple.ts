@@ -61,15 +61,15 @@ export default abstract class BaseRouteSimple
         tags: ["api", ...this.tags],
         validate: {
           headers: requireAuth
-            ? currentOptions.jwt_enabled
-              ? this.defaultAuthHeader
-              : this.defaultAutAppKeyhHeader
+            ? currentOptions.appkey_enabled
+              ? this.defaultAutAppKeyhHeader
+              : this.defaultAuthHeader
             : undefined,
         },
         auth: requireAuth
-          ? currentOptions.jwt_enabled
-            ? "jwt"
-            : "appkey"
+          ? currentOptions.appkey_enabled
+            ? "appkey"
+            : "jwt"
           : false,
         ...options,
       },

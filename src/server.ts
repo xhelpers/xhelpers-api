@@ -62,7 +62,6 @@ export async function createServer({
       grouping: "tags",
       tags: [],
     },
-    jwt_secret: process.env.JWT_SECRET,
     routeOptions: {
       routes: "**/routes/*.js",
     },
@@ -156,9 +155,8 @@ export async function createServer({
     if (envIsNotTest) console.log("Settings API: JWT disabled;");
   } else {
     if (envIsNotTest) console.log("Settings API: JWT enabled;");
-  }
-  // Hapi JWT auth
-  if (defaultOptions.jwt_secret) {
+
+    // Hapi JWT auth
     await server.register(require("hapi-auth-jwt2"));
     server.auth.strategy("jwt", "jwt", {
       key: defaultOptions.jwt_secret,
