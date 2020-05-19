@@ -70,7 +70,6 @@
     "@types/jsonwebtoken": "^8.3.4",
     "@types/mongoose": "^5.5.17",
     "@types/node": "^12.12.17",
-    "@types/nodemailer": "^6.2.2",
     "@types/sequelize": "^4.28.8",
     "@types/uuid": "^3.4.6",
     "@types/validator": "^13.0.0",
