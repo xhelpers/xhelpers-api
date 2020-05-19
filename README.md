@@ -27,6 +27,8 @@ This project was made for personal use, it should simplify the process of creati
 
 ## Versions
 
+- ➕ 2.1.0 - New authorization mode 'appkey'.
+  - [feature] Added basic auth appkey mode [#3](/../../issues/3)
 - 🔥 2.0.0 - New version (breaking change)
   - Upgraded packages to @hapi/
   - Added tests
