@@ -72,7 +72,7 @@
     "@types/node": "^12.12.17",
     "@types/nodemailer": "^6.2.2",
     "@types/sequelize": "^4.28.8",
-    "@types/uuid": "^3.4.6",
+    "@types/uuid": "^8.0.0",
     "@types/validator": "^13.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
