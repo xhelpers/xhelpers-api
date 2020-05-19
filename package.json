@@ -76,7 +76,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-http": "^4.3.0",
-    "mocha": "^6.2.2",
+    "mocha": "^7.1.2",
     "nodemon": "^1.19.2",
     "prettier": "^1.19.1",
     "ts-loader": "^7.0.4",
