@@ -60,6 +60,7 @@ createServer({ serverOptions, options }:
     host: string;
   };
   options: {
+    app_key_auth?: string;
     jwt_secret?: string;
     swaggerOptions?: hapi-swagger.RegisterOptions;
     routeOptions: {
@@ -119,8 +120,9 @@ start();
 Starting Xhelpers Hapi server API
 Settings API: Mongoose disabled;
 Settings API: Sequelize disabled;
-Settings API: JWT enabled;
 Settings API: SSL disabled;
+Settings API: AppKey disabled;
+Settings API: JWT enabled;
 Settings API: SSO disabled;
 ====================================================================================================
 🆙  Server api    : http://127.0.0.1:5000/
@@ -150,9 +152,11 @@ Routing table:
 ```
 
 ### Swagger /documentation
+
 ![Status](swagger.docs.png)
 
 ### Status
+
 ![Status](status.png)
 
 ### Routes

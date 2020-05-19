@@ -8,6 +8,7 @@ async function start() {
       host: process.env.HOST || "127.0.0.1",
     },
     options: {
+      //app_key_auth: "SecretTests",
       jwt_secret: "SecretTests",
       swaggerOptions: {
         info: {

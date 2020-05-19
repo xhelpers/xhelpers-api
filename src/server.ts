@@ -12,6 +12,11 @@ import connectSequelize from "./db-sequelize";
 const Inert = require("@hapi/inert");
 const laabr = require("laabr");
 
+export let currentOptions = {
+  jwt_enabled: false,
+  appkey_enabled: false,
+};
+
 export async function createServer({
   serverOptions,
   options,
@@ -25,6 +30,7 @@ export async function createServer({
     routeOptions: {
       routes: string;
     };
+    app_key_auth?: string;
     jwt_secret?: string;
     mongooseOptions?: any;
     sequelizeOptions?: any;
@@ -69,6 +75,11 @@ export async function createServer({
     ...options,
   };
 
+  currentOptions = {
+    jwt_enabled: !!defaultOptions.jwt_secret,
+    appkey_enabled: !!defaultOptions.app_key_auth,
+  };
+
   // Hapi server
   const server = new Hapi.Server(
     Object.assign(
@@ -109,19 +120,52 @@ export async function createServer({
     sequelizeContext: await connectSequelize(defaultOptions.sequelizeOptions),
   };
 
-  // JWT Secret
-  if (!defaultOptions.jwt_secret) {
-    if (envIsNotTest) console.log("Settings API: JWT disabled;");
-  } else {
-    if (envIsNotTest) console.log("Settings API: JWT enabled;");
-  }
-
   // Redirect to SSL
   if (defaultOptions.enableSSL) {
     if (envIsNotTest) console.log("Settings API: SSL enabled;");
     await server.register({ plugin: require("hapi-require-https") });
   } else {
     if (envIsNotTest) console.log("Settings API: SSL disabled;");
+  }
+
+  // AppKey Secret
+  if (!currentOptions.appkey_enabled) {
+    if (envIsNotTest) console.log("Settings API: AppKey disabled;");
+  } else {
+    if (envIsNotTest) console.log("Settings API: AppKey enabled;");
+    server.auth.scheme("appkey", (server: any, options: any) => {
+      return {
+        authenticate: (req, resp) => {
+          var { appkey } = req.headers;
+          if (!appkey)
+            return Boom.unauthorized(
+              "Header has to include 'appkey' key with value of the application key."
+            );
+          if (appkey !== defaultOptions.app_key_auth)
+            return Boom.unauthorized();
+          return resp.continue;
+        },
+      };
+    });
+    server.auth.strategy("appkey", "appkey");
+    server.auth.default("appkey");
+  }
+
+  // JWT Secret
+  if (!currentOptions.jwt_enabled) {
+    if (envIsNotTest) console.log("Settings API: JWT disabled;");
+  } else {
+    if (envIsNotTest) console.log("Settings API: JWT enabled;");
+  }
+  // Hapi JWT auth
+  if (defaultOptions.jwt_secret) {
+    await server.register(require("hapi-auth-jwt2"));
+    server.auth.strategy("jwt", "jwt", {
+      key: defaultOptions.jwt_secret,
+      validate: validateFunc,
+      verifyOptions: { algorithms: ["HS256"] },
+    });
+    server.auth.default("jwt");
   }
 
   // SSO
@@ -133,17 +177,6 @@ export async function createServer({
     await useAuthGoogle(server, defaultOptions.ssoCallback);
   } else {
     if (envIsNotTest) console.log("Settings API: SSO disabled;");
-  }
-
-  // Hapi JWT auth
-  if (defaultOptions.jwt_secret) {
-    await server.register(require("hapi-auth-jwt2"));
-    server.auth.strategy("jwt", "jwt", {
-      key: defaultOptions.jwt_secret,
-      validate: validateFunc,
-      verifyOptions: { algorithms: ["HS256"] },
-    });
-    server.auth.default("jwt");
   }
 
   const routeOptions: any = {

@@ -3,6 +3,7 @@ import * as Joi from "@hapi/joi";
 
 import { IRouteAdd } from "./contracts/IRouteAdd";
 import { IRouteBuild } from "./contracts/IRouteBuild";
+import { currentOptions } from "./server";
 import safeCall from "./safe-call";
 
 export default abstract class BaseRouteSimple
@@ -59,9 +60,17 @@ export default abstract class BaseRouteSimple
       options: {
         tags: ["api", ...this.tags],
         validate: {
-          headers: requireAuth ? this.defaultAuthHeader : undefined,
+          headers: requireAuth
+            ? currentOptions.jwt_enabled
+              ? this.defaultAuthHeader
+              : this.defaultAutAppKeyhHeader
+            : undefined,
         },
-        auth: requireAuth ? "jwt" : false,
+        auth: requireAuth
+          ? currentOptions.jwt_enabled
+            ? "jwt"
+            : "appkey"
+          : false,
         ...options,
       },
     };
@@ -101,7 +110,17 @@ export default abstract class BaseRouteSimple
   }
 
   protected defaultAuthHeader = Joi.object({
-    authorization: Joi.string().required(),
+    authorization: Joi.string()
+      .required()
+      .description("jwt token"),
+  })
+    .unknown(true)
+    .options({ allowUnknown: true });
+
+  protected defaultAutAppKeyhHeader = Joi.object({
+    appkey: Joi.string()
+      .required()
+      .description("application key"),
   })
     .unknown(true)
     .options({ allowUnknown: true });
