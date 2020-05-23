@@ -19,6 +19,7 @@ export default async function connect(
     const defaultOptions: mongoose.ConnectionOptions = {
       useCreateIndex: true,
       useNewUrlParser: true,
+      useUnifiedTopology: true,
       ...options.connectionOptions,
     };
     return await mongoose.connect(options.uri, defaultOptions).then(
