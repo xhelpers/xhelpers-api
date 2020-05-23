@@ -10,19 +10,20 @@
 [![HitCount](http://hits.dwyl.com/wmkdev/xhelpers-api.svg)](http://hits.dwyl.com/wmkdev/xhelpers-api)
 
 [![HAPI 19.0.0](http://img.shields.io/badge/hapi-19.0.0-brightgreen.svg?style=flat-square "Latest Hapi.js")](http://hapijs.com)
-[![Node.js Version](https://img.shields.io/node/v/xhelpers-api.svg?style=flat-square "Node.js 10 & 12 and io.js latest both supported")](http://nodejs.org/download/)
+[![Node.js Version](https://img.shields.io/node/v/xhelpers-api.svg?style=flat-square "Node.js 12")](http://nodejs.org/download/)
 [![Dependencies Status](https://david-dm.org/wmkdev/xhelpers-api/status.svg?style=flat-square)](https://david-dm.org/wmkdev/xhelpers-api)
 [![devDependencies Status](https://david-dm.org/wmkdev/xhelpers-api/dev-status.svg?style=flat-square)](https://david-dm.org/wmkdev/xhelpers-api?type=dev)
+![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/wmkdev/xhelpers-api)
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/wmkdev/xhelpers-api)
 ![GitHub issues](https://img.shields.io/github/issues/wmkdev/xhelpers-api)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/wmkdev/xhelpers-api)
-![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/wmkdev/xhelpers-api)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/wmkdev/xhelpers-api)
 
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/keywords/wmkdev/xhelpers-api)
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
 
 ## Description
 
