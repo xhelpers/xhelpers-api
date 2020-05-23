@@ -1,6 +1,6 @@
 # xHelpers API
 <p align="center">  
-  <img src="logo.png" />
+  <img src="docs/logo.png" />
 </p>
 
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
@@ -172,15 +172,16 @@ Routing table:
 ```code
 🆙  Server doc    : http://127.0.0.1:5000/documentation
 🆙  Server status : http://127.0.0.1:5000/status
+🆙  Server health : http://127.0.0.1:5000/health
 ```
 
 ### Swagger /documentation
 
-![Status](swagger.docs.png)
+![Status](docs/swagger.docs.png)
 
 ### Status
 
-![Status](status.png)
+![Status](docs/status.png)
 
 ### Routes
 
