@@ -1,8 +1,9 @@
-# XHelpers - API
+![xHelpers-api](logo.png)
+### xHelpers API
 
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
 
-![Node.js CI](https://github.com/wmkDev/xhelpers-api/workflows/Node.js%20CI/badge.svg?branch=master)
+![Node.js Build](https://github.com/wmkDev/xhelpers-api/workflows/Node.js%20CI/badge.svg?branch=master)
 
 [![forthebadge](https://forthebadge.com/images/badges/built-by-developers.svg)](http://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/powered-by-electricity.svg)](http://forthebadge.com)[![forthebadge](https://forthebadge.com/images/badges/reading-6th-grade-level.svg)](http://forthebadge.com)
 
@@ -12,17 +13,19 @@
 
 This project was made for personal use, it should simplify the process of creating an new api using node js + typescript + database (Mongoose/Sequelize).
 
-### Stack:
+### Stack
 
-- [TypeScript](https://www.typescriptlang.org/).
-- [Node.js](https://nodejs.org/).
-- [Mongodb](https://www.mongodb.com/).
-  - [Mongoose](https://mongoosejs.com/).
-- [Sequelize](https://sequelize.org/).
+- [TypeScript 3.8](https://www.typescriptlang.org/).
+- [Node.js 12+](https://nodejs.org/).
+- [Mongoose 5.7](https://mongoosejs.com/).
+  - [Mongodb](https://www.mongodb.com/).
+- [Sequelize 5.21](https://sequelize.org/).
   - [MySQL](https://www.mysql.com/).
+  - [MariaDB](https://mariadb.org/).
+  - [SQLite](https://www.sqlite.org/index.html).
+  - [Microsoft SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-2019).  
   - [PostgreSQL](https://www.postgresql.org/).
-- [Hapi](https://hapi.dev/).
-- [Boom](https://github.com/hapijs/boom).
+- [Hapi 19.0](https://hapi.dev/).
 - [JWT](https://github.com/dwyl/hapi-auth-jwt2).
 - [SSO bell](https://github.com/hapijs/bell).
 - [Hapi-swagger](https://github.com/glennjones/hapi-swagger).
@@ -82,7 +85,7 @@ createServer({ serverOptions, options }:
 }): Hapi.Server
 ```
 
-#### Usage:
+#### Usage
 
 ```code
 import { createServer } from "xhelpers-api/lib/server";
@@ -118,7 +121,7 @@ async function start() {
 start();
 ```
 
-#### Output:
+#### Output
 
 ```code
 Starting Xhelpers Hapi server API
@@ -457,7 +460,7 @@ $ npm run build
 $ npm run test
 ```
 
-#### Output:
+#### Output
 
 ```bash
   🚧  Testing API Health  🚧
