@@ -1,5 +1,7 @@
-![xHelpers-api](logo.png)
-### xHelpers API
+# xHelpers API
+<p align="center">  
+  <img src="logo.png" />
+</p>
 
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
 
