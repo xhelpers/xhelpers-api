@@ -33,6 +33,9 @@
     "url": "git://github.com/wmkDev/xhelpers-api.git"
   },
   "license": "ISC",
+  "engines": {
+    "node": ">=12.0.0"
+  },
   "dependencies": {
     "@hapi/bell": "^12.0.1",
     "@hapi/boom": "^9.1.0",
