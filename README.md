@@ -3,9 +3,9 @@
 
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
 
-![Node.js Build](https://github.com/wmkDev/xhelpers-api/workflows/Node.js%20Build/badge.svg?branch=master)![Dependencies](https://david-dm.org/wmkdev/sxhelpers-api.svg)![npm](https://img.shields.io/npm/dw/xhelpers-api)
+![Node.js Build](https://github.com/wmkDev/xhelpers-api/workflows/Node.js%20Build/badge.svg?branch=master)![npm](https://img.shields.io/npm/dw/xhelpers-api)
 
-![GitHub repo size](https://img.shields.io/github/repo-size/wmkdev/xhelpers-api)![GitHub issues](https://img.shields.io/github/issues/wmkdev/xhelpers-api)![GitHub pull requests](https://img.shields.io/github/issues-pr/wmkdev/xhelpers-api)![GitHub commit activity](https://img.shields.io/github/commit-activity/m/wmkdev/xhelpers-api)
+![GitHub repo size](https://img.shields.io/github/repo-size/wmkdev/xhelpers-api)![GitHub issues](https://img.shields.io/github/issues/wmkdev/xhelpers-api)![GitHub pull requests](https://img.shields.io/github/issues-pr/wmkdev/xhelpers-api)![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/wmkdev/xhelpers-api)![GitHub commit activity](https://img.shields.io/github/commit-activity/m/wmkdev/xhelpers-api)
 
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/keywords/wmkdev/xhelpers-api)
 
