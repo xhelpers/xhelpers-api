@@ -1,4 +1,4 @@
-import * as Boom from "boom";
+import * as Boom from "@hapi/boom";
 import * as Hapi from "@hapi/hapi";
 import * as HapiSwagger from "hapi-swagger";
 import * as Vision from "@hapi/vision";
@@ -169,7 +169,7 @@ export async function createServer({
   // SSO
   if (defaultOptions.enableSSO) {
     if (envIsNotTest) console.log("Settings API: SSO enabled;");
-    await server.register(require("bell"));
+    await server.register(require("@hapi/bell"));
     await useAuthGitHub(server, defaultOptions.ssoCallback);
     await useAuthFacebook(server, defaultOptions.ssoCallback);
     await useAuthGoogle(server, defaultOptions.ssoCallback);

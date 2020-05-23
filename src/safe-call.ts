@@ -1,4 +1,4 @@
-import * as Boom from "boom";
+import * as Boom from "@hapi/boom";
 
 import handleError from "./error-handler";
 import { promiseMe } from "./promise-me";
