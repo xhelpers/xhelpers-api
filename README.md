@@ -3,6 +3,7 @@
   <img src="docs/logo.png" />
 </p>
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3053e71e46df417aac5c21cb0f13a0d5)](https://app.codacy.com/manual/wmkDev/xhelpers-api?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Grade_Dashboard)
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
 
 ![Node.js Build](https://github.com/wmkDev/xhelpers-api/workflows/Node.js%20Build/badge.svg?branch=master)
