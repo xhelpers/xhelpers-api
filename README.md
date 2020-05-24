@@ -14,6 +14,7 @@
 [![Dependencies Status](https://david-dm.org/wmkdev/xhelpers-api/status.svg?style=flat-square)](https://david-dm.org/wmkdev/xhelpers-api)
 [![devDependencies Status](https://david-dm.org/wmkdev/xhelpers-api/dev-status.svg?style=flat-square)](https://david-dm.org/wmkdev/xhelpers-api?type=dev)
 ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/wmkdev/xhelpers-api)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3053e71e46df417aac5c21cb0f13a0d5)](https://app.codacy.com/manual/wmkDev/xhelpers-api?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Grade_Dashboard)
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/wmkdev/xhelpers-api)
 ![GitHub issues](https://img.shields.io/github/issues/wmkdev/xhelpers-api)
