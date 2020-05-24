@@ -108,7 +108,7 @@ import { createServer } from "xhelpers-api/lib/server";
 const pkgJson = require("../package.json");
 
 let server: any = {};
-async function start() {
+const start = () => {
   const serverOptions: any = {
     port: 5000,
     host: process.env.HOST || "127.0.0.1",

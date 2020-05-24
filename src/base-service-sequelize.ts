@@ -10,7 +10,7 @@ type NonAbstractTypeOfModel<T> = Constructor<T> & NonAbstract<typeof Model>;
 
 export default abstract class BaseServiceSequelize<T extends Model<T>>
   implements IBaseService {
-  repository: NonAbstractTypeOfModel<T>;
+  protected repository: NonAbstractTypeOfModel<T>;
   constructor(model: NonAbstractTypeOfModel<T>) {
     this.Model = model;
     this.repository = db.sequelize.getRepository(this.Model);
@@ -119,8 +119,8 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
   }> {
     let filter = {};
     let sort = [];
-    let limit: number = 10;
-    let offset: number = 1;
+    let limit: number;
+    let offset: number;
 
     filter = this.parseFilterAsJson(query.filter);
     sort = this.parseSortAsJson(pagination.sort);
@@ -134,7 +134,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
         select.push(field);
       }
       this.sentitiveInfo.forEach((element: any) => {
-        var name = element.replace("-", "");
+        const name = element.replace("-", "");
         select = select.filter((f: any) => f !== name);
       });
     }
@@ -184,7 +184,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     // try to set common const fields
     payload.createdAt = new Date();
     payload.createdBy = user && user.id;
-    var entity = await this.repository.create(payload);
+    const entity = await this.repository.create(payload);
     return {
       id: entity.id
     };

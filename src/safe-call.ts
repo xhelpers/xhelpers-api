@@ -1,12 +1,12 @@
 import * as Boom from "@hapi/boom";
 
-import handleError from "./error-handler";
+import { errorHandler } from "./error-handler";
 import { promiseMe } from "./promise-me";
 
-export default async function safeCall(
+export const safeCall = async (
   request: { method: any; path: any; auth: { credentials: { user: any } } },
   action: { (user: any): Promise<any>; (arg0: any): Promise<any> }
-) {
+) => {
   if (typeof action !== "function") {
     throw 'Parameter "action" must be a function.';
   }
@@ -24,7 +24,7 @@ export default async function safeCall(
       console.log("| 3️⃣ | User:", user && user.email, "id:", user && user.id);
 
     if (process.env.NODE_ENV !== "TEST") console.time(`| 4️⃣ | Function time`);
-    let [result, resultErr] = await promiseMe(action(user));
+    const [result, resultErr] = await promiseMe(action(user));
     if (resultErr) throw resultErr;
     if (process.env.NODE_ENV !== "TEST")
       if (process.env.NODE_ENV !== "TEST")
@@ -37,18 +37,18 @@ export default async function safeCall(
     });
   } catch (error) {
     console.error("|❗️ 🔥 |", error.message, JSON.stringify(error));
-    return handleError(error);
+    return errorHandler(error);
   } finally {
     if (process.env.NODE_ENV !== "TEST")
       console.timeEnd(`| 5️⃣ | SafeCall time`);
   }
 }
 
-async function ensureAuthentication(request: {
+const ensureAuthentication = async (request: {
   method?: any;
   path?: any;
   auth: any;
-}) {
+}) => {
   if (!request.auth.isAuthenticated) {
     const { message } = request.auth.error || "Auth failed";
     return Boom.unauthorized("Authentication failed due to: " + message);

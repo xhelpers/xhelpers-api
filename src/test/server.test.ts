@@ -1,7 +1,7 @@
 import { createServer } from "../server";
 let server: any = {};
 
-async function start() {
+const start = async () => {
   const options: any = {
     serverOptions: {
       port: 5000,

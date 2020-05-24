@@ -6,8 +6,8 @@ import * as Vision from "@hapi/vision";
 import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
 
 // Connect to database
-import connectMongoose from "./db-mongoose";
-import connectSequelize from "./db-sequelize";
+import { connect as connectMongoose } from "./db-mongoose";
+import { connect as connectSequelize } from "./db-sequelize";
 
 const Inert = require("@hapi/inert");
 const laabr = require("laabr");
@@ -17,7 +17,7 @@ export let currentOptions = {
   appkey_enabled: false,
 };
 
-export async function createServer({
+export const createServer = async ({
   serverOptions,
   options,
 }: {
@@ -38,7 +38,7 @@ export async function createServer({
     enableSSO: boolean;
     ssoCallback: Function;
   };
-}) {
+}) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";
 
   if (envIsNotTest) console.log("Starting Xhelpers Hapi server API");
@@ -135,7 +135,7 @@ export async function createServer({
     server.auth.scheme("appkey", (server: any, options: any) => {
       return {
         authenticate: (req, resp) => {
-          var { appkey } = req.headers;
+          const { appkey } = req.headers;
           if (!appkey)
             return Boom.unauthorized(
               "Header has to include 'appkey' key with value of the application key."

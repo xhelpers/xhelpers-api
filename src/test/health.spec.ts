@@ -9,7 +9,7 @@ import { createServer } from "../server";
 let server: any = null;
 use(ChaiAsPromised);
 
-describe("🚧  Testing API Health  🚧", function() {
+describe("🚧  Testing API Health  🚧", () => {
   before(async () => {
     const options: any = {
       serverOptions: {

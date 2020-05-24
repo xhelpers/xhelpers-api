@@ -8,7 +8,7 @@ use(ChaiAsPromised);
 
 let server: any = null;
 let _todoId: string = "99100";
-let _authToken: string = "";
+let _authToken: string;
 
 const defaultMock = {
   title: "Test TODO",
@@ -16,7 +16,7 @@ const defaultMock = {
   done: false,
 };
 
-describe("🚧  Resource api/todos  🚧", function() {
+describe("🚧  Resource api/todos  🚧", () => {
   before(async () => {
     const options: any = {
       serverOptions: {

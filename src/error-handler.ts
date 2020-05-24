@@ -1,8 +1,8 @@
 import * as Boom from "@hapi/boom";
 
-import logger from "./logger";
+import { logger } from "./logger";
 
-export default function errorHandler(err: any) {
+export const errorHandler = async(err: any) => {
   logger("err", "LogInfo:", err);
   if (process.env.LOGLEVEL === "HIGH") {
     logger("info", "Info:", err);
@@ -12,7 +12,7 @@ export default function errorHandler(err: any) {
   }
   if (typeof err === "string") {
     // custom application error
-    var error = new Error(err);
+    const error = new Error(err);
     return Boom.boomify(error, { statusCode: 400 });
   }
   if (err.name === "MongoError") {
@@ -31,7 +31,7 @@ export default function errorHandler(err: any) {
   }
   if (err.name === "Error") {
     // custom application error
-    var error = new Error(err.message);
+    const error = new Error(err.message);
     return Boom.boomify(error, { statusCode: 400 });
   }
   if (err.name === "ValidationError") {

@@ -6,7 +6,7 @@ import { IRouteBuild } from "./contracts/IRouteBuild";
 export default abstract class BaseRoute<T extends IBaseService>
   extends BaseRouteSimple
   implements IRouteAdd, IRouteBuild {
-  service: T;
+  protected service: T;
   constructor(service: T, tags: any = ["."]) {
     super(tags);
     this.service = service;

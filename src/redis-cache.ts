@@ -1,7 +1,7 @@
-export default async function useCache(
+export const useCache = async (
   request: { server?: any; auth?: any; method?: any; payload?: any },
   response: any
-) {
+) => {
   if (process.env.USING_REDIS_CACHE !== "true") return;
 
   const { redis } = request.server.app;

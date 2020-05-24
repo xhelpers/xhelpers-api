@@ -1,13 +1,13 @@
 import * as mongoose from "mongoose";
 
-export default async function connect(
+export const connect = async (
   options?:
     | {
         uri: string;
         connectionOptions: mongoose.ConnectionOptions;
       }
     | undefined
-) {
+) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";
 
   if (!options) {

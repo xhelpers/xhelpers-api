@@ -105,7 +105,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
         select.push(`${field}`);
       }
       this.sentitiveInfo.forEach((element: any) => {
-        var name = element.replace("-", "");
+        const name = element.replace("-", "");
         select = select.filter((f: any) => f !== name);
       });
     }
@@ -163,7 +163,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     // try to set common const fields
     payload.createdAt = new Date();
     payload.createdBy = user && user.id;
-    var entity = await this.Model.create(payload);
+    const entity = await this.Model.create(payload);
     return {
       id: entity.id
     };

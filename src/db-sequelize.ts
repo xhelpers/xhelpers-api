@@ -4,9 +4,9 @@ import { Sequelize, SequelizeOptions } from "sequelize-typescript";
 import mysql2 from "mysql2";
 
 export const db: any = {};
-export default async function connect(
+export const connect = async(
   sequelizeOptions?: SequelizeOptions | undefined
-) {
+) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";
 
   if (!sequelizeOptions) {

@@ -4,17 +4,17 @@ import * as Joi from "@hapi/joi";
 import { IRouteAdd } from "./contracts/IRouteAdd";
 import { IRouteBuild } from "./contracts/IRouteBuild";
 import { currentOptions } from "./server";
-import safeCall from "./safe-call";
+import { safeCall } from "./safe-call";
 
 export default abstract class BaseRouteSimple
   implements IRouteAdd, IRouteBuild {
-  tags: any;
+  protected tags: any;
   constructor(tags: any = ["."]) {
     this.routes = [];
     this.tags = tags;
   }
-  routes: Array<any>;
-  curentRoute!: {
+  protected routes: Array<any>;
+  protected curentRoute!: {
     method: string;
     path: string;
     handler?: Function;
@@ -35,7 +35,7 @@ export default abstract class BaseRouteSimple
     };
   };
 
-  route(
+  public route(
     method: string,
     path: string,
     options?: {
@@ -77,7 +77,7 @@ export default abstract class BaseRouteSimple
     return this;
   }
 
-  validate(validate: {
+  public validate(validate: {
     payload?: Joi.ObjectSchema<any>;
     headers?: Joi.ObjectSchema<any>;
     query?: Joi.ObjectSchema<any>;
@@ -86,14 +86,15 @@ export default abstract class BaseRouteSimple
     Object.assign(this.curentRoute.options.validate, validate);
     return this;
   }
-  handler(
+
+  public handler(
     action: (
       r: Hapi.Request,
       h: Hapi.ResponseToolkit,
       user?: any
     ) => Promise<Hapi.ResponseObject>
   ): IRouteBuild {
-    this.curentRoute.handler = async function(request: any, h: any) {
+    this.curentRoute.handler = async (request: any, h: any) => {
       return safeCall(request, async (user: any) => {
         return await action(request, h, user);
       });
@@ -101,7 +102,7 @@ export default abstract class BaseRouteSimple
     return this;
   }
 
-  build() {
+  public build() {
     this.routes.push(this.curentRoute);
   }
 
