@@ -1,11 +1,13 @@
 import * as mongoose from "mongoose";
 
+export interface options {
+  uri: string;
+  connectionOptions: mongoose.ConnectionOptions;
+}
+
 export const connect = async (
   options?:
-    | {
-        uri: string;
-        connectionOptions: mongoose.ConnectionOptions;
-      }
+    | options
     | undefined
 ) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";

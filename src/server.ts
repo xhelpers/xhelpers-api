@@ -6,8 +6,8 @@ import * as Vision from "@hapi/vision";
 import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
 
 // Connect to database
-import { connect as connectMongoose } from "./db-mongoose";
-import { connect as connectSequelize } from "./db-sequelize";
+import { connect as connectMongoose, options as mongooseOptions } from "./db-mongoose";
+import { connect as connectSequelize, options as sequelizeOptions } from "./db-sequelize";
 
 const Inert = require("@hapi/inert");
 const laabr = require("laabr");
@@ -17,28 +17,48 @@ export let currentOptions = {
   appkey_enabled: false,
 };
 
+export interface swaggerOptions {
+  info: {
+    title: string,
+    version: string,
+    contact?: {
+      name: string,
+      email: string,
+    },
+  },
+  grouping?: string,
+  tags?: Array<any>,
+  [key: string]: any
+}
+
+export interface serverOptions {
+  port?: number | string;
+  host?: string;
+}
+
+export interface options {
+  swaggerOptions?: swaggerOptions;
+  routeOptions?: {
+    routes: string;
+  };
+  app_key_auth?: string;
+  jwt_secret?: string;
+  mongooseOptions?: mongooseOptions;
+  sequelizeOptions?: sequelizeOptions;
+  enableSSL?: boolean;
+  enableSSO?: boolean;
+  ssoCallback?: Function;
+};
+
+export interface createServerOptions {
+  serverOptions: serverOptions,
+  options: options,
+}
+
 export const createServer = async ({
   serverOptions,
   options,
-}: {
-  serverOptions: {
-    port: number;
-    host: string;
-  };
-  options: {
-    swaggerOptions?: any;
-    routeOptions: {
-      routes: string;
-    };
-    app_key_auth?: string;
-    jwt_secret?: string;
-    mongooseOptions?: any;
-    sequelizeOptions?: any;
-    enableSSL: boolean;
-    enableSSO: boolean;
-    ssoCallback: Function;
-  };
-}) => {
+}: createServerOptions) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";
 
   if (envIsNotTest) console.log("Starting Xhelpers Hapi server API");
@@ -65,10 +85,10 @@ export const createServer = async ({
     routeOptions: {
       routes: "**/routes/*.js",
     },
-    enableSSL: process.env.SSL === "true",
-    enableSSO: false,
+    enableSSL: options.enableSSL || process.env.SSL === "true",
+    enableSSO: options.enableSSO || false,
     ssoCallback: (
-      user: { email: any; name: any; avatar: any; token: string },
+      user: { email: string; name: string; avatar: any; token: string },
       userData: { userType: any; meta: any }
     ) => {},
     ...options,

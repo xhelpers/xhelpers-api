@@ -3,9 +3,11 @@ import { Sequelize, SequelizeOptions } from "sequelize-typescript";
 // @ts-ignore
 import mysql2 from "mysql2";
 
+export interface options extends SequelizeOptions {}
+
 export const db: any = {};
 export const connect = async(
-  sequelizeOptions?: SequelizeOptions | undefined
+  sequelizeOptions?: options
 ) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";
 
