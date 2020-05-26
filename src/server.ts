@@ -3,11 +3,16 @@ import * as Hapi from "@hapi/hapi";
 import * as HapiSwagger from "hapi-swagger";
 import * as Vision from "@hapi/vision";
 
+// database connectors
+import {
+  connect as connectMongoose,
+  options as mongooseOptions,
+} from "./db-mongoose";
+import {
+  connect as connectSequelize,
+  options as sequelizeOptions,
+} from "./db-sequelize";
 import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
-
-// Connect to database
-import { connect as connectMongoose, options as mongooseOptions } from "./db-mongoose";
-import { connect as connectSequelize, options as sequelizeOptions } from "./db-sequelize";
 
 const Inert = require("@hapi/inert");
 const laabr = require("laabr");
@@ -19,21 +24,22 @@ export let currentOptions = {
 
 export interface swaggerOptions {
   info: {
-    title: string,
-    version: string,
+    title: string;
+    version: string;
     contact?: {
-      name: string,
-      email: string,
-    },
-  },
-  grouping?: string,
-  tags?: Array<any>,
-  [key: string]: any
+      name: string;
+      email: string;
+    };
+  };
+  grouping?: string;
+  tags?: Array<any>;
+  [key: string]: any;
 }
 
 export interface serverOptions {
   port?: number | string;
   host?: string;
+  [key: string]: any;
 }
 
 export interface options {
@@ -48,11 +54,11 @@ export interface options {
   enableSSL?: boolean;
   enableSSO?: boolean;
   ssoCallback?: Function;
-};
+}
 
 export interface createServerOptions {
-  serverOptions: serverOptions,
-  options: options,
+  serverOptions: serverOptions;
+  options: options;
 }
 
 export const createServer = async ({
@@ -63,7 +69,7 @@ export const createServer = async ({
 
   if (envIsNotTest) console.log("Starting Xhelpers Hapi server API");
 
-  const defaultServerOptions = {
+  const defaultServerOptions: any = {
     port: Number(process.env.PORT || 80),
     host: process.env.HOST || "127.0.0.1",
     ...serverOptions,
@@ -99,38 +105,44 @@ export const createServer = async ({
     appkey_enabled: !!defaultOptions.app_key_auth,
   };
 
-  // Hapi server
-  const server = new Hapi.Server(
-    Object.assign(
-      {
-        port: defaultServerOptions.port,
-        host: defaultServerOptions.host,
-        routes: {
-          validate: {
-            failAction: async (
-              request: Hapi.Request,
-              h: Hapi.RequestEventHandler,
-              err: any
-            ) => {
-              if (process.env.NODE_ENV === "production") {
-                console.error("🔥  Error:", err.message);
-                throw Boom.badRequest(`Invalid request payload input`);
-              } else {
-                if (process.env.NODE_ENV === "DEV")
-                  console.error("🔥  Error:", err);
-                if (Boom.isBoom(err)) return err;
-                throw err;
-              }
-            },
-          },
-          cors: {
-            origin: ["*"],
-          },
+  const serverOpts = {
+    port: defaultServerOptions.port,
+    host: defaultServerOptions.host,
+    routes: {
+      validate: {
+        failAction: async (
+          request: Hapi.Request,
+          h: Hapi.RequestEventHandler,
+          err: any
+        ) => {
+          if (process.env.NODE_ENV === "production") {
+            console.error("🔥  Error:", err.message);
+            throw Boom.badRequest(`Invalid request payload input`);
+          } else {
+            if (process.env.NODE_ENV === "DEV")
+              console.error("🔥  Error:", err);
+            if (Boom.isBoom(err)) return err;
+            throw err;
+          }
         },
       },
-      defaultServerOptions
-    )
-  );
+      cors: {
+        origin: ["*"],
+      },
+    },
+  };
+
+  const mergedOpts: any = {
+    ...serverOpts,
+    ...defaultServerOptions,
+    routes: {
+      ...serverOpts.routes,
+      ...defaultServerOptions.routes,
+    },
+  };
+
+  // Hapi server
+  const server = new Hapi.Server(mergedOpts);
 
   server.app = {
     // Mongoose connect
@@ -309,7 +321,7 @@ export const createServer = async ({
   });
 
   return server;
-}
+};
 
 const validateFunc = async (decoded: any) => {
   return {

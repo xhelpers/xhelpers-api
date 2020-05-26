@@ -3,13 +3,10 @@ import * as mongoose from "mongoose";
 export interface options {
   uri: string;
   connectionOptions: mongoose.ConnectionOptions;
+  [key: string]: any;
 }
 
-export const connect = async (
-  options?:
-    | options
-    | undefined
-) => {
+export const connect = async (options?: options | undefined) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";
 
   if (!options) {
@@ -49,4 +46,4 @@ export const connect = async (
     }, 5000);
   }
   return null;
-}
+};
