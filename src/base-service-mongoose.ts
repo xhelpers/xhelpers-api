@@ -52,7 +52,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   }
 
   public async queryAll(
-    user: any,
+    user: any = {},
     query: { filter: any; fields: any } = {
       filter: {},
       fields: []
