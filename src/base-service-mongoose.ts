@@ -58,7 +58,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       fields: []
     },
     pagination: { offset: number; limit: number; sort: any } = {
-      offset: 1,
+      offset: 0,
       limit: 10,
       sort: { _id: -1 }
     },
