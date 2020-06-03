@@ -24,7 +24,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       auxField = JSON.parse(field);
     } catch (error) {
       console.log("Invalid filter parameter", error);
-      throw 'Invalid parameter "filter", it MUST be a valid JSON / Mongo query sintax';
+      throw 'Invalid parameter "field" it should be a valid JSON';
     }
     return auxField;
   }
