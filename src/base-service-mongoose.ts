@@ -15,35 +15,18 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   ): Promise<Boolean>;
   protected abstract sentitiveInfo = [];
 
-  protected parseSortAsJson(pagination: {
-    offset: number;
-    limit: number;
-    sort: any;
-  }) {
-    if (!pagination.sort) return {};
+  protected parseAsJSON(field: any) {
+    if (!field) return {};
+    if (typeof field === "object") return field;
 
-    let sortQuery: {};
+    let auxField = {};
     try {
-      sortQuery = JSON.parse(pagination.sort);
-    } catch (error) {
-      console.log("Invalid sort parameter", error.message);
-      throw 'Invalid parameter "sort", it MUST be a valid JSON / Mongo sort sintax';
-    }
-    return sortQuery;
-  }
-
-  protected parseFilterAsJson(query: any) {
-    if (!query) return {};
-    if (typeof query === "object") return query;
-
-    let filterQuery = {};
-    try {
-      filterQuery = JSON.parse(query);
+      auxField = JSON.parse(field);
     } catch (error) {
       console.log("Invalid filter parameter", error);
-      throw 'Invalid parameter "filter", it MUST be a valid JSON / Mongo query sintax';
+      throw 'Invalid parameter "field" it should be a valid JSON';
     }
-    return filterQuery;
+    return auxField;
   }
 
   protected async getJwtToken(user: any) {
@@ -69,13 +52,13 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   }
 
   public async queryAll(
-    user: any,
+    user: any = {},
     query: { filter: any; fields: any } = {
       filter: {},
       fields: []
     },
     pagination: { offset: number; limit: number; sort: any } = {
-      offset: 1,
+      offset: 0,
       limit: 10,
       sort: { _id: -1 }
     },
@@ -92,10 +75,8 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     };
     results: T[];
   }> {
-    let filter = {};
-    let sort = {};
-    filter = this.parseFilterAsJson(query.filter);
-    sort = this.parseSortAsJson(pagination);
+    let filter = this.parseAsJSON(query.filter);
+    let sort = this.parseAsJSON(pagination.sort);
 
     let select: any = this.sentitiveInfo;
     if (query.fields) {
