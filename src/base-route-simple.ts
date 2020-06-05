@@ -31,7 +31,9 @@ export default abstract class BaseRouteSimple
         maxBytes: number;
         parse: boolean;
         output: string;
+        [key: string]: any;
       };
+      [key: string]: any;
     };
   };
 
@@ -49,8 +51,14 @@ export default abstract class BaseRouteSimple
         params?: Joi.ObjectSchema<any>;
       };
       auth?: any;
-      payload?: { maxBytes: number; parse: boolean; output: string };
+      payload?: {
+        maxBytes: number;
+        parse: boolean;
+        output: string;
+        [key: string]: any;
+      };
       plugins?: any;
+      [key: string]: any;
     },
     requireAuth: boolean = true
   ): IRouteAdd {
@@ -111,17 +119,13 @@ export default abstract class BaseRouteSimple
   }
 
   protected defaultAuthHeader = Joi.object({
-    authorization: Joi.string()
-      .required()
-      .description("jwt token"),
+    authorization: Joi.string().required().description("jwt token"),
   })
     .unknown(true)
     .options({ allowUnknown: true });
 
   protected defaultAutAppKeyhHeader = Joi.object({
-    appkey: Joi.string()
-      .required()
-      .description("application key"),
+    appkey: Joi.string().required().description("application key"),
   })
     .unknown(true)
     .options({ allowUnknown: true });
@@ -147,8 +151,6 @@ export default abstract class BaseRouteSimple
   });
 
   protected defaultIdProperty = Joi.object({
-    id: Joi.any()
-      .required()
-      .description("id of the entity"),
+    id: Joi.any().required().description("id of the entity"),
   });
 }
