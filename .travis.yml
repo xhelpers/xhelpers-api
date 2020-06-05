@@ -1,3 +1,11 @@
 language: node_js
 node_js:
   - 12
+script:
+  - npm i --production
+  - npm audit fix
+  - npm run build
+  - npm test
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
