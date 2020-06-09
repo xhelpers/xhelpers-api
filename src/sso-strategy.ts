@@ -1,26 +1,33 @@
-const authUser = async(
-  callback: any,
-  user: { email: any; name: any; avatar: any; token: string },
-  userData: { userType: any; meta: any },
-  h: any
-) => {
-  const result = await callback(user, userData);
-  user.token = result.token;
-  const response = h.redirect(
-    `${process.env.FRONT_URL}#/auth?token=${user.token}&email=${user.email}`
-  );
+type UserSso = {
+  email: any;
+  name: any;
+  avatar: any;
+  token: string;
+  userType: any;
+  meta: any;
+};
+
+const authUser = async (callback: any, user: UserSso, h: any) => {
+  const { url } = await callback(user);
+  const response = h.redirect(url);
   return response;
-}
+};
 
 export const useAuthGoogle = async (server: any, callback: any) => {
+  const googleClientId = process.env.SSO_GOOGLE_CLIENT_ID;
+  if (!googleClientId || googleClientId.length === 0) {
+    console.log("Settings API: SSO Google disabled;");
+    return;
+  }
+  console.log("Settings API: SSO Google enabled;");
   // Google Auth
   server.auth.strategy("google", "bell", {
     provider: "google",
-    password: "XXXXXXXXXXXXXXXXXXXXXXXXX",
-    isSecure: false,
-    clientId: process.env.SSO_GOOGLE_CLIENT_ID,
+    password: process.env.SSO_GOOGLE_CLIENT_PASSWORD,
+    isSecure: process.env.SSO_SECURE_SSL || false,
+    clientId: googleClientId,
     clientSecret: process.env.SSO_GOOGLE_CLIENT_SECRET,
-    location: process.env.SSO_GOOGLE_LOCATION
+    location: process.env.SSO_GOOGLE_LOCATION,
   });
 
   server.route({
@@ -30,8 +37,8 @@ export const useAuthGoogle = async (server: any, callback: any) => {
       tags: ["api", "sso"],
       auth: {
         strategy: "google",
-        mode: "try"
-      }
+        mode: "try",
+      },
     },
     handler: async (request: any, h: any) => {
       if (!request.auth.isAuthenticated) {
@@ -41,43 +48,45 @@ export const useAuthGoogle = async (server: any, callback: any) => {
       const profile = request.auth.credentials.profile;
       console.log("Google authentication", profile);
       const user = {
+        ...profile,
         email: profile.email,
         name: profile.username || profile.displayName,
         displayName: profile.displayName,
         avatar: profile.raw ? profile.raw.avatar_url : null,
-        token: ""
+        token: "",
+        userType: "Google",
+        meta: profile,
       };
 
       try {
-        const response = await authUser(
-          callback,
-          user,
-          {
-            userType: "Google",
-            meta: profile
-          },
-          h
-        );
+        const response = await authUser(callback, user, h);
         return response;
       } catch (error) {
         console.log("err sso: ", error);
         return h.response({
-          err: error.message
+          err: error.message,
         });
       }
-    }
+    },
   });
-}
+};
 
 export const useAuthFacebook = async (server: any, callback: any) => {
+  const facebookClientId = process.env.SSO_FACEBOOK_CLIENT_ID;
+  if (!facebookClientId || facebookClientId.length === 0) {
+    console.log("Settings API: SSO Facebook disabled;");
+    return;
+  }
+  console.log("Settings API: SSO Facebook enabled;");
+
   //facebook
   server.auth.strategy("facebook", "bell", {
     provider: "facebook",
-    password: "XXXXXXXXXXXXXXXXXXXXXXXXX",
-    isSecure: false,
-    clientId: process.env.SSO_FACEBOOK_CLIENT_ID,
+    password: process.env.SSO_FACEBOOK_CLIENT_PASSWORD,
+    isSecure: process.env.SSO_SECURE_SSL || false,
+    clientId: facebookClientId,
     clientSecret: process.env.SSO_FACEBOOK_CLIENT_SECRET,
-    location: process.env.SSO_FACEBOOK_LOCATION
+    location: process.env.SSO_FACEBOOK_LOCATION,
   });
 
   server.route({
@@ -87,7 +96,7 @@ export const useAuthFacebook = async (server: any, callback: any) => {
       tags: ["api", "sso"],
       auth: {
         strategy: "facebook",
-        mode: "try"
+        mode: "try",
       },
       handler: async (request: any, h: any) => {
         if (!request.auth.isAuthenticated) {
@@ -97,44 +106,46 @@ export const useAuthFacebook = async (server: any, callback: any) => {
         const profile = request.auth.credentials.profile;
         console.log("Facebook authentication", profile);
         const user = {
+          ...profile,
           email: profile.email,
           name: profile.displayName,
           token: "",
-          avatar: ""
+          avatar: "",
+          userType: "Facebook",
+          meta: profile,
         };
 
         try {
-          const response = await authUser(
-            callback,
-            user,
-            {
-              userType: "Facebook",
-              meta: profile
-            },
-            h
-          );
+          const response = await authUser(callback, user, h);
           return response;
         } catch (error) {
           console.log("err sso: ", error);
           return h.response({
-            err: error.message
+            err: error.message,
           });
         }
-      }
-    }
+      },
+    },
   });
-}
+};
 
 export const useAuthGitHub = async (server: any, callback: any) => {
+  const githubClientId = process.env.SSO_GITHUB_CLIENT_ID;
+  if (!githubClientId || githubClientId.length === 0) {
+    console.log("Settings API: SSO Github disabled;");
+    return;
+  }
+  console.log("Settings API: SSO Github enabled;");
+
   // GitHub Auth
   server.auth.strategy("github", "bell", {
     provider: "github",
-    password: "XXXXXXXXXXXXXXXXXXXXXXXXX",
-    isSecure: false, // For testing or in environments secured via other means
-    clientId: process.env.SSO_GITHUB_CLIENT_ID,
+    password: process.env.SSO_GITHUB_CLIENT_PASSWORD,
+    isSecure: process.env.SSO_SECURE_SSL || false,
+    clientId: githubClientId,
     clientSecret: process.env.SSO_GITHUB_CLIENT_SECRET,
     location: process.env.SSO_GITHUB_LOCATION,
-    scope: []
+    scope: [],
   });
 
   server.route({
@@ -144,8 +155,8 @@ export const useAuthGitHub = async (server: any, callback: any) => {
       tags: ["api", "sso"],
       auth: {
         strategy: "github",
-        mode: "try"
-      }
+        mode: "try",
+      },
     },
     handler: async (request: any, h: any) => {
       if (!request.auth.isAuthenticated) {
@@ -155,31 +166,26 @@ export const useAuthGitHub = async (server: any, callback: any) => {
       const profile = request.auth.credentials.profile;
       console.log("Github authentication", profile);
       const user = {
+        ...profile,
         email: profile.email,
         name: profile.displayName,
         token: "",
-        avatar: ""
+        avatar: "",
+        userType: "Github",
+        meta: profile,
       };
 
       try {
-        const response = await authUser(
-          callback,
-          user,
-          {
-            userType: "Github",
-            meta: profile
-          },
-          h
-        );
+        const response = await authUser(callback, user, h);
         return response;
       } catch (error) {
         console.log("err sso: ", error);
         return h
           .response({
-            err: error.message
+            err: error.message,
           })
           .code(400);
       }
-    }
+    },
   });
-}
+};

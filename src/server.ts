@@ -93,10 +93,18 @@ export const createServer = async ({
     },
     enableSSL: options.enableSSL || process.env.SSL === "true",
     enableSSO: options.enableSSO || false,
-    ssoCallback: (
-      user: { email: string; name: string; avatar: any; token: string },
-      userData: { userType: any; meta: any }
-    ) => {},
+    ssoCallback: (user: {
+      email: string;
+      name: string;
+      avatar: any;
+      token: string;
+      userType: any;
+      meta: any;
+    }) => {
+      return {
+        url: "",
+      };
+    },
     ...options,
   };
 
