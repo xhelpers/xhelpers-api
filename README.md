@@ -1,4 +1,5 @@
 # xHelpers API
+
 <p align="center">  
   <img src="docs/logo.png" />
 </p>
@@ -39,7 +40,7 @@ This project was made for personal use, it should simplify the process of creati
   - [MySQL](https://www.mysql.com/).
   - [MariaDB](https://mariadb.org/).
   - [SQLite](https://www.sqlite.org/index.html).
-  - [Microsoft SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-2019).  
+  - [Microsoft SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-2019).
   - [PostgreSQL](https://www.postgresql.org/).
 - [Hapi 19.0](https://hapi.dev/).
 - [JWT](https://github.com/dwyl/hapi-auth-jwt2).
@@ -48,6 +49,8 @@ This project was made for personal use, it should simplify the process of creati
 
 ## Versions
 
+- ➕ 2.1.6 - Update SSO integration with @hapi/bell.
+- ➕ 2.1.1-5 - Many minor upgrade versions bumps.
 - ➕ 2.1.0 - New authorization mode 'appkey'.
   - [feature] Added basic auth appkey mode [#3](/../../issues/3)
 - 🔥 2.0.0 - New version (breaking change)
