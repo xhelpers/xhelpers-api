@@ -10,28 +10,35 @@ export const safeCall = async (
   if (typeof action !== "function") {
     throw 'Parameter "action" must be a function.';
   }
-  if (process.env.NODE_ENV !== "TEST") console.time(`| 5️⃣ | SafeCall time`);
+  const displayLog = process.env.NODE_ENV === "DEV";
+  
   try {
-    if (process.env.NODE_ENV !== "TEST")
+    if (displayLog) {
+      console.time(`| 5️⃣ | SafeCall time`);
       console.log("| 1️⃣ | Route:", request.method, request.path);
+      console.time(`| 2️⃣ | Auth time`);
+    } 
 
-    if (process.env.NODE_ENV !== "TEST") console.time(`| 2️⃣ | Auth time`);
     await ensureAuthentication(request);
+
     const user =
       request.auth && request.auth.credentials && request.auth.credentials.user;
-    if (process.env.NODE_ENV !== "TEST") console.timeEnd(`| 2️⃣ | Auth time`);
-    if (process.env.NODE_ENV !== "TEST")
-      console.log("| 3️⃣ | User:", user && user.email, "id:", user && user.id);
 
-    if (process.env.NODE_ENV !== "TEST") console.time(`| 4️⃣ | Function time`);
+    if (displayLog) {
+      console.timeEnd(`| 2️⃣ | Auth time`);
+      console.log("| 3️⃣ | User:", user && user.email, "id:", user && user.id);
+      console.time(`| 4️⃣ | Function time`);
+    } 
+
     const [result, resultErr] = await promiseMe(action(user));
-    if (resultErr) throw resultErr;
-    if (process.env.NODE_ENV !== "TEST")
-      if (process.env.NODE_ENV !== "TEST")
+    
+    if (displayLog)
         console.timeEnd(`| 4️⃣ | Function time`);
+    
+    if (resultErr) throw resultErr;
 
     return Promise.resolve(result).then((r) => {
-      if (process.env.NODE_ENV !== "TEST")
+      if (displayLog)
         console.log("| 6️⃣  🎲 | StatusCode:", r.statusCode);
       return r;
     });
@@ -39,7 +46,7 @@ export const safeCall = async (
     console.error("|❗️ 🔥 |", error.message, JSON.stringify(error));
     return errorHandler(error);
   } finally {
-    if (process.env.NODE_ENV !== "TEST")
+    if (displayLog)
       console.timeEnd(`| 5️⃣ | SafeCall time`);
   }
 }
