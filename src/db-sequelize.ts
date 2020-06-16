@@ -21,6 +21,10 @@ export const connect = async (sequelizeOptions?: options) => {
     dialectModule: mysql2,
     repositoryMode: true,
     ...sequelizeOptions,
+    dialectOptions: {
+      connectTimeout: 60000,
+      ...sequelizeOptions.dialectOptions
+    },
   };
 
   try {
