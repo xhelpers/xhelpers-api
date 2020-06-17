@@ -165,6 +165,6 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   public async delete(user: any, id: any): Promise<void> {
     const entity = await this.Model.findById(id).lean();
     if (!entity) throw "Entity not found";
-    await this.Model.deleteOne(id);
+    await this.Model.deleteOne({ _id: id });
   }
 }
