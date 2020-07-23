@@ -187,7 +187,6 @@ export const createServer = async ({
       };
     });
     server.auth.strategy("appkey", "appkey");
-    server.auth.default("appkey");
   }
 
   // JWT Secret
@@ -203,7 +202,14 @@ export const createServer = async ({
       validate: validateFunc,
       verifyOptions: { algorithms: ["HS256"] },
     });
-    server.auth.default("jwt");
+  }
+
+  if (currentOptions.jwt_enabled || currentOptions.appkey_enabled) {
+    if (!currentOptions.jwt_enabled) {
+      server.auth.default("appkey");
+    } else {
+      server.auth.default("jwt");
+    }
   }
 
   // SSO

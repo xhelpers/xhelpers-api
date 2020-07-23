@@ -60,8 +60,21 @@ export default abstract class BaseRouteSimple
       plugins?: any;
       [key: string]: any;
     },
-    requireAuth: boolean = true
+    requireAuth: boolean|string = true
   ): IRouteAdd {
+
+    let auth;
+
+    if (typeof requireAuth === "string") {
+      auth = requireAuth
+    } else {
+      auth = requireAuth
+      ? currentOptions.appkey_enabled
+        ? "appkey"
+        : "jwt"
+      : false;
+    }
+
     this.curentRoute = {
       method,
       path,
@@ -74,11 +87,7 @@ export default abstract class BaseRouteSimple
               : this.defaultAuthHeader
             : undefined,
         },
-        auth: requireAuth
-          ? currentOptions.appkey_enabled
-            ? "appkey"
-            : "jwt"
-          : false,
+        auth,
         ...options,
       },
     };
