@@ -63,14 +63,16 @@ export default abstract class BaseRouteSimple
     requireAuth: boolean|string = true
   ): IRouteAdd {
 
-    let auth = requireAuth
+    let auth;
+
+    if (typeof requireAuth === "string") {
+      auth = requireAuth
+    } else {
+      auth = requireAuth
       ? currentOptions.appkey_enabled
         ? "appkey"
         : "jwt"
       : false;
-    
-    if (typeof requireAuth === "string") {
-      auth = requireAuth
     }
 
     this.curentRoute = {
