@@ -67,16 +67,6 @@ export default abstract class BaseRouteSimple
     let _headers;
     let auth;
 
-    if (headers) {
-      _headers = headers
-    } else {
-      _headers = requireAuth
-        ? currentOptions.appkey_enabled
-          ? this.defaultAutAppKeyhHeader
-          : this.defaultAuthHeader
-        : undefined;
-    }
-
     if (!options?.auth) {
       auth = requireAuth
       ? currentOptions.appkey_enabled
@@ -85,6 +75,16 @@ export default abstract class BaseRouteSimple
       : false;
     } else {
       auth = options.auth
+    }
+
+    if (headers) {
+      _headers = headers
+    } else {
+      if (auth === "appkey") {
+        _headers = this.defaultAutAppKeyhHeader
+      } else if (auth === "jwt") {
+        _headers = this.defaultAuthHeader
+      }
     }
 
     this.curentRoute = {
