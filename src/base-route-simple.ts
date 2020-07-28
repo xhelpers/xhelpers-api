@@ -69,9 +69,9 @@ export default abstract class BaseRouteSimple
 
     if (!options?.auth) {
       auth = requireAuth
-      ? currentOptions.appkey_enabled
-        ? "appkey"
-        : "jwt"
+      ? currentOptions.jwt_enabled
+        ? "jwt"
+        : "appkey"
       : false;
     } else {
       auth = options.auth
