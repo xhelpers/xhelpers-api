@@ -60,19 +60,31 @@ export default abstract class BaseRouteSimple
       plugins?: any;
       [key: string]: any;
     },
-    requireAuth: boolean|string = true
+    requireAuth: boolean = true,
+    headers?: Joi.ObjectSchema
   ): IRouteAdd {
 
+    let _headers;
     let auth;
 
-    if (typeof requireAuth === "string") {
+    if (!options?.auth) {
       auth = requireAuth
-    } else {
-      auth = requireAuth
-      ? currentOptions.appkey_enabled
-        ? "appkey"
-        : "jwt"
+      ? currentOptions.jwt_enabled
+        ? "jwt"
+        : "appkey"
       : false;
+    } else {
+      auth = options.auth
+    }
+
+    if (headers) {
+      _headers = headers
+    } else {
+      if (auth === "appkey") {
+        _headers = this.defaultAutAppKeyhHeader
+      } else if (auth === "jwt") {
+        _headers = this.defaultAuthHeader
+      }
     }
 
     this.curentRoute = {
@@ -81,11 +93,7 @@ export default abstract class BaseRouteSimple
       options: {
         tags: ["api", ...this.tags],
         validate: {
-          headers: requireAuth
-            ? currentOptions.appkey_enabled
-              ? this.defaultAutAppKeyhHeader
-              : this.defaultAuthHeader
-            : undefined,
+          headers: _headers
         },
         auth,
         ...options,
