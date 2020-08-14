@@ -130,8 +130,8 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   public async getById(
     user: any,
     id: any,
-    projection: any = {},
-    populateOptions?: { path: string | any; select?: string | any }
+    projection: any = [],
+    populateOptions: { path: string | any; select?: string | any } = { path: ".", select: ["-__v"]}
   ): Promise<T | null> {
     Object.assign(projection, this.sentitiveInfo);
     return await this.Model.findById(id)
