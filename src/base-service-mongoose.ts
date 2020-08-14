@@ -111,7 +111,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       .select([...select])
       .lean();
 
-    const count = await this.Model.count(filter);
+    const count = await this.Model.countDocuments(filter);
 
     const result = {
       metadata: {
