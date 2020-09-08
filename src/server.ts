@@ -205,7 +205,7 @@ export const createServer = async ({
   }
 
   if (currentOptions.jwt_enabled || currentOptions.appkey_enabled) {
-    if (!currentOptions.jwt_enabled) {
+    if (currentOptions.appkey_enabled) {
       server.auth.default("appkey");
     } else {
       server.auth.default("jwt");
