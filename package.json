@@ -80,7 +80,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-http": "^4.3.0",
-    "mocha": "^8.0.1",
+    "mocha": "^8.2.0",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
     "ts-loader": "^8.0.5",
