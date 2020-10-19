@@ -32,11 +32,11 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   protected async getJwtToken(user: any) {
     const options = {
       issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.JWT_EXPIRE
+      expiresIn: process.env.JWT_EXPIRE,
     };
     return jwt.sign(
       {
-        user
+        user,
       },
       process.env.JWT_SECRET || "",
       options
@@ -46,7 +46,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   protected async validateJwtToken(token: string) {
     const options = {
       issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.JWT_EXPIRE
+      expiresIn: process.env.JWT_EXPIRE,
     };
     return jwt.verify(token, process.env.JWT_SECRET || "", options);
   }
@@ -55,15 +55,15 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     user: any = {},
     query: { filter: any; fields: any } = {
       filter: {},
-      fields: []
+      fields: [],
     },
     pagination: { offset: number; limit: number; sort: any } = {
       offset: 0,
       limit: 10,
-      sort: { _id: -1 }
+      sort: { _id: -1 },
     },
     populateOptions: { path: string | any; select?: string | any } = {
-      path: null
+      path: null,
     }
   ): Promise<{
     metadata: {
@@ -103,7 +103,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       console.log("\t populateOptions:", populateOptions);
     }
 
-    const data = await this.Model.find(filter)
+    const data: any = await this.Model.find(filter)
       .populate(populateOptions.path, populateOptions.select)
       .skip(pagination.offset)
       .limit(pagination.limit)
@@ -118,20 +118,23 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
         resultset: {
           count: count,
           offset: pagination.offset,
-          limit: pagination.limit
-        }
+          limit: pagination.limit,
+        },
       },
-      results: data
+      results: data,
     };
     return Promise.resolve({
-      ...result
+      ...result,
     });
   }
   public async getById(
     user: any,
     id: any,
     projection: any = [],
-    populateOptions: { path: string | any; select?: string | any } = { path: ".", select: ["-__v"]}
+    populateOptions: { path: string | any; select?: string | any } = {
+      path: ".",
+      select: ["-__v"],
+    }
   ): Promise<T | null> {
     Object.assign(projection, this.sentitiveInfo);
     return await this.Model.findById(id)
@@ -146,7 +149,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     payload.createdBy = user && user.id;
     const entity = await this.Model.create(payload);
     return {
-      id: entity.id
+      id: entity.id,
     };
   }
   public async update(user: any, id: any, payload: T): Promise<any> {
@@ -159,7 +162,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     entity.updatedBy = user && user.id;
     await entity.save();
     return {
-      id: entity.id
+      id: entity.id,
     };
   }
   public async delete(user: any, id: any): Promise<void> {
