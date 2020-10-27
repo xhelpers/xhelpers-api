@@ -4,7 +4,7 @@ import { errorHandler } from "./error-handler";
 import { promiseMe } from "./promise-me";
 
 export const safeCall = async (
-  request: { method: any; path: any; auth: { credentials: { user: any } } },
+  request: { method: any; path: any; auth: { credentials: { user: any }, token: any } },
   action: { (user: any): Promise<any>; (arg0: any): Promise<any> }
 ) => {
   if (typeof action !== "function") {
@@ -23,6 +23,8 @@ export const safeCall = async (
 
     const user =
       request.auth && request.auth.credentials && request.auth.credentials.user;
+
+    user.token = request?.auth?.token
 
     if (displayLog) {
       console.timeEnd(`| 2️⃣ | Auth time`);
