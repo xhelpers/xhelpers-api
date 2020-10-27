@@ -1,4 +1,5 @@
 import { Sequelize, SequelizeOptions } from "sequelize-typescript";
+import { ConnectionString } from "connection-string";
 
 // @ts-ignore
 import mysql2 from "mysql2";
@@ -26,6 +27,7 @@ export const connect = async (sequelizeOptions?: options) => {
       ...sequelizeOptions.dialectOptions
     },
   };
+  const connectionString = new ConnectionString(sequelizeOptions.host);
 
   try {
     const sequelize = new Sequelize(options);
@@ -38,13 +40,13 @@ export const connect = async (sequelizeOptions?: options) => {
       async () => {
         const dbVersion = await sequelize.databaseVersion();
         console.log(
-          `🆙  Connected to Sequelize: ${dbVersion}/${sequelizeOptions.host}`
+          `🆙  Connected to Sequelize: ${dbVersion}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}`
         );
       },
       async (err) => {
         const dbVersion = await sequelize.databaseVersion();
         console.error(
-          `📴 Failed to connect on Sequelize: ${dbVersion}/${sequelizeOptions.host}\nErr: ${err}`
+          `📴 Failed to connect on Sequelize: ${dbVersion}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}\nErr: ${err}`
         );
         setTimeout(async () => {
           await connect(sequelizeOptions);
@@ -53,7 +55,7 @@ export const connect = async (sequelizeOptions?: options) => {
     );
   } catch (err) {
     console.error(
-      `📴 Failed to connect on Sequelize: ${sequelizeOptions.host}\nErr: ${err}`
+      `📴 Failed to connect on Sequelize: ${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}\nErr: ${err}`
     );
     setTimeout(async () => {
       await connect(sequelizeOptions);

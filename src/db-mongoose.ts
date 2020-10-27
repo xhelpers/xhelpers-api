@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import { ConnectionString } from "connection-string";
 
 export interface options {
   uri: string;
@@ -14,6 +15,7 @@ export const connect = async (options?: options | undefined) => {
     return;
   }
   if (envIsNotTest) console.log("Settings API: Mongoose enabled;");
+  const connectionString = new ConnectionString(options.uri);
   try {
     const defaultOptions: mongoose.ConnectionOptions = {
       useCreateIndex: true,
@@ -25,12 +27,12 @@ export const connect = async (options?: options | undefined) => {
       () => {
         //mongoose.Promise = global.Promise;
         console.log(
-          `🆙  Connected to mongodb: ${mongoose.version}/${options.uri}`
-        );
+          `🆙  Connected to mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}`
+        )
       },
       (err) => {
         console.error(
-          `📴 Failed to connect on mongodb: ${mongoose.version}/${options.uri}\nErr: ${err}`
+          `📴 Failed to connect on mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}\nErr: ${err}`
         );
         setTimeout(async () => {
           await connect(options);
@@ -39,7 +41,7 @@ export const connect = async (options?: options | undefined) => {
     );
   } catch (err) {
     console.error(
-      `📴 Failed to connect on mongodb: ${mongoose.version}/${options.uri}\nErr: ${err}`
+      `📴 Failed to connect on mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}\nErr: ${err}`
     );
     setTimeout(async () => {
       await connect(options);

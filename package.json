@@ -45,6 +45,7 @@
     "@hapi/vision": "^6.0.0",
     "@types/chai-as-promised": "^7.1.2",
     "@types/mocha": "^8.0.3",
+    "connection-string": "^4.3.1",
     "dotenv": "^8.2.0",
     "hapi-auth-jwt2": "^10.1.0",
     "hapi-dev-errors": "^4.0.0",
