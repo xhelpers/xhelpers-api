@@ -3,7 +3,7 @@ import { ConnectionString } from "connection-string";
 
 export interface options {
   uri: string;
-  connectionOptions: mongoose.ConnectionOptions;
+  connectionOptions?: mongoose.ConnectionOptions;
   [key: string]: any;
 }
 
