@@ -16,10 +16,25 @@ const authUser = async (callback: any, user: UserSso, h: any) => {
 export const useAuthGoogle = async (server: any, callback: any) => {
   const googleClientId = process.env.SSO_GOOGLE_CLIENT_ID;
   if (!googleClientId || googleClientId.length === 0) {
-    console.log("Settings API: SSO Google disabled;");
+    console.log("Settings API: SSO Google disabled; (SSO_GOOGLE_CLIENT_ID is missing)");
     return;
   }
+  if (!process.env.SSO_GOOGLE_CLIENT_PASSWORD || process.env.SSO_GOOGLE_CLIENT_PASSWORD?.length < 32) {
+    console.log("Settings API: SSO Google disabled; (SSO_GOOGLE_CLIENT_PASSWORD variable is too short (min size: 32) or missing)");
+    return;
+  }
+  if (!process.env.SSO_GOOGLE_CLIENT_SECRET || process.env.SSO_GOOGLE_CLIENT_SECRET?.length === 0) {
+    console.log("Settings API: SSO Google disabled; (SSO_GOOGLE_CLIENT_SECRET variable is missing)");
+    return;
+  }
+
+  // from now on google is enabled
   console.log("Settings API: SSO Google enabled;");
+
+  if (!process.env.SSO_GOOGLE_LOCATION || process.env.SSO_GOOGLE_LOCATION?.length === 0) {
+    console.log("Settings API: [WARNING] SSO Google; (SSO_GOOGLE_LOCATION variable is missing unexpected things can happen)");
+  }
+
   // Google Auth
   server.auth.strategy("google", "bell", {
     provider: "google",
@@ -74,10 +89,24 @@ export const useAuthGoogle = async (server: any, callback: any) => {
 export const useAuthFacebook = async (server: any, callback: any) => {
   const facebookClientId = process.env.SSO_FACEBOOK_CLIENT_ID;
   if (!facebookClientId || facebookClientId.length === 0) {
-    console.log("Settings API: SSO Facebook disabled;");
+    console.log("Settings API: SSO Facebook disabled; (SSO_FACEBOOK_CLIENT_ID is missing)");
     return;
   }
+  if (!process.env.SSO_FACEBOOK_CLIENT_PASSWORD || process.env.SSO_FACEBOOK_CLIENT_PASSWORD?.length < 32) {
+    console.log("Settings API: SSO Facebook disabled; (SSO_FACEBOOK_CLIENT_PASSWORD variable is too short (min size: 32) or missing)");
+    return;
+  }
+  if (!process.env.SSO_FACEBOOK_CLIENT_SECRET || process.env.SSO_FACEBOOK_CLIENT_SECRET?.length === 0) {
+    console.log("Settings API: SSO Facebook disabled; (SSO_FACEBOOK_CLIENT_SECRET variable is missing)");
+    return;
+  }
+
+  // from now on facebook is enabled
   console.log("Settings API: SSO Facebook enabled;");
+
+  if (!process.env.SSO_FACEBOOK_LOCATION || process.env.SSO_FACEBOOK_LOCATION?.length === 0) {
+    console.log("Settings API: [WARNING] SSO Facebook; (SSO_FACEBOOK_LOCATION variable is missing unexpected things can happen)");
+  }
 
   //facebook
   server.auth.strategy("facebook", "bell", {
@@ -132,11 +161,25 @@ export const useAuthFacebook = async (server: any, callback: any) => {
 export const useAuthGitHub = async (server: any, callback: any) => {
   const githubClientId = process.env.SSO_GITHUB_CLIENT_ID;
   if (!githubClientId || githubClientId.length === 0) {
-    console.log("Settings API: SSO Github disabled;");
+    console.log("Settings API: SSO Github disabled; (SSO_GITHUB_CLIENT_ID is missing)");
     return;
   }
+
+  if (!process.env.SSO_GITHUB_CLIENT_PASSWORD || process.env.SSO_GITHUB_CLIENT_PASSWORD?.length < 32) {
+    console.log("Settings API: SSO Github disabled; (SSO_GITHUB_CLIENT_PASSWORD variable is too short (min size: 32) or missing)");
+    return;
+  }
+  if (!process.env.SSO_GITHUB_CLIENT_SECRET || process.env.SSO_GITHUB_CLIENT_SECRET?.length === 0) {
+    console.log("Settings API: SSO Github disabled; (SSO_GITHUB_CLIENT_SECRET variable is missing)");
+    return;
+  }
+
+  // from now on github is enabled
   console.log("Settings API: SSO Github enabled;");
 
+  if (!process.env.SSO_GITHUB_LOCATION || process.env.SSO_GITHUB_LOCATION?.length === 0) {
+    console.log("Settings API: [WARNING] SSO Github; (SSO_GITHUB_LOCATION variable is missing unexpected things can happen)");
+  }
   // GitHub Auth
   server.auth.strategy("github", "bell", {
     provider: "github",
