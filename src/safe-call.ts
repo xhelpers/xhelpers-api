@@ -24,7 +24,8 @@ export const safeCall = async (
     const user =
       request.auth && request.auth.credentials && request.auth.credentials.user;
 
-    if (user) user.token = request?.auth?.token
+    if (user) user.token = request?.auth?.token;
+    if (user?._id) user.id = user._id;
 
     if (displayLog) {
       console.timeEnd(`| 2️⃣ | Auth time`);
