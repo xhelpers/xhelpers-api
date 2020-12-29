@@ -13,6 +13,14 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo
+        env:
+          MONGO_INITDB_ROOT_USERNAME: mongo
+          MONGO_INITDB_ROOT_PASSWORD: mongo
+        ports:
+          - "27017:27017"
 
     strategy:
       matrix:
@@ -27,3 +35,5 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+      env:
+        MONGODB_URI: "mongodb://mongo:mongo@localhost:27017/test?authSource=admin"
