@@ -34,7 +34,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build --if-present
-    - run: npm test:coverage
+    - run: npm run test:coverage
       env:
         MONGODB_URI: "mongodb://mongo:mongo@localhost:27017/test?authSource=admin"
     - run: npm run cover:report
