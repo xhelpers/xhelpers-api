@@ -7,6 +7,8 @@
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "test": "NODE_ENV=TEST tsc -p tsconfig.json && $(npm bin)/mocha -r ts-node/register --exit --no-timeouts --reporter=spec --recursive src/test/**.spec.ts",
+    "test:coverage": "$(npm bin)/nyc npm run test",
+    "cover:report": "nyc report --reporter=lcov",
     "dev": "export NODE_ENV=DEV && tsc-watch -p tsconfig.json --onSuccess \"node lib/test/server.test.js\""
   },
   "keywords": [
@@ -83,6 +85,7 @@
     "chai-http": "^4.3.0",
     "mocha": "^8.2.0",
     "nodemon": "^2.0.4",
+    "nyc": "^15.1.0",
     "prettier": "^2.0.5",
     "ts-loader": "^8.0.5",
     "ts-node": "^8.10.1",
