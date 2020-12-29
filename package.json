@@ -6,7 +6,7 @@
     "build": "tsc",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
-    "test": "export NODE_ENV=TEST && $(npm bin)/mocha -r ts-node/register --exit --reporter=spec --recursive src/test/**.spec.ts",
+    "test": "NODE_ENV=TEST tsc -p tsconfig.json && $(npm bin)/mocha -r ts-node/register --exit --no-timeouts --reporter=spec --recursive src/test/**.spec.ts",
     "dev": "export NODE_ENV=DEV && tsc-watch -p tsconfig.json --onSuccess \"node lib/test/server.test.js\""
   },
   "keywords": [
