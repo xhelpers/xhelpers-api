@@ -14,7 +14,7 @@ jobs:
 
     runs-on: ubuntu-latest
     services:
-      db:
+      mongo:
         image: mongo
         env:
           MONGO_INITDB_ROOT_USERNAME: mongo
@@ -34,4 +34,4 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
       env:
-        MONGODB_URI: "mongodb://mongo:mongo@db:27017/test?authSource=admin"
+        MONGODB_URI: "mongodb://mongo:mongo@mongo:27017/test?authSource=admin"
