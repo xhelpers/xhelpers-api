@@ -19,6 +19,8 @@ jobs:
         env:
           MONGO_INITDB_ROOT_USERNAME: mongo
           MONGO_INITDB_ROOT_PASSWORD: mongo
+        ports:
+          - "27017:27017"
 
     strategy:
       matrix:
@@ -34,4 +36,4 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
       env:
-        MONGODB_URI: "mongodb://mongo:mongo@localhost:27017/test?authSource=admin"
+        MONGODB_URI: "mongodb://mongo:mongo@mongo:27017/test?authSource=admin"
