@@ -34,6 +34,10 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build --if-present
-    - run: npm test
+    - run: npm run test:coverage
       env:
         MONGODB_URI: "mongodb://mongo:mongo@localhost:27017/test?authSource=admin"
+    - run: npm run cover:report
+    - run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage/lcov.info
+      env:
+        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
