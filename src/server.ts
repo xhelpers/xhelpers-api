@@ -193,6 +193,8 @@ export const createServer = async ({
   if (!currentOptions.jwt_enabled) {
     if (envIsNotTest) console.log("Settings API: JWT disabled;");
   } else {
+    if(!process.env.JWT_ISSUER) console.log("Settings API: JWT disabled; (missing variable JWT_ISSUER)");
+    if(!process.env.JWT_EXPIRE) console.log("Settings API: JWT disabled; (missing variable JWT_EXPIRE)");
     if (envIsNotTest) console.log("Settings API: JWT enabled;");
 
     // Hapi JWT auth
