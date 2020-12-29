@@ -36,4 +36,4 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
       env:
-        MONGODB_URI: "mongodb://mongo:mongo@mongo:27017/test?authSource=admin"
+        MONGODB_URI: "mongodb://mongo:mongo@localhost:27017/test?authSource=admin"
