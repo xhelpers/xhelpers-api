@@ -14,7 +14,8 @@
 [![Node.js Version](https://img.shields.io/node/v/xhelpers-api.svg?style=flat-square "Node.js 12")](http://nodejs.org/download/)
 [![Dependencies Status](https://david-dm.org/wmkdev/xhelpers-api/status.svg?style=flat-square)](https://david-dm.org/wmkdev/xhelpers-api)
 [![devDependencies Status](https://david-dm.org/wmkdev/xhelpers-api/dev-status.svg?style=flat-square)](https://david-dm.org/wmkdev/xhelpers-api?type=dev)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3053e71e46df417aac5c21cb0f13a0d5)](https://app.codacy.com/manual/wmkDev/xhelpers-api?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Grade_Dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=wmkDev/xhelpers-api&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Coverage)
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/wmkdev/xhelpers-api)
 ![GitHub issues](https://img.shields.io/github/issues/wmkdev/xhelpers-api)
