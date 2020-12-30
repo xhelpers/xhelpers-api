@@ -480,6 +480,12 @@ $ npm run build
 $ npm run test
 ```
 
+## Test Coverage
+
+```bash
+$ npm run test:coverage
+$ npm run cover:report
+```
 #### Output
 
 ```bash
