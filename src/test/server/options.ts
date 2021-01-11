@@ -17,7 +17,7 @@ export const optionsJwtSecret: createServerOptions = {
         title: "pkgJson.name",
         version: "pkgJson.version",
       },
-      schemes: [process.env.SSL === "true" ? "https" : "http"],
+      schemes: ["http"],
       grouping: "tags",
     },
     routeOptions: {
@@ -43,7 +43,7 @@ export const optionsAppKey: createServerOptions = {
         title: "pkgJson.name",
         version: "pkgJson.version",
       },
-      schemes: [process.env.SSL === "true" ? "https" : "http"],
+      schemes: ["http"],
       grouping: "tags",
     },
     routeOptions: {
@@ -70,7 +70,57 @@ export const optionsJwtSecretAndAppKey: createServerOptions = {
         title: "pkgJson.name",
         version: "pkgJson.version",
       },
-      schemes: [process.env.SSL === "true" ? "https" : "http"],
+      schemes: ["http"],
+      grouping: "tags",
+    },
+    routeOptions: {
+      routes: "*/routes/*.route.js",
+    },
+  },
+};
+
+export const optionsWithSSL: createServerOptions = {
+  serverOptions: {
+    port: process.env.PORT || 3100,
+    host: process.env.HOST || "127.0.0.1",
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
+  },
+  options: {
+    swaggerOptions: {
+      info: {
+        title: "pkgJson.name",
+        version: "pkgJson.version",
+      },
+      schemes: ["https"],
+      grouping: "tags",
+    },
+    routeOptions: {
+      routes: "*/routes/*.route.js",
+    },
+  },
+};
+
+export const optionsWithoutSSL: createServerOptions = {
+  serverOptions: {
+    port: process.env.PORT || 3100,
+    host: process.env.HOST || "127.0.0.1",
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
+  },
+  options: {
+    swaggerOptions: {
+      info: {
+        title: "pkgJson.name",
+        version: "pkgJson.version",
+      },
+      schemes: ["https"],
       grouping: "tags",
     },
     routeOptions: {
