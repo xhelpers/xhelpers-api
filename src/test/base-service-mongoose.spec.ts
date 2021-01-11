@@ -13,7 +13,6 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
   });
 
   after(async () => {
-    console.log("after");
     return Promise.resolve();
   });
 
@@ -21,6 +20,44 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     await mongoose.connections[0].db.dropDatabase();
   });
   afterEach(async () => {});
+
+  describe("Mongoose queryAll", async () => {
+    it("should return all", async () => {
+      const service = new Service();
+      const user = {
+        id: "123"
+      };
+      const payload = {
+        task: "test",
+        description: "test",
+        done: true
+      };
+      await service.create(user, payload);
+
+      const todos = await service.queryAll(user);
+      expect(todos.results.length).to.equal(1);
+    });
+  });
+
+  describe("Mongoose queryAll", async () => {
+    it("should return all", async () => {
+      const service = new Service();
+      const user = {
+        id: "123"
+      };
+      const payload = {
+        task: "test",
+        description: "test",
+        done: true
+      };
+      const entity = await service.create(user, payload);
+
+      const todo = await service.getById(user, entity.id);
+      expect(todo?.task).to.equal(payload.task);
+      expect(todo?.description).to.equal(payload.description);
+      expect(todo?.done).to.equal(payload.done);
+    });
+  });
 
   describe("Mongoose create", async () => {
 
