@@ -8,7 +8,12 @@ use(ChaiAsPromised);
 
 describe("🚧  Testing Base Service Mongoose  🚧", () => {
   before(async () => {
-    await mongoose.connect(process.env.MONGODB_URI || "");
+    
+    await mongoose.connect(process.env.MONGODB_URI || "", {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     return Promise.resolve();
   });
 
