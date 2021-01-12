@@ -1,6 +1,8 @@
 language: node_js
 node_js:
   - 12
+services:
+  - mongodb
 before_script:
   - sleep 15
   - mongo test --eval 'db.createUser({user:"mongo",pwd:"mongo",roles:["readWrite"]});'
