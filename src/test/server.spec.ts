@@ -4,7 +4,8 @@ import { Server } from "@hapi/hapi";
 import { createServer, createServerOptions } from "../server";
 import {
   optionsJwtSecret, optionsAppKey, optionsJwtSecretAndAppKey,
-  optionsWithSSL, optionsWithoutSSL
+  optionsWithSSL, optionsWithoutSSL, optionsWithPrepareServer,
+  optionsWithInvalidPrepareServer
 } from "./server/options";
 
 use(ChaiAsPromised);
@@ -43,6 +44,26 @@ describe("🚧  Testing Server Configs  🚧", () => {
 
     it("Without SSL", async () => {
       server = await createServer(optionsWithoutSSL);
+    });
+  });
+
+  describe("prepareServer function", async() => {
+    it("Passing prepareServer", async () => {
+      server = await createServer(optionsWithPrepareServer);
+      expect(server.auth.settings.default.strategies?.[0]).to.equal("test");
+      expect(server.auth.settings.default.mode).to.equal("required");
+    });
+
+    it("Passing invalid prepareServer", async () => {
+      let err;
+      try {
+        server = await createServer(optionsWithInvalidPrepareServer);
+        err = false;
+      } catch(e) {
+        err = true;
+      }
+
+      if(!err) throw Error("Should happen error");
     });
   });
 
