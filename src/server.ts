@@ -156,7 +156,7 @@ export const createServer = async ({
     try {
       options.prepareServer(server);
     } catch (err) {
-      console.log("Provided prepareServer function is invalid")
+      console.log("Provided prepareServer function is invalid");
       throw err;
     }
   }

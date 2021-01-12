@@ -78,6 +78,6 @@ describe("🚧  Testing Server Configs  🚧", () => {
       }
 
       if(!err) throw Error("Should happen error");
-    })
+    });
   });
 });
