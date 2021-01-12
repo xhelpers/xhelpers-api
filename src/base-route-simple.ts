@@ -1,7 +1,12 @@
 import * as Hapi from "@hapi/hapi";
 import * as Joi from "@hapi/joi";
 
-import { IRouteAdd } from "./contracts/IRouteAdd";
+import {
+  HandlerActionParams,
+  IRouteAdd,
+  IValidateParams,
+} from "./contracts/IRouteAdd";
+
 import { IRouteBuild } from "./contracts/IRouteBuild";
 import { currentOptions } from "./server";
 import { safeCall } from "./safe-call";
@@ -20,12 +25,7 @@ export default abstract class BaseRouteSimple
     handler?: Function;
     options: {
       tags: any;
-      validate: {
-        payload?: Joi.ObjectSchema<any>;
-        headers?: Joi.ObjectSchema<any>;
-        query?: Joi.ObjectSchema<any>;
-        params?: Joi.ObjectSchema<any>;
-      };
+      validate: IValidateParams;
       auth: any;
       payload?: {
         maxBytes: number;
@@ -44,12 +44,7 @@ export default abstract class BaseRouteSimple
       description?: string;
       notes?: string;
       tags?: any;
-      validate?: {
-        payload?: Joi.ObjectSchema<any>;
-        headers?: Joi.ObjectSchema<any>;
-        query?: Joi.ObjectSchema<any>;
-        params?: Joi.ObjectSchema<any>;
-      };
+      validate?: IValidateParams;
       auth?: any;
       payload?: {
         maxBytes: number;
@@ -101,23 +96,12 @@ export default abstract class BaseRouteSimple
     return this;
   }
 
-  public validate(validate: {
-    payload?: Joi.ObjectSchema<any>;
-    headers?: Joi.ObjectSchema<any>;
-    query?: Joi.ObjectSchema<any>;
-    params?: Joi.ObjectSchema<any>;
-  }): IRouteAdd {
+  public validate(validate: IValidateParams): IRouteAdd {
     Object.assign(this.curentRoute.options.validate, validate);
     return this;
   }
 
-  public handler(
-    action: (
-      r: Hapi.Request,
-      h: Hapi.ResponseToolkit,
-      user?: any
-    ) => Promise<Hapi.ResponseObject>
-  ): IRouteBuild {
+  public handler(action: HandlerActionParams): IRouteBuild {
     this.curentRoute.handler = async (request: any, h: any) => {
       return safeCall(request, async (user: any) => {
         return await action(request, h, user);

@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+
 import { ConnectionString } from "connection-string";
 
 export interface options {
@@ -28,24 +29,27 @@ export const connect = async (options?: options | undefined) => {
         //mongoose.Promise = global.Promise;
         console.log(
           `🆙  Connected to mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}`
-        )
+        );
       },
       (err) => {
-        console.error(
-          `📴 Failed to connect on mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}\nErr: ${err}`
-        );
-        setTimeout(async () => {
-          await connect(options);
-        }, 5000);
+        handleFailedConnection(connectionString, err, options);
       }
     );
   } catch (err) {
-    console.error(
-      `📴 Failed to connect on mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}\nErr: ${err}`
-    );
-    setTimeout(async () => {
-      await connect(options);
-    }, 5000);
+    handleFailedConnection(connectionString, err, options);
   }
   return null;
+};
+
+const handleFailedConnection = (
+  connectionString: any,
+  err: any,
+  options: options
+) => {
+  console.error(
+    `📴 Failed to connect on mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}\nErr: ${err}`
+  );
+  setTimeout(async () => {
+    await connect(options);
+  }, 5000);
 };
