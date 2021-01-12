@@ -54,6 +54,7 @@ export interface options {
   enableSSL?: boolean;
   enableSSO?: boolean;
   ssoCallback?: Function;
+  prepareServer?: (server: Hapi.Server) => void;
 }
 
 export interface createServerOptions {
@@ -151,6 +152,14 @@ export const createServer = async ({
 
   // Hapi server
   const server = new Hapi.Server(mergedOpts);
+  if (options?.prepareServer) {
+    try {
+      options.prepareServer(server);
+    } catch (err) {
+      console.log("Provided prepareServer function is invalid");
+      throw err;
+    }
+  }
 
   server.app = {
     // Mongoose connect

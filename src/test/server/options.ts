@@ -1,4 +1,5 @@
 import { createServerOptions } from "../../server";
+import { Server } from "@hapi/hapi";
 
 export const optionsJwtSecret: createServerOptions = {
   serverOptions: {
@@ -17,7 +18,7 @@ export const optionsJwtSecret: createServerOptions = {
         title: "pkgJson.name",
         version: "pkgJson.version",
       },
-      schemes: [process.env.SSL === "true" ? "https" : "http"],
+      schemes: ["http"],
       grouping: "tags",
     },
     routeOptions: {
@@ -43,7 +44,7 @@ export const optionsAppKey: createServerOptions = {
         title: "pkgJson.name",
         version: "pkgJson.version",
       },
-      schemes: [process.env.SSL === "true" ? "https" : "http"],
+      schemes: ["http"],
       grouping: "tags",
     },
     routeOptions: {
@@ -70,11 +71,126 @@ export const optionsJwtSecretAndAppKey: createServerOptions = {
         title: "pkgJson.name",
         version: "pkgJson.version",
       },
-      schemes: [process.env.SSL === "true" ? "https" : "http"],
+      schemes: ["http"],
       grouping: "tags",
     },
     routeOptions: {
       routes: "*/routes/*.route.js",
     },
+  },
+};
+
+export const optionsWithSSL: createServerOptions = {
+  serverOptions: {
+    port: process.env.PORT || 3100,
+    host: process.env.HOST || "127.0.0.1",
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
+  },
+  options: {
+    swaggerOptions: {
+      info: {
+        title: "pkgJson.name",
+        version: "pkgJson.version",
+      },
+      schemes: ["https"],
+      grouping: "tags",
+    },
+    routeOptions: {
+      routes: "*/routes/*.route.js",
+    },
+  },
+};
+
+export const optionsWithoutSSL: createServerOptions = {
+  serverOptions: {
+    port: process.env.PORT || 3100,
+    host: process.env.HOST || "127.0.0.1",
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
+  },
+  options: {
+    swaggerOptions: {
+      info: {
+        title: "pkgJson.name",
+        version: "pkgJson.version",
+      },
+      schemes: ["https"],
+      grouping: "tags",
+    },
+    routeOptions: {
+      routes: "*/routes/*.route.js",
+    },
+  },
+};
+
+export const optionsWithPrepareServer: createServerOptions = {
+  serverOptions: {
+    port: process.env.PORT || 3100,
+    host: process.env.HOST || "127.0.0.1",
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
+  },
+  options: {
+    swaggerOptions: {
+      info: {
+        title: "pkgJson.name",
+        version: "pkgJson.version",
+      },
+      schemes: ["https"],
+      grouping: "tags",
+    },
+    routeOptions: {
+      routes: "*/routes/*.route.js",
+    },
+    prepareServer: (server: Server) => {
+      server.auth.scheme("test", (server: any, options: any) => {
+        return {
+          authenticate: async (req, h) => {
+            const credentials = { user: { name: "kiko" } };
+            return h.authenticated({ credentials, artifacts: {} });
+          },
+        };
+      });
+      server.auth.strategy("test", "test");
+      server.auth.default("test");
+    }
+  },
+};
+
+export const optionsWithInvalidPrepareServer: createServerOptions = {
+  serverOptions: {
+    port: process.env.PORT || 3100,
+    host: process.env.HOST || "127.0.0.1",
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
+  },
+  options: {
+    swaggerOptions: {
+      info: {
+        title: "pkgJson.name",
+        version: "pkgJson.version",
+      },
+      schemes: ["https"],
+      grouping: "tags",
+    },
+    routeOptions: {
+      routes: "*/routes/*.route.js",
+    },
+    prepareServer: (server: Server) => {
+      server.auth.strategy("test", "test");
+    }
   },
 };
