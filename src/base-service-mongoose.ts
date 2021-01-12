@@ -9,7 +9,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     this.Model = model;
   }
   protected Model: mongoose.Model<mongoose.Document>;
-  protected abstract async validate(
+  protected abstract validate(
     entity: mongoose.Document | null,
     payload: T
   ): Promise<Boolean>;
@@ -137,10 +137,17 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     }
   ): Promise<T | null> {
     Object.assign(projection, this.sentitiveInfo);
-    return await this.Model.findById(id)
-      .populate({ ...populateOptions })
-      .select([...projection])
-      .lean();
+    try {
+      return await this.Model.findById(id)
+        .populate({ ...populateOptions })
+        .select([...projection])
+        .lean();
+    } catch (err) {
+      if (err instanceof mongoose.Error.CastError) {
+        return null;
+      }
+      throw err;
+    }
   }
   public async create(user: any, payload: any): Promise<any> {
     await this.validate(null, payload);

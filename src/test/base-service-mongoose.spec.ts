@@ -44,6 +44,34 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     });
   });
 
+  describe("Mongoose getById", async () => {
+    it("should return one", async () => {
+      const service = new Service();
+      const user = {
+        id: "123"
+      };
+      const payload = {
+        task: "test",
+        description: "test",
+        done: true
+      };
+      await service.create(user, payload);
+
+      const todos = await service.queryAll(user);
+      expect(todos.results.length).to.equal(1);
+    });
+
+    it("should return null - not found", async () => {
+      const service = new Service();
+      const user = {
+        id: "123"
+      };
+
+      const todo = await service.getById(user, "123");
+      expect(todo).to.equal(null);
+    });
+  });
+
   describe("Mongoose queryAll", async () => {
     it("should return all", async () => {
       const service = new Service();
