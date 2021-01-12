@@ -1,11 +1,14 @@
 language: node_js
 node_js:
   - 12
+before_script:
+  - sleep 15
+  - mongo test --eval 'db.createUser({user:"mongo",pwd:"mongo",roles:["readWrite"]});'
 script:
   - npm i --production
   - npm audit fix
   - npm run build
-  - npm test
+  - MONGODB_URI="mongodb://mongo:mongo@localhost:27017/test?authSource=admin" npm test
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
