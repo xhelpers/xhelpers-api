@@ -44,8 +44,8 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     });
   });
 
-  describe("Mongoose getById", async () => {
-    it("should return one", async () => {
+  describe("Mongoose queryAll", async () => {
+    it("should return all", async () => {
       const service = new Service();
       const user = {
         id: "123"
@@ -61,19 +61,9 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
       expect(todos.results.length).to.equal(1);
     });
 
-    it("should return null - not found", async () => {
-      const service = new Service();
-      const user = {
-        id: "123"
-      };
-
-      const todo = await service.getById(user, "123");
-      expect(todo).to.equal(null);
-    });
   });
-
-  describe("Mongoose queryAll", async () => {
-    it("should return all", async () => {
+  describe("Mongoose getById", async () => {
+    it("should return one", async () => {
       const service = new Service();
       const user = {
         id: "123"
@@ -89,6 +79,17 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
       expect(todo?.task).to.equal(payload.task);
       expect(todo?.description).to.equal(payload.description);
       expect(todo?.done).to.equal(payload.done);
+      expect(todo?.createdBy).to.equal(user.id);
+    });
+
+    it("should return null - not found", async () => {
+      const service = new Service();
+      const user = {
+        id: "123"
+      };
+
+      const todo = await service.getById(user, "123");
+      expect(todo).to.equal(null);
     });
   });
 
