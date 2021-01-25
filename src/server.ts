@@ -154,7 +154,7 @@ export const createServer = async ({
   const server = new Hapi.Server(mergedOpts);
   if (options?.prepareServer) {
     try {
-      options.prepareServer(server);
+      await options.prepareServer(server);
     } catch (err) {
       console.log("Provided prepareServer function is invalid");
       throw err;
