@@ -62,8 +62,9 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       limit: 10,
       sort: { _id: -1 },
     },
-    populateOptions: { path: string | any; select?: string | any } = {
+    populateOptions: { path: string | any; select?: string | any, virtuals?: boolean | string[] } = {
       path: null,
+      virtuals: false
     }
   ): Promise<{
     metadata: {
@@ -109,7 +110,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       .limit(pagination.limit)
       .sort(sort)
       .select([...select])
-      .lean();
+      .lean({ virtuals: populateOptions.virtuals });
 
     const count = await this.Model.countDocuments(filter);
 
@@ -130,10 +131,11 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   public async getById(
     user: any,
     id: any,
-    projection: any = [],
-    populateOptions: { path: string | any; select?: string | any } = {
+    projection: any[] = [],
+    populateOptions: { path: string | any; select?: string | any, virtuals?: boolean | string[] } = {
       path: ".",
       select: ["-__v"],
+      virtuals: false,
     }
   ): Promise<T | null> {
     Object.assign(projection, this.sentitiveInfo);
@@ -141,7 +143,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       return await this.Model.findById(id)
         .populate({ ...populateOptions })
         .select([...projection])
-        .lean();
+        .lean({ virtuals: populateOptions.virtuals });
     } catch (err) {
       if (err instanceof mongoose.Error.CastError) {
         return null;

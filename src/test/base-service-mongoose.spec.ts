@@ -44,7 +44,7 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     });
   });
 
-  describe("Mongoose queryAll", async () => {
+  describe("Mongoose  - with virtual", async () => {
     it("should return all", async () => {
       const service = new Service();
       const user = {
@@ -57,11 +57,45 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
       };
       await service.create(user, payload);
 
-      const todos = await service.queryAll(user);
+      const todos = await service.queryAll(user,
+        { filter: {}, fields: [] },
+        { limit: 10, offset: 0, sort: 1 },
+        { path: ".", virtuals: true }
+      );
       expect(todos.results.length).to.equal(1);
+
+      const todo = todos.results[0];
+      expect(todo?.taskUpperCase).to.equal(
+        payload.task.toUpperCase()
+      );
     });
 
+    it("should return all - using array", async () => {
+      const service = new Service();
+      const user = {
+        id: "123"
+      };
+      const payload = {
+        task: "test",
+        description: "test",
+        done: true
+      };
+      await service.create(user, payload);
+
+      const todos = await service.queryAll(user,
+        { filter: {}, fields: [] },
+        { limit: 10, offset: 0, sort: 1 },
+        { path: ".", virtuals: ["taskUpperCase"] }
+      );
+      expect(todos.results.length).to.equal(1);
+
+      const todo = todos.results[0];
+      expect(todo?.taskUpperCase).to.equal(
+        payload.task.toUpperCase()
+      );
+    });
   });
+
   describe("Mongoose getById", async () => {
     it("should return one", async () => {
       const service = new Service();
@@ -77,6 +111,7 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
 
       const todo = await service.getById(user, entity.id);
       expect(todo?.task).to.equal(payload.task);
+      expect(todo?.taskUpperCase).to.equal(undefined);
       expect(todo?.description).to.equal(payload.description);
       expect(todo?.done).to.equal(payload.done);
       expect(todo?.createdBy).to.equal(user.id);
@@ -90,6 +125,56 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
 
       const todo = await service.getById(user, "123");
       expect(todo).to.equal(null);
+    });
+  });
+
+  describe("Mongoose getById with virtual", async () => {
+    it("should return one", async () => {
+      const service = new Service();
+      const user = {
+        id: "123"
+      };
+      const payload = {
+        task: "test",
+        description: "test",
+        done: true
+      };
+      const entity = await service.create(user, payload);
+
+      const todo = await service.getById(
+        user, entity.id, [], { path: ".", virtuals: true }
+      );
+      expect(todo?.task).to.equal(payload.task);
+      expect(todo?.taskUpperCase).to.equal(
+        payload.task.toUpperCase()
+      );
+      expect(todo?.description).to.equal(payload.description);
+      expect(todo?.done).to.equal(payload.done);
+      expect(todo?.createdBy).to.equal(user.id);
+    });
+
+    it("should return one - using array", async () => {
+      const service = new Service();
+      const user = {
+        id: "123"
+      };
+      const payload = {
+        task: "test",
+        description: "test",
+        done: true
+      };
+      const entity = await service.create(user, payload);
+
+      const todo = await service.getById(
+        user, entity.id, [], { path: ".", virtuals: ["taskUpperCase"] }
+      );
+      expect(todo?.task).to.equal(payload.task);
+      expect(todo?.taskUpperCase).to.equal(
+        payload.task.toUpperCase()
+      );
+      expect(todo?.description).to.equal(payload.description);
+      expect(todo?.done).to.equal(payload.done);
+      expect(todo?.createdBy).to.equal(user.id);
     });
   });
 
@@ -138,6 +223,7 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
       return Promise.resolve();
     });
   });
+
   describe("Mongoose update", async () => {
     it("should update", async () => {
       const service = new Service();
