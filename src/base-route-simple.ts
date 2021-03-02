@@ -47,9 +47,9 @@ export default abstract class BaseRouteSimple
       validate?: IValidateParams;
       auth?: any;
       payload?: {
-        maxBytes: number;
-        parse: boolean;
-        output: string;
+        maxBytes?: number;
+        parse?: boolean;
+        output?: string;
         [key: string]: any;
       };
       plugins?: any;
