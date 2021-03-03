@@ -163,7 +163,7 @@ export const optionsWithPrepareServer: createServerOptions = {
       });
       server.auth.strategy("test", "test");
       server.auth.default("test");
-    }
+    },
   },
 };
 
@@ -191,6 +191,32 @@ export const optionsWithInvalidPrepareServer: createServerOptions = {
     },
     prepareServer: (server: Server) => {
       server.auth.strategy("test", "test");
-    }
+    },
+  },
+};
+
+export const optionsWithOverridePlugin: createServerOptions = {
+  serverOptions: {
+    port: process.env.PORT || 3100,
+    host: process.env.HOST || "127.0.0.1",
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
+  },
+  options: {
+    swaggerOptions: {
+      info: {
+        title: "pkgJson.name",
+        version: "pkgJson.version",
+      },
+      schemes: ["https"],
+      grouping: "tags",
+    },
+    routeOptions: {
+      routes: "*/routes/*.route.js",
+    },
+    plugins: [],
   },
 };

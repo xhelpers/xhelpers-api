@@ -3,9 +3,14 @@ import { expect, use } from "chai";
 import { Server } from "@hapi/hapi";
 import { createServer, createServerOptions } from "../server";
 import {
-  optionsJwtSecret, optionsAppKey, optionsJwtSecretAndAppKey,
-  optionsWithSSL, optionsWithoutSSL, optionsWithPrepareServer,
-  optionsWithInvalidPrepareServer
+  optionsJwtSecret,
+  optionsAppKey,
+  optionsJwtSecretAndAppKey,
+  optionsWithSSL,
+  optionsWithoutSSL,
+  optionsWithPrepareServer,
+  optionsWithInvalidPrepareServer,
+  optionsWithOverridePlugin,
 } from "./server/options";
 
 use(ChaiAsPromised);
@@ -20,7 +25,7 @@ describe("🚧  Testing Server Configs  🚧", () => {
     server = null;
   });
 
-  afterEach(async() => {});
+  afterEach(async () => {});
 
   describe("Auth Options", async () => {
     it("JWT Secret", async () => {
@@ -34,7 +39,6 @@ describe("🚧  Testing Server Configs  🚧", () => {
     it("JWT Secret and App Key", async () => {
       server = await createServer(optionsJwtSecretAndAppKey);
     });
-    
   });
 
   describe("SSL options", async () => {
@@ -47,7 +51,7 @@ describe("🚧  Testing Server Configs  🚧", () => {
     });
   });
 
-  describe("prepareServer function", async() => {
+  describe("prepareServer function", async () => {
     it("Passing prepareServer", async () => {
       server = await createServer(optionsWithPrepareServer);
       expect(server.auth.settings.default.strategies?.[0]).to.equal("test");
@@ -59,11 +63,11 @@ describe("🚧  Testing Server Configs  🚧", () => {
       try {
         server = await createServer(optionsWithInvalidPrepareServer);
         err = false;
-      } catch(e) {
+      } catch (e) {
         err = true;
       }
 
-      if(!err) throw Error("Should happen error");
+      if (!err) throw Error("Should happen error");
     });
   });
 
@@ -73,11 +77,52 @@ describe("🚧  Testing Server Configs  🚧", () => {
       try {
         server = await createServer({} as createServerOptions);
         err = false;
-      } catch(e) {
+      } catch (e) {
         err = true;
       }
 
-      if(!err) throw Error("Should happen error");
+      if (!err) throw Error("Should happen error");
+    });
+  });
+
+  describe("Plugin options", async () => {
+    it("With Custom Override Plugin", async () => {
+      optionsWithOverridePlugin.options.plugins = [
+        {
+          plugin: require("laabr"),
+          options: {
+            colored: false,
+            formats: {
+              response:
+                "[:time[iso]] URL: :url ':method' StatusCode: ':status' Time Elapsed: (:responseTime ms)",
+            },
+            hapiPino: {
+              logPayload: false,
+              mergeHapiLogData: true,
+            },
+          },
+        },
+      ] as any;
+    });
+
+    it("With new Override Plugin", async () => {
+      optionsWithOverridePlugin.options.plugins = [
+        {
+          plugin: require("laabr"),
+          options: {
+            colored: false,
+            formats: {
+              response: "':method' StatusCode: ':status'",
+            },
+            hapiPino: {
+              logPayload: false,
+              mergeHapiLogData: true,
+            },
+          },
+        },
+      ] as any;
+
+      server = await createServer(optionsWithOverridePlugin);
     });
   });
 });
