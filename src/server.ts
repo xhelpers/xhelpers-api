@@ -47,6 +47,7 @@ export interface options {
   routeOptions?: {
     routes: string;
   };
+  plugins?: [];
   app_key_auth?: string;
   jwt_secret?: string;
   mongooseOptions?: mongooseOptions;
@@ -92,6 +93,7 @@ export const createServer = async ({
     routeOptions: {
       routes: "**/routes/*.js",
     },
+    plugins: options.plugins || [],
     enableSSL: options.enableSSL || process.env.SSL === "true",
     enableSSO: options.enableSSO || false,
     ssoCallback: (user: {
@@ -202,8 +204,10 @@ export const createServer = async ({
   if (!currentOptions.jwt_enabled) {
     if (envIsNotTest) console.log("Settings API: JWT disabled;");
   } else {
-    if(!process.env.JWT_ISSUER) console.log("Settings API: JWT disabled; (missing variable JWT_ISSUER)");
-    if(!process.env.JWT_EXPIRE) console.log("Settings API: JWT disabled; (missing variable JWT_EXPIRE)");
+    if (!process.env.JWT_ISSUER)
+      console.log("Settings API: JWT disabled; (missing variable JWT_ISSUER)");
+    if (!process.env.JWT_EXPIRE)
+      console.log("Settings API: JWT disabled; (missing variable JWT_EXPIRE)");
     if (envIsNotTest) console.log("Settings API: JWT enabled;");
 
     // Hapi JWT auth
@@ -237,8 +241,9 @@ export const createServer = async ({
   const routeOptions: any = {
     ...defaultOptions.routeOptions,
   };
+
   // Hapi plugins
-  await server.register([
+  const defaultPlugins: any = [
     Inert,
     Vision,
     {
@@ -278,7 +283,16 @@ export const createServer = async ({
         },
       },
     },
-  ]);
+  ];
+
+  const allPlugins = defaultOptions.plugins.concat(
+    defaultPlugins.filter(
+      (defp: any) =>
+        !defaultOptions.plugins.find((f: any) => f.plugin == defp.plugin)
+    )
+  );
+
+  await server.register(allPlugins);
 
   server.route({
     method: "GET",
