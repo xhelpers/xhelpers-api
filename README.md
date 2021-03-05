@@ -50,6 +50,8 @@ This project was made for personal use, it should simplify the process of creati
 
 ## Versions
 
+- ➕ 2.1.18 - Custom/Override server plugins
+...
 - ➕ 2.1.6 - Update SSO integration with @hapi/bell.
 - ➕ 2.1.1-5 - Many minor upgrade versions bumps.
 - ➕ 2.1.0 - New authorization mode 'appkey'.
@@ -101,6 +103,7 @@ createServer({ serverOptions, options }:
     enableSSL: boolean;
     enableSSO: boolean;
     ssoCallback: Function;
+    plugins?: [];
   };
 }): Hapi.Server
 ```
