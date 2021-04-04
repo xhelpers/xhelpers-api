@@ -41,13 +41,13 @@ export function setUpSentry(
     method(request, h) {
       const response = (request.response as any);
       const isBoom = response.isBoom;
-      const ignoreStatusCode = parsedOptions.ignoreStatusCode.includes(response.output?.statusCode)
-      const ignoreRoutes = parsedOptions.ignoreRoutes.includes(request.route.path)  // incluir "/{p*}" no array para ignorar rotas que não existem
-      const remoteAddress = request.headers[parsedOptions.remoteAddressHeader] || request.info?.remoteAddress
-      const host = request.headers["host"]
+      const ignoreStatusCode = parsedOptions.ignoreStatusCode.includes(response.output?.statusCode);
+      const ignoreRoutes = parsedOptions.ignoreRoutes.includes(request.route.path);  // incluir "/{p*}" no array para ignorar rotas que não existem
+      const remoteAddress = request.headers[parsedOptions.remoteAddressHeader] || request.info?.remoteAddress;
+      const host = request.headers["host"];
       if (isBoom && !ignoreStatusCode && !ignoreRoutes) {
         console.log("Sending error to Sentry")
-        Sentry.withScope(scope => {
+        Sentry.withScope((scope) => {
           const payloadString = request.payload && JSON.stringify(request.payload);
           scope.setExtra("payload", request.payload && JSON.parse(payloadString));
           scope.setExtra("rawPayload", request.payload && payloadString);
@@ -58,11 +58,11 @@ export function setUpSentry(
           scope.setExtra("headers", request.headers);
           scope.setExtra("method", request.method);
 
-          scope.addEventProcessor(sentryEvent => {
+          scope.addEventProcessor((sentryEvent) => {
             sentryEvent.level = Sentry.Severity.Error;
   
             // some SDK identificator
-            sentryEvent.sdk = { name: 'sentry.javascript.node.hapi', version: parsedOptions.version };
+            sentryEvent.sdk = { name: "sentry.javascript.node.hapi", version: parsedOptions.version };
             return sentryEvent;
           });
   
