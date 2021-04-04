@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
     "noImplicitAny": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "sourceMap": true,
+    "baseUrl": "./",
+    "paths": {
+      "mongoose": [
+        "node_modules/@types/mongoose"
+      ]
+    }
   },
   "include": ["src/**/*", "index.d.ts"],
   "exclude": []
