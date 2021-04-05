@@ -50,6 +50,7 @@ This project was made for personal use, it should simplify the process of creati
 
 ## Versions
 
+- ➕ 2.1.19 - Add sentry integration
 - ➕ 2.1.18 - Custom/Override server plugins
 ...
 - ➕ 2.1.6 - Update SSO integration with @hapi/bell.
