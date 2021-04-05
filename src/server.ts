@@ -13,6 +13,7 @@ import {
   options as sequelizeOptions,
 } from "./db-sequelize";
 import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
+import { SentryOptions, setUpSentry } from "./logs/sentry";
 
 const Inert = require("@hapi/inert");
 const laabr = require("laabr");
@@ -52,6 +53,7 @@ export interface options {
   jwt_secret?: string;
   mongooseOptions?: mongooseOptions;
   sequelizeOptions?: sequelizeOptions;
+  sentryOptions?: SentryOptions;
   enableSSL?: boolean;
   enableSSO?: boolean;
   ssoCallback?: Function;
@@ -176,6 +178,21 @@ export const createServer = async ({
     await server.register({ plugin: require("hapi-require-https") });
   } else {
     if (envIsNotTest) console.log("Settings API: SSL disabled;");
+  }
+
+  // Sentry
+  const sentryDSN = defaultOptions.sentryOptions?.dsn || process.env.SENTRY_DSN;
+  if (sentryDSN) {
+    if (envIsNotTest) console.log("Settings API: Sentry enabled;");
+    await setUpSentry(
+      server, {
+        ...defaultOptions.sentryOptions,
+        dsn: sentryDSN,
+        version: defaultOptions.swaggerOptions.info.version
+      }
+    );
+  } else {
+    if (envIsNotTest) console.log("Settings API: Sentry disabled;");
   }
 
   // AppKey Secret
