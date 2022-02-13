@@ -68,14 +68,14 @@ describe("🚧  Testing API Health  🚧", () => {
       return Promise.resolve();
     });
 
-    it("/status should return 200", async () => {
-      const options = {
-        method: "GET",
-        url: "/status",
-      };
-      const response = await server.inject(options);
-      expect(response.statusCode).to.equal(200);
-      return Promise.resolve();
-    });
+    // it("/status should return 200", async () => {
+    //   const options = {
+    //     method: "GET",
+    //     url: "/status",
+    //   };
+    //   const response = await server.inject(options);
+    //   expect(response.statusCode).to.equal(200);
+    //   return Promise.resolve();
+    // });
   });
 });

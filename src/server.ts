@@ -277,15 +277,16 @@ export const createServer = async ({
         showErrors: process.env.NODE_ENV !== "production",
       },
     },
-    {
-      plugin: require("hapijs-status-monitor"),
-      options: {
-        title: `${defaultOptions.swaggerOptions.info.title} - Status Monitor`,
-        routeConfig: {
-          auth: false,
-        },
-      },
-    },
+    // TODO: add safe status monitor
+    // {
+    //   plugin: require("hapijs-status-monitor"),
+    //   options: {
+    //     title: `${defaultOptions.swaggerOptions.info.title} - Status Monitor`,
+    //     routeConfig: {
+    //       auth: false,
+    //     },
+    //   },
+    // },
     {
       plugin: laabr,
       options: {
@@ -332,7 +333,7 @@ export const createServer = async ({
       console.log("=".repeat(100));
       console.log(`🆙  Server api    : ${server.info.uri}/`);
       console.log(`🆙  Server doc    : ${server.info.uri}/documentation`);
-      console.log(`🆙  Server status : ${server.info.uri}/status`);
+      // console.log(`🆙  Server status : ${server.info.uri}/status`);
       console.log("=".repeat(100));
 
       console.log(`Routing table:`);
