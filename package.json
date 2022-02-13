@@ -33,7 +33,7 @@
   "author": "wmkdev",
   "repository": {
     "type": "git",
-    "url": "git://github.com/wmkDev/xhelpers-api.git"
+    "url": "git://github.com/xhelpers/xhelpers-api.git"
   },
   "license": "ISC",
   "engines": {
