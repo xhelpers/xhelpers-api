@@ -1,5 +1,5 @@
 import * as Hapi from "@hapi/hapi";
-import * as Joi from "@hapi/joi";
+import * as Joi from "joi";
 
 import { IRouteBuild } from "./IRouteBuild";
 
