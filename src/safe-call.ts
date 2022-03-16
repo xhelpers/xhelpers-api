@@ -46,7 +46,8 @@ export const safeCall = async (
       return r;
     });
   } catch (error) {
-    console.error("|❗️ 🔥 |", error.message, JSON.stringify(error));
+    if (displayLog)
+      console.error("|❗️ 🔥 |", error.message, JSON.stringify(error));
     return errorHandler(error);
   } finally {
     if (displayLog)
