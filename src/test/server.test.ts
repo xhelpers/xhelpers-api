@@ -23,11 +23,11 @@ const start = async () => {
         grouping: "tags",
       },
       routeOptions: {
-        routes: "**/routes/*.js",
+        routes: "test/routes/*.js",
       },
     },
   };
   server = await createServer(options);
   await server.start();
-}
+};
 start();

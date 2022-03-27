@@ -10,10 +10,9 @@
 ![npm](https://img.shields.io/npm/dw/xhelpers-api)
 [![HitCount](http://hits.dwyl.com/wmkdev/xhelpers-api.svg)](http://hits.dwyl.com/wmkdev/xhelpers-api)
 
-[![HAPI 19.0.0](http://img.shields.io/badge/hapi-19.0.0-brightgreen.svg?style=flat-square "Latest Hapi.js")](http://hapijs.com)
 [![Node.js Version](https://img.shields.io/node/v/xhelpers-api.svg?style=flat-square "Node.js 12")](http://nodejs.org/download/)
-[![Dependencies Status](https://david-dm.org/wmkdev/xhelpers-api/status.svg?style=flat-square)](https://david-dm.org/wmkdev/xhelpers-api)
-[![devDependencies Status](https://david-dm.org/wmkdev/xhelpers-api/dev-status.svg?style=flat-square)](https://david-dm.org/wmkdev/xhelpers-api?type=dev)
+[![hapi 20.2.1](https://img.shields.io/badge/hapi-20.2.1-brightgreen.svg?style=flat-square "Latest Hapi.js")](http://nodejs.org/download/)
+
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=wmkDev/xhelpers-api&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Coverage)
 
@@ -24,32 +23,33 @@
 
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/keywords/wmkdev/xhelpers-api)
 
+
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
 
 ## Description
 
-This project was made for personal use, it should simplify the process of creating an new api using node js + typescript + database (Mongoose/Sequelize).
+This project was made to simplify the process of creating an new api with nodejs + typescript + orm database.
 
 ### Stack
 
-- [TypeScript 3.8](https://www.typescriptlang.org/).
+- [TypeScript 4.5.5](https://www.typescriptlang.org/).
 - [Node.js 12+](https://nodejs.org/).
-- [Mongoose 5.7](https://mongoosejs.com/).
-  - [Mongodb](https://www.mongodb.com/).
-- [Sequelize 5.21](https://sequelize.org/).
-  - [MySQL](https://www.mysql.com/).
-  - [MariaDB](https://mariadb.org/).
-  - [SQLite](https://www.sqlite.org/index.html).
-  - [Microsoft SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-2019).
-  - [PostgreSQL](https://www.postgresql.org/).
-- [Hapi 19.0](https://hapi.dev/).
-- [JWT](https://github.com/dwyl/hapi-auth-jwt2).
-- [SSO bell](https://github.com/hapijs/bell).
-- [Hapi-swagger](https://github.com/glennjones/hapi-swagger).
+- [Hapi 20.2.1](https://hapi.dev/).
+- [JWT 10.2.0](https://github.com/dwyl/hapi-auth-jwt2).
+- [Hapi-swagger 14.2.5](https://github.com/glennjones/hapi-swagger).
+- [Mongoose 6.2.8](https://mongoosejs.com/).  
+- [Sequelize 6.17.0](https://sequelize.org/).
 
 ## Versions
 
+- 🔥 3.0.0 - New version (breaking change)
+  - Upgraded packages to @hapi 20.2.1  
+  - Upgraded packages to mongoose 6.2.8
+    - Mongoose Migrating from 5.x to 6.x (https://mongoosejs.com/docs/migrating_to_6.html)
+  - Removed default route /status 'hapijs-status-monitor'
+  - Removed default packages 'hapi-dev-errors' 
+...
 - ➕ 2.1.19 - Add sentry integration
 - ➕ 2.1.18 - Custom/Override server plugins
 ...
@@ -179,17 +179,12 @@ Routing table:
 
 ```code
 🆙  Server doc    : http://127.0.0.1:5000/documentation
-🆙  Server status : http://127.0.0.1:5000/status
 🆙  Server health : http://127.0.0.1:5000/health
 ```
 
 ### Swagger /documentation
 
 ![Status](docs/swagger.docs.png)
-
-### Status
-
-![Status](docs/status.png)
 
 ### Routes
 
@@ -536,12 +531,5 @@ $ npm run cover:report
   14 passing (2s)
 ```
 
-## Support
-
-[Pending]
-
-## Stay in touch
-
-- Author - [wmkdev](https://github.com/wmkDev)
-
 ## License
+

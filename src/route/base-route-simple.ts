@@ -4,14 +4,15 @@ import {
   HandlerActionParams,
   IRouteAdd,
   IValidateParams,
-} from "./contracts/IRouteAdd";
+} from "../contracts/IRouteAdd";
 
-import { IRouteBuild } from "./contracts/IRouteBuild";
-import { currentOptions } from "./server";
-import { safeCall } from "./safe-call";
+import { IRouteBuild } from "../contracts/IRouteBuild";
+import { currentOptions } from "../server";
+import { safeCall } from "../utils/safe-call";
 
 export default abstract class BaseRouteSimple
-  implements IRouteAdd, IRouteBuild {
+  implements IRouteAdd, IRouteBuild
+{
   protected tags: any;
   constructor(tags: any = ["."]) {
     this.routes = [];

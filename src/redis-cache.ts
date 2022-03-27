@@ -21,4 +21,4 @@ export const useCache = async (
     default:
       break;
   }
-}
+};

@@ -4,4 +4,4 @@ export const promiseMe = async (promise: any): Promise<[any, any]> => {
     .catch((error: any) => {
       return Promise.resolve([undefined, error]);
     });
-}
+};

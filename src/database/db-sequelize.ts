@@ -24,7 +24,7 @@ export const connect = async (sequelizeOptions?: options) => {
     ...sequelizeOptions,
     dialectOptions: {
       connectTimeout: 60000,
-      ...sequelizeOptions.dialectOptions
+      ...sequelizeOptions.dialectOptions,
     },
   };
   const connectionString = new ConnectionString(sequelizeOptions.host);

@@ -1,7 +1,7 @@
 import * as Joi from "joi";
 import * as jwt from "jsonwebtoken";
 
-import BaseRouteSimple from "../../base-route-simple";
+import BaseRouteSimple from "../../route/base-route-simple";
 
 const httpResourcePath = "todos";
 
@@ -123,16 +123,9 @@ class TodoRoutes extends BaseRouteSimple {
 // ****
 // Model validation Joi
 const todoDemoPayload = Joi.object({
-  title: Joi.string()
-    .required()
-    .description("Title"),
-  description: Joi.string()
-    .required()
-    .description("Description"),
-  done: Joi.boolean()
-    .required()
-    .default(false)
-    .description("Todo is done"),
+  title: Joi.string().required().description("Title"),
+  description: Joi.string().required().description("Description"),
+  done: Joi.boolean().required().default(false).description("Todo is done"),
 })
   .description("Todo payload")
   .label("TodoPayload");

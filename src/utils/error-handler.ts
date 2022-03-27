@@ -2,7 +2,7 @@ import * as Boom from "@hapi/boom";
 
 import { logger } from "./logger";
 
-export const errorHandler = async(err: any) => {
+export const errorHandler = async (err: any) => {
   logger("err", "LogInfo:", err);
   if (process.env.LOGLEVEL === "HIGH") {
     logger("info", "Info:", err);
@@ -19,14 +19,14 @@ export const errorHandler = async(err: any) => {
     // mongodb error
     return Boom.boomify(err, {
       message: `Bad request ${err.code}-${err.errmsg}`,
-      statusCode: 400
+      statusCode: 400,
     });
   }
   if (err.name === "JsonWebTokenError") {
     // invalid token
     return Boom.boomify(err, {
       message: "Authorization error",
-      statusCode: 401
+      statusCode: 401,
     });
   }
   if (err.name === "Error") {
@@ -46,6 +46,6 @@ export const errorHandler = async(err: any) => {
   return Boom.boomify(err, {
     message: err.message,
     statusCode: 500,
-    override: true
+    override: true,
   });
-}
+};
