@@ -1,4 +1,5 @@
 import * as Hapi from "@hapi/hapi";
+import * as Boom from "@hapi/boom";
 import * as Joi from "joi";
 
 import { IRouteBuild } from "./IRouteBuild";
@@ -14,7 +15,7 @@ export type HandlerActionParams = (
   r: Hapi.Request,
   h: Hapi.ResponseToolkit,
   user: any
-) => Promise<Hapi.ResponseObject>;
+) => Promise<Hapi.ResponseObject | Boom.Boom>;
 
 export interface IRouteAdd {
   validate(validate: IValidateParams): IRouteAdd;
