@@ -12,15 +12,15 @@ export const safeCall = async (
   action: { (user: any): Promise<any>; (arg0: any): Promise<any> }
 ) => {
   if (typeof action !== "function") {
-    throw 'Parameter "action" must be a function.';
+    throw "Parameter 'action' must be a function.";
   }
   const displayLog = process.env.NODE_ENV === "DEV";
 
   try {
     if (displayLog) {
-      console.time(`| 5️⃣ | SafeCall time`);
+      console.time("| 5️⃣ | SafeCall time");
       console.log("| 1️⃣ | Route:", request.method, request.path);
-      console.time(`| 2️⃣ | Auth time`);
+      console.time("| 2️⃣ | Auth time");
     }
 
     await ensureAuthentication(request);
@@ -32,14 +32,14 @@ export const safeCall = async (
     if (user?._id) user.id = user._id;
 
     if (displayLog) {
-      console.timeEnd(`| 2️⃣ | Auth time`);
+      console.timeEnd("| 2️⃣ | Auth time");
       console.log("| 3️⃣ | User:", user && user.email, "id:", user && user.id);
-      console.time(`| 4️⃣ | Function time`);
+      console.time("| 4️⃣ | Function time");
     }
 
     const [result, resultErr] = await promiseMe(action(user));
 
-    if (displayLog) console.timeEnd(`| 4️⃣ | Function time`);
+    if (displayLog) console.timeEnd("| 4️⃣ | Function time");
 
     if (resultErr) throw resultErr;
 
@@ -51,7 +51,7 @@ export const safeCall = async (
     console.error("|❗️ 🔥 |", error.message, error);
     return errorHandler(error);
   } finally {
-    if (displayLog) console.timeEnd(`| 5️⃣ | SafeCall time`);
+    if (displayLog) console.timeEnd("| 5️⃣ | SafeCall time");
   }
 };
 

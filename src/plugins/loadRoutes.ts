@@ -10,7 +10,8 @@ export async function loadRoutes(routeOptions: any, server: Hapi.Server) {
     })
   );
   for (const file of routeFiles) {
-    const route = require(process.cwd() + "/" + file);
+    const filePath = process.cwd() + "/" + file;
+    const route = require(filePath);
     server.route(route.default || route);
   }
 }
