@@ -279,6 +279,7 @@ export const createServer = async ({
         hapiPino: {
           logPayload: true,
           mergeHapiLogData: true,
+          ignorePaths: ["/health"],
         },
       },
     },
