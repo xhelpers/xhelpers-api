@@ -47,3 +47,4 @@ const handleFailedConnection = (
     await connect(options);
   }, 5000);
 };
+export { mongoose };

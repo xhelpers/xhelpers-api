@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import * as mongoose from "mongoose";
+import { mongoose } from "../database/db-mongoose";
 
 import { IBaseService } from "../contracts/IBaseService";
 
@@ -99,10 +99,6 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
 
     if (Object.keys(sort).length <= 0) {
       sort = { _id: -1 };
-    }
-    const logLevel = process.env.LOG_LEVEL || "HIGH";
-    if (logLevel === "HIGH") {
-      console.log("Search params", { filter, select, sort, populateOptions });
     }
 
     const data: any = await this.Model.find(filter)
