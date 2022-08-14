@@ -43,6 +43,7 @@ This project was made to simplify the process of creating an new api with nodejs
 
 ## Versions
 
+- ➕ 3.1.0 - Add axios and rabbitmq base service dependency
 - 🔥 3.0.0 - New version (breaking change)
   - Upgraded packages to @hapi 20.2.1  
   - Upgraded packages to mongoose 6.2.8
