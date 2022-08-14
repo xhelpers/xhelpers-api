@@ -1,19 +1,20 @@
 import * as jwt from "jsonwebtoken";
-import * as mongoose from "mongoose";
+import { mongoose } from "../database/db-mongoose";
 
-import { IBaseService } from "./contracts/IBaseService";
+import { IBaseService } from "../contracts/IBaseService";
 
 export default abstract class BaseServiceMongoose<T extends mongoose.Document>
-  implements IBaseService {
+  implements IBaseService
+{
   constructor(model: mongoose.Model<T>) {
-    this.Model = model;
+    this.Model = model as any;
   }
   protected Model: mongoose.Model<mongoose.Document>;
   protected abstract validate(
     entity: mongoose.Document | null,
     payload: T
   ): Promise<Boolean>;
-  protected abstract sentitiveInfo = [];
+  protected abstract sentitiveInfo: string[];
 
   protected parseAsJSON(field: any) {
     if (!field) return {};
@@ -62,9 +63,13 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       limit: 10,
       sort: { _id: -1 },
     },
-    populateOptions: { path: string | any; select?: string | any, virtuals?: boolean | string[] } = {
+    populateOptions: {
+      path: string | any;
+      select?: string | any;
+      virtuals?: boolean | string[];
+    } = {
       path: null,
-      virtuals: false
+      virtuals: false,
     }
   ): Promise<{
     metadata: {
@@ -95,17 +100,9 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     if (Object.keys(sort).length <= 0) {
       sort = { _id: -1 };
     }
-    const logLevel = process.env.LOG_LEVEL || "HIGH";
-    if (logLevel === "HIGH") {
-      console.log("Search params");
-      console.log("\t filter:", filter);
-      console.log("\t select:", select);
-      console.log("\t sort:", sort);
-      console.log("\t populateOptions:", populateOptions);
-    }
 
     const data: any = await this.Model.find(filter)
-      .populate(populateOptions.path, populateOptions.select)
+      // .populate(populateOptions.path, populateOptions.select)
       .skip(pagination.offset)
       .limit(pagination.limit)
       .sort(sort)
@@ -132,7 +129,11 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     user: any,
     id: any,
     projection: any[] = [],
-    populateOptions: { path: string | any; select?: string | any, virtuals?: boolean | string[] } = {
+    populateOptions: {
+      path: string | any;
+      select?: string | any;
+      virtuals?: boolean | string[];
+    } = {
       path: ".",
       select: ["-__v"],
       virtuals: false,
@@ -141,7 +142,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     Object.assign(projection, this.sentitiveInfo);
     try {
       return await this.Model.findById(id)
-        .populate({ ...populateOptions })
+        // .populate({ ...populateOptions })
         .select([...projection])
         .lean({ virtuals: populateOptions.virtuals });
     } catch (err) {

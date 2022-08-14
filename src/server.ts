@@ -7,13 +7,16 @@ import * as Vision from "@hapi/vision";
 import {
   connect as connectMongoose,
   options as mongooseOptions,
-} from "./db-mongoose";
+} from "./database/db-mongoose";
 import {
   connect as connectSequelize,
   options as sequelizeOptions,
-} from "./db-sequelize";
-import { useAuthFacebook, useAuthGitHub, useAuthGoogle } from "./sso-strategy";
+} from "./database/db-sequelize";
+import { useAuthGoogle } from "./sso/useAuthGoogle";
+import { useAuthGitHub } from "./sso/useAuthGitHub";
+import { useAuthFacebook } from "./sso/useAuthFacebook";
 import { SentryOptions, setUpSentry } from "./logs/sentry";
+import { loadRoutes } from "./plugins/loadRoutes";
 
 const Inert = require("@hapi/inert");
 const laabr = require("laabr");
@@ -184,13 +187,11 @@ export const createServer = async ({
   const sentryDSN = defaultOptions.sentryOptions?.dsn || process.env.SENTRY_DSN;
   if (sentryDSN) {
     if (envIsNotTest) console.log("Settings API: Sentry enabled;");
-    await setUpSentry(
-      server, {
-        ...defaultOptions.sentryOptions,
-        dsn: sentryDSN,
-        version: defaultOptions.swaggerOptions.info.version
-      }
-    );
+    await setUpSentry(server, {
+      ...defaultOptions.sentryOptions,
+      dsn: sentryDSN,
+      version: defaultOptions.swaggerOptions.info.version,
+    });
   } else {
     if (envIsNotTest) console.log("Settings API: Sentry disabled;");
   }
@@ -268,25 +269,6 @@ export const createServer = async ({
       options: defaultOptions.swaggerOptions,
     },
     {
-      plugin: require("hapi-router"),
-      options: routeOptions,
-    },
-    {
-      plugin: require("hapi-dev-errors"),
-      options: {
-        showErrors: process.env.NODE_ENV !== "production",
-      },
-    },
-    {
-      plugin: require("hapijs-status-monitor"),
-      options: {
-        title: `${defaultOptions.swaggerOptions.info.title} - Status Monitor`,
-        routeConfig: {
-          auth: false,
-        },
-      },
-    },
-    {
       plugin: laabr,
       options: {
         colored: true,
@@ -297,6 +279,7 @@ export const createServer = async ({
         hapiPino: {
           logPayload: true,
           mergeHapiLogData: true,
+          ignorePaths: ["/health"],
         },
       },
     },
@@ -310,6 +293,8 @@ export const createServer = async ({
   );
 
   await server.register(allPlugins);
+
+  await loadRoutes(routeOptions, server);
 
   server.route({
     method: "GET",
@@ -332,33 +317,20 @@ export const createServer = async ({
       console.log("=".repeat(100));
       console.log(`🆙  Server api    : ${server.info.uri}/`);
       console.log(`🆙  Server doc    : ${server.info.uri}/documentation`);
-      console.log(`🆙  Server status : ${server.info.uri}/status`);
       console.log("=".repeat(100));
 
       console.log(`Routing table:`);
       server.table().forEach((route) => {
-        let iconRoute = "🚧";
         const ignoreInternalRoute = route.path.includes("swaggerui");
         if (ignoreInternalRoute) return;
-        switch (route.method) {
-          case "get":
-            iconRoute = "🔎 ";
-            break;
-          case "post":
-            iconRoute = "📄 ";
-            break;
-          case "put":
-            iconRoute = "📝 ";
-            break;
-          case "patch":
-            iconRoute = "📝 ";
-            break;
-          case "delete":
-            iconRoute = "🚩 ";
-            break;
-          default:
-            break;
-        }
+        const icons: any = {
+          get: "🔎 ",
+          post: "📄 ",
+          put: "📄 ",
+          patch: "📝 ",
+          delete: "🚩 ",
+        };
+        let iconRoute = icons[route.method] || "🚧";
         const requireAuth = !!route.settings.auth;
         console.log(
           `\t${iconRoute} ${route.method} - ${requireAuth ? "🔑 " : ""}\t${

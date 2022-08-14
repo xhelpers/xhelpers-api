@@ -1,19 +1,14 @@
 import * as ChaiAsPromised from "chai-as-promised";
-import Service from "./base-service-mongoose/service";
-import TodoModel from "./base-service-mongoose/model";
+import * as mongoose from "mongoose";
+import Service from "./services-mongoose/service";
+import TodoModel from "./services-mongoose/model";
 import { expect, use } from "chai";
-import mongoose from "../mongoose";
+import { connect } from "../database/db-mongoose";
 
 use(ChaiAsPromised);
 
 describe("🚧  Testing Base Service Mongoose  🚧", () => {
   before(async () => {
-    
-    await mongoose.connect(process.env.MONGODB_URI || "", {
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
     return Promise.resolve();
   });
 
@@ -22,7 +17,14 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
   });
 
   beforeEach(async () => {
-    await mongoose.connections[0].db.dropDatabase();
+    await connect({
+      uri: process.env.MONGODB_URI || "",
+      connectionOptions: {
+        useNewUrlParser: false,
+        useUnifiedTopology: true,
+      },
+    });
+    await mongoose.connections[0]?.db?.dropDatabase();
   });
   afterEach(async () => {});
 
@@ -30,12 +32,12 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should return all", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       await service.create(user, payload);
 
@@ -48,16 +50,17 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should return all", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       await service.create(user, payload);
 
-      const todos = await service.queryAll(user,
+      const todos = await service.queryAll(
+        user,
         { filter: {}, fields: [] },
         { limit: 10, offset: 0, sort: 1 },
         { path: ".", virtuals: true }
@@ -65,24 +68,23 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
       expect(todos.results.length).to.equal(1);
 
       const todo = todos.results[0];
-      expect(todo?.taskUpperCase).to.equal(
-        payload.task.toUpperCase()
-      );
+      expect(todo?.taskUpperCase).to.equal(payload.task.toUpperCase());
     });
 
     it("should return all - using array", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       await service.create(user, payload);
 
-      const todos = await service.queryAll(user,
+      const todos = await service.queryAll(
+        user,
         { filter: {}, fields: [] },
         { limit: 10, offset: 0, sort: 1 },
         { path: ".", virtuals: ["taskUpperCase"] }
@@ -90,9 +92,7 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
       expect(todos.results.length).to.equal(1);
 
       const todo = todos.results[0];
-      expect(todo?.taskUpperCase).to.equal(
-        payload.task.toUpperCase()
-      );
+      expect(todo?.taskUpperCase).to.equal(payload.task.toUpperCase());
     });
   });
 
@@ -100,12 +100,12 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should return one", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       const entity = await service.create(user, payload);
 
@@ -120,7 +120,7 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should return null - not found", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
 
       const todo = await service.getById(user, "123");
@@ -132,22 +132,21 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should return one", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       const entity = await service.create(user, payload);
 
-      const todo = await service.getById(
-        user, entity.id, [], { path: ".", virtuals: true }
-      );
+      const todo = await service.getById(user, entity.id, [], {
+        path: ".",
+        virtuals: true,
+      });
       expect(todo?.task).to.equal(payload.task);
-      expect(todo?.taskUpperCase).to.equal(
-        payload.task.toUpperCase()
-      );
+      expect(todo?.taskUpperCase).to.equal(payload.task.toUpperCase());
       expect(todo?.description).to.equal(payload.description);
       expect(todo?.done).to.equal(payload.done);
       expect(todo?.createdBy).to.equal(user.id);
@@ -156,22 +155,21 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should return one - using array", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       const entity = await service.create(user, payload);
 
-      const todo = await service.getById(
-        user, entity.id, [], { path: ".", virtuals: ["taskUpperCase"] }
-      );
+      const todo = await service.getById(user, entity.id, [], {
+        path: ".",
+        virtuals: ["taskUpperCase"],
+      });
       expect(todo?.task).to.equal(payload.task);
-      expect(todo?.taskUpperCase).to.equal(
-        payload.task.toUpperCase()
-      );
+      expect(todo?.taskUpperCase).to.equal(payload.task.toUpperCase());
       expect(todo?.description).to.equal(payload.description);
       expect(todo?.done).to.equal(payload.done);
       expect(todo?.createdBy).to.equal(user.id);
@@ -179,16 +177,15 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
   });
 
   describe("Mongoose create", async () => {
-
     it("should create and set createdBy", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       const entity = await service.create(user, payload);
       const todo = await TodoModel.findById(entity.id);
@@ -207,12 +204,12 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should fail validate", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         description: "forbidden description",
         task: "test",
-        done: true
+        done: true,
       };
       try {
         await service.create(user, payload);
@@ -228,19 +225,19 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should update", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       let entity;
       entity = await service.create(user, payload);
       const updatedPayload = {
         ...payload,
-        description: "test2"
-      }
+        description: "test2",
+      };
       entity = await service.update(user, entity.id, updatedPayload as any);
       const todo = await TodoModel.findById(entity.id);
 
@@ -257,19 +254,19 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should fail validate", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       let entity;
       entity = await service.create(user, payload);
       const updatedPayload = {
         ...payload,
-        task: "test2"
-      }
+        task: "test2",
+      };
       try {
         await service.update(user, entity.id, updatedPayload as any);
       } catch {}
@@ -288,31 +285,31 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should fail not found", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       let entity = null;
       try {
         entity = await service.update(user, "123", payload as any);
       } catch {}
       expect(entity).to.be.null;
-    })
+    });
   });
 
   describe("Mongoose delete", async () => {
     it("should delete", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       const payload = {
         task: "test",
         description: "test",
-        done: true
+        done: true,
       };
       let entity = null;
       entity = await service.create(user, payload);
@@ -330,7 +327,7 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
     it("should fail not found", async () => {
       const service = new Service();
       const user = {
-        id: "123"
+        id: "123",
       };
       let entity = null;
       try {
@@ -338,6 +335,6 @@ describe("🚧  Testing Base Service Mongoose  🚧", () => {
       } catch {}
 
       expect(entity).to.be.null;
-    })
+    });
   });
 });

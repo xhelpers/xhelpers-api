@@ -13,13 +13,13 @@ export interface ITodo extends mongoose.Document {
 }
 
 const schema = new mongoose.Schema({
-  task: { type: String , required: true },
-  description: { type: String , required: true },
+  task: { type: String, required: true },
+  description: { type: String, required: true },
   done: { type: Boolean, required: false, default: false },
   createdAt: { type: Date, required: false, default: new Date() },
-  createdBy: { type: String , required: false },
+  createdBy: { type: String, required: false },
   updatedAt: { type: Date, required: false },
-  updatedBy: { type: String , required: false },
+  updatedBy: { type: String, required: false },
 });
 
 schema.virtual("taskUpperCase").get(function (this: ITodo) {

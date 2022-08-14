@@ -1,26 +1,26 @@
 import * as jwt from "jsonwebtoken";
 
-import { IBaseService } from "./contracts/IBaseService";
-import { Model } from "sequelize-typescript";
-import { db } from "./db-sequelize";
+import { IBaseService } from "../contracts/IBaseService";
+import { db, Model } from "../database/db-sequelize";
 
 type NonAbstract<T> = { [P in keyof T]: T[P] };
 type Constructor<T> = new () => T;
 type NonAbstractTypeOfModel<T> = Constructor<T> & NonAbstract<typeof Model>;
 
 export default abstract class BaseServiceSequelize<T extends Model<T>>
-  implements IBaseService {
+  implements IBaseService
+{
   protected repository: NonAbstractTypeOfModel<T>;
   constructor(model: NonAbstractTypeOfModel<T>) {
     this.Model = model;
     this.repository = db.sequelize.getRepository(this.Model);
   }
   protected Model: NonAbstractTypeOfModel<T>;
-  protected abstract async validate(
+  protected abstract validate(
     entity: Model | null,
     payload: T
   ): Promise<Boolean>;
-  protected abstract sentitiveInfo = [];
+  protected abstract sentitiveInfo: string[];
 
   protected getRepository<TRepo>(sequelizeModel: TRepo): any {
     return db.sequelize.getRepository(sequelizeModel);
@@ -74,11 +74,11 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
   protected async getJwtToken(user: any) {
     const options = {
       issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.JWT_EXPIRE
+      expiresIn: process.env.JWT_EXPIRE,
     };
     return jwt.sign(
       {
-        user
+        user,
       },
       process.env.JWT_SECRET || ".",
       options
@@ -88,7 +88,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
   protected async validateJwtToken(token: string) {
     const options = {
       issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.JWT_EXPIRE
+      expiresIn: process.env.JWT_EXPIRE,
     };
     return jwt.verify(token, process.env.JWT_SECRET || "", options);
   }
@@ -97,15 +97,15 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     user: any,
     query: { filter: any; fields: any } = {
       filter: {},
-      fields: []
+      fields: [],
     },
     pagination: { offset: number; limit: number; sort: any } = {
       offset: 1,
       limit: 10,
-      sort: []
+      sort: [],
     },
     populateOptions: { path: string | any; select?: string | any } = {
-      path: null
+      path: null,
     }
   ): Promise<{
     metadata: {
@@ -153,7 +153,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       attributes: select,
       order: sort,
       limit: limit,
-      offset: offset
+      offset: offset,
     });
 
     const result = {
@@ -161,13 +161,13 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
         resultset: {
           count: data.length,
           offset: pagination.offset,
-          limit: pagination.limit
-        }
+          limit: pagination.limit,
+        },
       },
-      results: data
+      results: data,
     };
     return Promise.resolve({
-      ...result
+      ...result,
     });
   }
   public async getById(
@@ -186,7 +186,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     payload.createdBy = user && user.id;
     const entity = await this.repository.create(payload);
     return {
-      id: entity.id
+      id: entity.id,
     };
   }
   public async update(user: any, id: any, payload: T): Promise<any> {
@@ -199,7 +199,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     entity.updatedBy = user && user.id;
     await entity.save();
     return {
-      id: entity.id
+      id: entity.id,
     };
   }
   public async delete(user: any, id: any): Promise<void> {

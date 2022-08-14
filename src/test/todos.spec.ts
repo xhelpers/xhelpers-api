@@ -38,7 +38,7 @@ describe("🚧  Resource api/todos  🚧", () => {
           grouping: "tags",
         },
         routeOptions: {
-          routes: "**/routes/*.js",
+          routes: "**/routes/*route.js",
         },
       },
     };

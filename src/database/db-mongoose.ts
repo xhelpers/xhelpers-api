@@ -4,7 +4,7 @@ import { ConnectionString } from "connection-string";
 
 export interface options {
   uri: string;
-  connectionOptions?: mongoose.ConnectionOptions;
+  connectionOptions?: any;
   [key: string]: any;
 }
 
@@ -18,22 +18,16 @@ export const connect = async (options?: options | undefined) => {
   if (envIsNotTest) console.log("Settings API: Mongoose enabled;");
   const connectionString = new ConnectionString(options.uri);
   try {
-    const defaultOptions: mongoose.ConnectionOptions = {
-      useCreateIndex: true,
+    const defaultOptions: any = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       ...options.connectionOptions,
     };
-    return await mongoose.connect(options.uri, defaultOptions).then(
-      () => {
-        //mongoose.Promise = global.Promise;
-        console.log(
-          `🆙  Connected to mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}`
-        );
-      },
-      (err) => {
-        handleFailedConnection(connectionString, err, options);
-      }
+
+    await mongoose.connect(options.uri, defaultOptions);
+
+    console.log(
+      `🆙  Connected to mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}`
     );
   } catch (err) {
     handleFailedConnection(connectionString, err, options);
@@ -53,3 +47,4 @@ const handleFailedConnection = (
     await connect(options);
   }, 5000);
 };
+export { mongoose };

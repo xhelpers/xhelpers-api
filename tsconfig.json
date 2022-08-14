@@ -9,12 +9,14 @@
     "importHelpers": true,
     "sourceMap": true,
     "baseUrl": "./",
-    "paths": {
-      "mongoose": [
-        "node_modules/@types/mongoose"
-      ]
-    }
+    "paths": {},
+    "skipLibCheck": true
   },
-  "include": ["src/**/*", "index.d.ts"],
-  "exclude": []
+  "include": [
+    "src/**/*",
+    "index.d.ts"
+  ],
+  "exclude": [
+    "srcww/test/**/*"
+  ]
 }

@@ -1,4 +1,5 @@
-import { Sequelize, SequelizeOptions } from "sequelize-typescript";
+import { Sequelize, SequelizeOptions, Model } from "sequelize-typescript";
+import * as SequelizeTypescript from "sequelize-typescript";
 import { ConnectionString } from "connection-string";
 
 // @ts-ignore
@@ -24,7 +25,7 @@ export const connect = async (sequelizeOptions?: options) => {
     ...sequelizeOptions,
     dialectOptions: {
       connectTimeout: 60000,
-      ...sequelizeOptions.dialectOptions
+      ...sequelizeOptions.dialectOptions,
     },
   };
   const connectionString = new ConnectionString(sequelizeOptions.host);
@@ -63,3 +64,5 @@ export const connect = async (sequelizeOptions?: options) => {
   }
   return null;
 };
+
+export { Sequelize, SequelizeOptions, Model, SequelizeTypescript };
