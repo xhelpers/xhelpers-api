@@ -17,6 +17,6 @@
     "index.d.ts"
   ],
   "exclude": [
-    "srcww/test/**/*"
+    "src/test/**/*"
   ]
 }

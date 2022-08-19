@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import * as mongooseLeanVirtuals from "mongoose-lean-virtuals";
+const mongooseLeanVirtuals = require("mongoose-lean-virtuals");
 
 export interface ITodo extends mongoose.Document {
   task: string;
