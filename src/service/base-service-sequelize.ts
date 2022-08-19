@@ -127,7 +127,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     limit = this.parseLimitAndOffset(pagination.limit, "limit");
     offset = this.parseLimitAndOffset(pagination.offset, "sort");
 
-    let select: any = this.Model.rawAttributes;
+    let select: any = this.Model.getAttributes();
     if (query.fields) {
       select = [];
       for (const field of query.fields.split(",")) {
