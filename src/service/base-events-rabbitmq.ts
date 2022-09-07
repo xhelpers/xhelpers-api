@@ -5,7 +5,7 @@ export default abstract class RabbitOperator {
 
   defaultQueue = "";
 
-  amqpUrl: string;
+  amqpUrl: string = "";
 
   amqpConn: any;
 
@@ -15,21 +15,41 @@ export default abstract class RabbitOperator {
 
   offlinePubQueue: any[] = [];
 
-  constructor(defaultQueue: string) {
-    this.amqpUrl = process.env.RABBITMQ_URL || "";
-    if (!this.amqpUrl) {
-      console.log("Rabbitmq environment not set - RABBITMQ_URL");
+  whenConnectedList: any[] = [];
+
+  constructor() {
+    if (!process.env.RABBITMQ_URL) {
+      console.log(
+        "Rabbit env not set - RABBITMQ_URL",
+        process.env.RABBITMQ_URL
+      );
       return;
     }
+    this.amqpUrl = process.env.RABBITMQ_URL;
     this.prefetch = Number(process.env.RABBITMQ_PREFETCH_SUB || 1);
-    this.defaultQueue = defaultQueue;
-    this.start().then(() => this.whenConnected());
   }
 
-  abstract consume(evt: any): Promise<boolean>;
+  private restartServer(): Promise<any> {
+    return new Promise(() =>
+      setTimeout(() => {
+        this.start();
+      }, 5000)
+    );
+  }
+
+  private closeOnErr(err: any) {
+    if (!err) return false;
+    console.error("[AMQP] error", err);
+    if (this.amqpConn) this.amqpConn.close();
+    return true;
+  }
+
+  abstract handleNewEvent(evt: any): Promise<any>;
 
   public publish(payload: any, exchange: string = "", channel: string = "") {
     try {
+      console.log("Pub event on queue:", channel || this.defaultQueue);
+
       this.pubChannel.publish(
         exchange || this.defaultExchange,
         channel || this.defaultQueue,
@@ -43,8 +63,8 @@ export default abstract class RabbitOperator {
           }
         }
       );
-    } catch (err: any) {
-      console.error("[AMQP] publish", err.message);
+    } catch (e: any) {
+      console.error("[AMQP] publish", e.message);
       this.offlinePubQueue.push([exchange, channel, payload]);
     }
   }
@@ -53,38 +73,59 @@ export default abstract class RabbitOperator {
     return this.amqpConn && !!this.amqpConn;
   }
 
-  private async start(): Promise<any> {
+  isRestarting = false;
+
+  protected async start(handlerConnected?: any) {
     if (!this.amqpUrl) return;
 
-    const conn = await amqplib.connect(this.amqpUrl, "heartbeat=60");
-    if (!conn) {
-      console.error("[AMQP] connection failed");
-      return setTimeout(this.start, 1000);
-    }
-    conn.on("error", (err: any) => {
-      if (err.message !== "Connection closing") {
-        console.error("[AMQP] conn error", err.message);
+    try {
+      const conn = await amqplib.connect(this.amqpUrl, "heartbeat=900");
+      if (!conn) {
+        console.error("[AMQP] err");
+        return this.restartServer();
       }
-    });
-    conn.on("close", () => {
-      console.error("[AMQP] reconnecting");
-      return setTimeout(this.start, 1000);
-    });
-    this.amqpConn = conn;
-    console.log("[AMQP] connected");
+      conn.on("error", (err) => {
+        console.error("[AMQP] conn error", err.message);
+        this.closeOnErr(err);
+      });
+      conn.on("close", (ee) => {
+        console.error("[AMQP] reconnecting");
+        if (!this.isRestarting) {
+          this.isRestarting = true;
+          return this.restartServer();
+        }
+      });
+      this.amqpConn = conn;
+      console.log("[AMQP] connected");
+      this.isRestarting = false;
+      if (handlerConnected) handlerConnected();
+      else {
+        for (const whenHandler of this.whenConnectedList) {
+          await this.whenConnected(whenHandler.queue, whenHandler.handler);
+        }
+      }
+    } catch (error: any) {
+      console.log("[AMQP] failed connection", error.message);
+      return this.restartServer();
+    }
   }
 
-  public async whenConnected() {
-    this.startPublisher();
-    this.startWorker();
+  public async whenConnected(queue?: string, handler?: any) {
+    if (this.whenConnectedList.every((s) => s.queue !== queue)) {
+      this.whenConnectedList.push({ queue, handler });
+    }
+    this.startPublisher(queue);
+    this.startWorker(queue, handler);
+    console.log("Connected pub/sub for:", queue);
   }
 
-  private async startPublisher() {
-    if (!this.amqpConn) return this.restartServer();
-    const ch = await this.amqpConn
-      .createConfirmChannel(this.defaultExchange, this.defaultQueue)
-      .catch(this.closeOnErr);
-    if (!ch) return;
+  private async startPublisher(queue?: string) {
+    if (!this.amqpConn) throw new Error("Invalid connection");
+    const ch = await this.amqpConn.createConfirmChannel(
+      this.defaultExchange,
+      queue || this.defaultQueue
+    );
+    if (!ch) throw new Error("Invalid channel");
 
     ch.on("error", (err: any) => {
       console.error("[AMQP] channel error", err.message);
@@ -96,14 +137,18 @@ export default abstract class RabbitOperator {
     this.pubChannel = ch;
     while (this.offlinePubQueue.length > 0) {
       const [exchange, routingKey, content] = this.offlinePubQueue.shift();
-      this.publish(exchange, routingKey, content);
+      this.publish(
+        content,
+        exchange || this.defaultExchange,
+        routingKey || this.defaultQueue
+      );
     }
   }
 
-  private async startWorker() {
-    if (!this.amqpConn) return this.restartServer();
-    const ch = await this.amqpConn.createChannel().catch(this.closeOnErr);
-    if (!ch) return;
+  protected async startWorker(queue?: string, handler?: any) {
+    if (!this.amqpConn) throw new Error("Invalid connection");
+    const ch = await this.amqpConn.createChannel();
+    if (!ch) throw new Error("Invalid channel");
 
     ch.on("error", (err: any) => {
       console.error("[AMQP] channel error", err.message);
@@ -113,40 +158,38 @@ export default abstract class RabbitOperator {
     });
 
     ch.prefetch(this.prefetch);
-    await ch.assertQueue(this.defaultQueue);
+    await ch.assertQueue(queue || this.defaultQueue);
     await ch.consume(
-      this.defaultQueue,
+      queue || this.defaultQueue,
       async (msg: any) => {
         try {
-          const payload = JSON.parse(msg.content.toString());
-          console.log(`\n📧  New event on queue ${msg.fields.routingKey}`);
-          const ok = await this.consume(payload);
+          const jsonPayload = JSON.parse(msg.content.toString());
+          const { id } = jsonPayload;
+          console.log(
+            `New event on queue '${msg.fields.routingKey}' - id:'${id}'`
+          );
+          const ok = handler
+            ? await handler(jsonPayload)
+            : await this.handleNewEvent(jsonPayload);
           if (ok) {
             ch.ack(msg);
-            console.log(`\n✅  Ack event on queue ${msg.fields.routingKey}`);
+            console.log(
+              `Ack event on queue '${msg.fields.routingKey}' - id:'${id}'`
+            );
           } else {
             ch.reject(msg, true);
-            console.log(`\n⭕  Reject event on queue ${msg.fields.routingKey}`);
+            console.log(
+              `Reject event on queue '${msg.fields.routingKey}' - id:'${id}'`
+            );
           }
         } catch (e) {
-          this.closeOnErr(e);
+          console.log(`Reject err event on queue '${msg.fields.routingKey}'`);
+          ch.reject(msg, true);
         }
       },
       {
         noAck: false,
       }
     );
-  }
-
-  private restartServer() {
-    if (this.isConnected()) return;
-    return setTimeout(this.start, 1000);
-  }
-
-  private closeOnErr(err: any) {
-    if (!err) return false;
-    console.error("[AMQP] error", err);
-    this.amqpConn.close();
-    return true;
   }
 }
