@@ -1,4 +1,4 @@
-import * as amqplib from "amqplib";
+import { amqplib } from "../tools";
 
 export default abstract class RabbitOperator {
   defaultExchange = "";

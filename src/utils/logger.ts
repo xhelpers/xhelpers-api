@@ -1,4 +1,4 @@
-import * as uuid from "uuid";
+import { uuid } from "../tools";
 
 export const logger = async (type: string, message: string, data: any) => {
   function error() {

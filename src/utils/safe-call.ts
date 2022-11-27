@@ -1,5 +1,4 @@
-import * as Boom from "@hapi/boom";
-
+import { Boom } from "../tools";
 import { errorHandler } from "./error-handler";
 import { promiseMe } from "./promise-me";
 

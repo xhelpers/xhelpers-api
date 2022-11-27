@@ -20,6 +20,7 @@ import { loadRoutes } from "./plugins/loadRoutes";
 
 const Inert = require("@hapi/inert");
 const laabr = require("laabr");
+const pkgJson = require("../package.json");
 
 export let currentOptions = {
   jwt_enabled: false,
@@ -279,7 +280,7 @@ export const createServer = async ({
         hapiPino: {
           logPayload: true,
           mergeHapiLogData: true,
-          ignorePaths: ["/health"],
+          ignorePaths: ["/health", "/documentation"],
         },
       },
     },
@@ -317,9 +318,11 @@ export const createServer = async ({
       console.log("=".repeat(100));
       console.log(`🆙  Server api    : ${server.info.uri}/`);
       console.log(`🆙  Server doc    : ${server.info.uri}/documentation`);
+      console.log(`🆙  API           : ${pkgJson?.name}`);
+      console.log(`🆙  Version       : ${pkgJson?.version}`);
       console.log("=".repeat(100));
 
-      console.log(`Routing table:`);
+      console.log("Routing table:");
       server.table().forEach((route) => {
         const ignoreInternalRoute = route.path.includes("swaggerui");
         if (ignoreInternalRoute) return;
@@ -330,7 +333,7 @@ export const createServer = async ({
           patch: "📝 ",
           delete: "🚩 ",
         };
-        let iconRoute = icons[route.method] || "🚧";
+        const iconRoute = icons[route.method] || "🚧";
         const requireAuth = !!route.settings.auth;
         console.log(
           `\t${iconRoute} ${route.method} - ${requireAuth ? "🔑 " : ""}\t${

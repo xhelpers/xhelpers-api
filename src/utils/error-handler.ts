@@ -1,5 +1,4 @@
-import * as Boom from "@hapi/boom";
-
+import { Boom } from "../tools";
 import { logger } from "./logger";
 
 export const errorHandler = async (err: any) => {
