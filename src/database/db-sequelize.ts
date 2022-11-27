@@ -1,6 +1,7 @@
 import { Sequelize, SequelizeOptions, Model } from "sequelize-typescript";
 import * as SequelizeTypescript from "sequelize-typescript";
 import { ConnectionString } from "connection-string";
+import { Op } from "sequelize";
 
 // @ts-ignore
 import mysql2 from "mysql2";
@@ -65,4 +66,4 @@ export const connect = async (sequelizeOptions?: options) => {
   return null;
 };
 
-export { Sequelize, SequelizeOptions, Model, SequelizeTypescript };
+export { Sequelize, SequelizeOptions, Model, SequelizeTypescript, Op };

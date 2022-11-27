@@ -316,10 +316,12 @@ export const createServer = async ({
   if (envIsNotTest) {
     server.events.on("start", () => {
       console.log("=".repeat(100));
+      console.log(
+        `🆙  LIB           : ${pkgJson?.name} version: ${pkgJson?.version}`
+      );
       console.log(`🆙  Server api    : ${server.info.uri}/`);
       console.log(`🆙  Server doc    : ${server.info.uri}/documentation`);
-      console.log(`🆙  API           : ${pkgJson?.name}`);
-      console.log(`🆙  Version       : ${pkgJson?.version}`);
+
       console.log("=".repeat(100));
 
       console.log("Routing table:");
