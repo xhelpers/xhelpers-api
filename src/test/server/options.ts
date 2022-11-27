@@ -1,157 +1,87 @@
 import { createServerOptions } from "../../server";
 import { Server } from "@hapi/hapi";
 
+const srvConsts = {
+  port: process.env.PORT || 3100,
+  host: process.env.HOST || "127.0.0.1",
+  routes: {
+    cors: {
+      origin: ["*"],
+    },
+  },
+};
+
+const optConsts = {
+  swaggerOptions: {
+    info: {
+      title: "pkgJson.name",
+      version: "pkgJson.version",
+    },
+    schemes: ["http"],
+    grouping: "tags",
+  },
+  routeOptions: {
+    routes: "*/routes/*.route.js",
+  },
+};
+
 export const optionsJwtSecret: createServerOptions = {
   serverOptions: {
-    port: process.env.PORT || 3100,
-    host: process.env.HOST || "127.0.0.1",
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
+    ...srvConsts,
   },
   options: {
     jwt_secret: "secret",
-    swaggerOptions: {
-      info: {
-        title: "pkgJson.name",
-        version: "pkgJson.version",
-      },
-      schemes: ["http"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "*/routes/*.route.js",
-    },
+    ...optConsts,
   },
 };
 
 export const optionsAppKey: createServerOptions = {
   serverOptions: {
-    port: process.env.PORT || 3100,
-    host: process.env.HOST || "127.0.0.1",
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
+    ...srvConsts,
   },
   options: {
     app_key_auth: "123",
-    swaggerOptions: {
-      info: {
-        title: "pkgJson.name",
-        version: "pkgJson.version",
-      },
-      schemes: ["http"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "*/routes/*.route.js",
-    },
+    ...optConsts,
   },
 };
 
 export const optionsJwtSecretAndAppKey: createServerOptions = {
   serverOptions: {
-    port: process.env.PORT || 3100,
-    host: process.env.HOST || "127.0.0.1",
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
+    ...srvConsts,
   },
   options: {
     jwt_secret: "secret",
     app_key_auth: "123",
-    swaggerOptions: {
-      info: {
-        title: "pkgJson.name",
-        version: "pkgJson.version",
-      },
-      schemes: ["http"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "*/routes/*.route.js",
-    },
+    ...optConsts,
   },
 };
 
 export const optionsWithSSL: createServerOptions = {
   serverOptions: {
-    port: process.env.PORT || 3100,
-    host: process.env.HOST || "127.0.0.1",
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
+    ...srvConsts,
   },
   options: {
-    swaggerOptions: {
-      info: {
-        title: "pkgJson.name",
-        version: "pkgJson.version",
-      },
-      schemes: ["https"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "*/routes/*.route.js",
-    },
+    ...optConsts,
+    enableSSL: true,
   },
 };
 
 export const optionsWithoutSSL: createServerOptions = {
   serverOptions: {
-    port: process.env.PORT || 3100,
-    host: process.env.HOST || "127.0.0.1",
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
+    ...srvConsts,
   },
   options: {
-    swaggerOptions: {
-      info: {
-        title: "pkgJson.name",
-        version: "pkgJson.version",
-      },
-      schemes: ["https"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "*/routes/*.route.js",
-    },
+    ...optConsts,
+    enableSSL: false,
   },
 };
 
 export const optionsWithPrepareServer: createServerOptions = {
   serverOptions: {
-    port: process.env.PORT || 3100,
-    host: process.env.HOST || "127.0.0.1",
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
+    ...srvConsts,
   },
   options: {
-    swaggerOptions: {
-      info: {
-        title: "pkgJson.name",
-        version: "pkgJson.version",
-      },
-      schemes: ["https"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "*/routes/*.route.js",
-    },
+    ...optConsts,
     prepareServer: (server: Server) => {
       server.auth.scheme("test", (server: any, options: any) => {
         return {
@@ -169,26 +99,10 @@ export const optionsWithPrepareServer: createServerOptions = {
 
 export const optionsWithInvalidPrepareServer: createServerOptions = {
   serverOptions: {
-    port: process.env.PORT || 3100,
-    host: process.env.HOST || "127.0.0.1",
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
+    ...srvConsts,
   },
   options: {
-    swaggerOptions: {
-      info: {
-        title: "pkgJson.name",
-        version: "pkgJson.version",
-      },
-      schemes: ["https"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "*/routes/*.route.js",
-    },
+    ...optConsts,
     prepareServer: (server: Server) => {
       server.auth.strategy("test", "test");
     },
@@ -197,26 +111,10 @@ export const optionsWithInvalidPrepareServer: createServerOptions = {
 
 export const optionsWithOverridePlugin: createServerOptions = {
   serverOptions: {
-    port: process.env.PORT || 3100,
-    host: process.env.HOST || "127.0.0.1",
-    routes: {
-      cors: {
-        origin: ["*"],
-      },
-    },
+    ...srvConsts,
   },
   options: {
-    swaggerOptions: {
-      info: {
-        title: "pkgJson.name",
-        version: "pkgJson.version",
-      },
-      schemes: ["https"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "*/routes/*.route.js",
-    },
+    ...optConsts,
     plugins: [],
   },
 };
