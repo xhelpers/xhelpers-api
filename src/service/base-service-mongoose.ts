@@ -1,19 +1,23 @@
-import * as jwt from "jsonwebtoken";
 import { mongoose } from "../database/db-mongoose";
-
 import { IBaseService } from "../contracts/IBaseService";
+import BaseServiceToken from "./base-service-token";
 
 export default abstract class BaseServiceMongoose<T extends mongoose.Document>
+  extends BaseServiceToken
   implements IBaseService
 {
   constructor(model: mongoose.Model<T>) {
+    super();
     this.Model = model as any;
   }
+
   protected Model: mongoose.Model<mongoose.Document>;
+
   protected abstract validate(
     entity: mongoose.Document | null,
     payload: T
   ): Promise<Boolean>;
+
   protected abstract sentitiveInfo: string[];
 
   protected parseAsJSON(field: any) {
@@ -25,31 +29,9 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       auxField = JSON.parse(field);
     } catch (error) {
       console.log("Invalid filter parameter", error);
-      throw 'Invalid parameter "field" it should be a valid JSON';
+      throw Error("Invalid parameter 'field' it should be a valid JSON");
     }
     return auxField;
-  }
-
-  protected async getJwtToken(user: any) {
-    const options = {
-      issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.JWT_EXPIRE,
-    };
-    return jwt.sign(
-      {
-        user,
-      },
-      process.env.JWT_SECRET || "",
-      options
-    );
-  }
-
-  protected async validateJwtToken(token: string) {
-    const options = {
-      issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.JWT_EXPIRE,
-    };
-    return jwt.verify(token, process.env.JWT_SECRET || "", options);
   }
 
   public async queryAll(
@@ -81,7 +63,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     };
     results: T[];
   }> {
-    let filter = this.parseAsJSON(query.filter);
+    const filter = this.parseAsJSON(query.filter);
     let sort = this.parseAsJSON(pagination.sort);
 
     let select: any = this.sentitiveInfo;
@@ -114,7 +96,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     const result = {
       metadata: {
         resultset: {
-          count: count,
+          count,
           offset: pagination.offset,
           limit: pagination.limit,
         },
@@ -125,6 +107,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       ...result,
     });
   }
+
   public async getById(
     user: any,
     id: any,
@@ -152,6 +135,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       throw err;
     }
   }
+
   public async create(user: any, payload: any): Promise<any> {
     await this.validate(null, payload);
     // try to set common const fields
@@ -162,9 +146,10 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       id: entity.id,
     };
   }
+
   public async update(user: any, id: any, payload: T): Promise<any> {
     const entity: any = await this.Model.findById(id);
-    if (!entity) throw "Entity not found";
+    if (!entity) throw Error("Entity not found");
     await this.validate(entity, payload);
     Object.assign(entity, payload);
     // try to set common const fields
@@ -175,9 +160,10 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
       id: entity.id,
     };
   }
+
   public async delete(user: any, id: any): Promise<void> {
     const entity = await this.Model.findById(id).lean();
-    if (!entity) throw "Entity not found";
+    if (!entity) throw Error("Entity not found");
     await this.Model.deleteOne({ _id: id });
   }
 }

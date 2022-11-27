@@ -1,30 +1,40 @@
-import * as jwt from "jsonwebtoken";
-
 import { IBaseService } from "../contracts/IBaseService";
 import { db, Model } from "../database/db-sequelize";
+import BaseServiceToken from "./base-service-token";
 
 type NonAbstract<T> = { [P in keyof T]: T[P] };
+
 type Constructor<T> = new () => T;
+
 type NonAbstractTypeOfModel<T> = Constructor<T> & NonAbstract<typeof Model>;
 
+export type Repository<T> = NonAbstractTypeOfModel<T>;
+
 export default abstract class BaseServiceSequelize<T extends Model<T>>
+  extends BaseServiceToken
   implements IBaseService
 {
-  protected repository: NonAbstractTypeOfModel<T>;
-  constructor(model: NonAbstractTypeOfModel<T>) {
+  protected repository: Repository<T>;
+
+  protected Model: Repository<T>;
+
+  protected abstract sentitiveInfo: string[];
+
+  constructor(model: Repository<T>) {
+    super();
     this.Model = model;
     this.repository = db.sequelize.getRepository(this.Model);
   }
-  protected Model: NonAbstractTypeOfModel<T>;
+
   protected abstract validate(
     entity: Model | null,
     payload: T
   ): Promise<Boolean>;
-  protected abstract sentitiveInfo: string[];
 
   protected getRepository<TRepo>(sequelizeModel: TRepo): any {
     return db.sequelize.getRepository(sequelizeModel);
   }
+
   protected parseSortAsJson(sort: any) {
     if (!sort) return [];
     if (typeof sort === "object") return sort;
@@ -34,7 +44,9 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       sortFields = JSON.parse(sort);
     } catch (error) {
       console.log("Invalid sort parameter", error);
-      throw 'Invalid parameter "sort", it MUST be a valid JSON / sort sintax';
+      throw Error(
+        "Invalid parameter 'sort', it MUST be a valid JSON / sort sintax"
+      );
     }
     return sortFields;
   }
@@ -48,7 +60,9 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       filterQuery = JSON.parse(query);
     } catch (error) {
       console.log("Invalid filter parameter", error);
-      throw 'Invalid parameter "filter", it MUST be a valid JSON / query sintax';
+      throw Error(
+        "Invalid parameter 'filter', it MUST be a valid JSON / query sintax"
+      );
     }
     return filterQuery;
   }
@@ -65,32 +79,11 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       parseField = parseInt(field.toString());
     } catch (error) {
       console.log("Invalid limit or offset parameter", error);
-      throw 'Invalid parameter "limit" or "offset", it MUST be a valid JSON / sintax';
+      throw Error(
+        "Invalid parameter 'limit' or 'offset', it MUST be a valid JSON / sintax"
+      );
     }
     return parseField;
-  }
-
-  // todo: should receive action !!
-  protected async getJwtToken(user: any) {
-    const options = {
-      issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.JWT_EXPIRE,
-    };
-    return jwt.sign(
-      {
-        user,
-      },
-      process.env.JWT_SECRET || ".",
-      options
-    );
-  }
-
-  protected async validateJwtToken(token: string) {
-    const options = {
-      issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.JWT_EXPIRE,
-    };
-    return jwt.verify(token, process.env.JWT_SECRET || "", options);
   }
 
   public async queryAll(
@@ -117,15 +110,10 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     };
     results: T[];
   }> {
-    let filter = {};
-    let sort = [];
-    let limit: number;
-    let offset: number;
-
-    filter = this.parseFilterAsJson(query.filter);
-    sort = this.parseSortAsJson(pagination.sort);
-    limit = this.parseLimitAndOffset(pagination.limit, "limit");
-    offset = this.parseLimitAndOffset(pagination.offset, "sort");
+    const filter: any = this.parseFilterAsJson(query.filter);
+    const sort: [] = this.parseSortAsJson(pagination.sort);
+    const limit: number = this.parseLimitAndOffset(pagination.limit, "limit");
+    const offset: number = this.parseLimitAndOffset(pagination.offset, "sort");
 
     let select: any = this.Model.getAttributes();
     if (query.fields) {
@@ -139,21 +127,12 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       });
     }
 
-    const logLevel = process.env.LOG_LEVEL || "HIGH";
-    if (logLevel === "HIGH") {
-      console.log("Search params");
-      console.log("\t filter:", filter);
-      console.log("\t select:", select);
-      console.log("\t sort:", sort);
-      console.log("\t populateOptions:", populateOptions);
-    }
-
     const data = await this.repository.findAll({
       where: filter,
       attributes: select,
       order: sort,
-      limit: limit,
-      offset: offset,
+      limit,
+      offset,
     });
 
     const result = {
@@ -166,10 +145,9 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       },
       results: data,
     };
-    return Promise.resolve({
-      ...result,
-    });
+    return Promise.resolve(result);
   }
+
   public async getById(
     user: any,
     id: any,
@@ -179,6 +157,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     Object.assign(projection, this.sentitiveInfo);
     return await this.repository.findByPk(id);
   }
+
   public async create(user: any, payload: any): Promise<any> {
     await this.validate(null, payload);
     // try to set common const fields
@@ -189,9 +168,10 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       id: entity.id,
     };
   }
+
   public async update(user: any, id: any, payload: T): Promise<any> {
     const entity: any = await this.repository.findByPk(id);
-    if (!entity) throw "Entity not found";
+    if (!entity) throw Error("Entity not found");
     await this.validate(entity, payload);
     Object.assign(entity, payload);
     // try to set common const fields
@@ -202,9 +182,10 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
       id: entity.id,
     };
   }
+
   public async delete(user: any, id: any): Promise<void> {
     const entity = await this.repository.findByPk(id);
-    if (!entity) throw "Entity not found";
+    if (!entity) throw Error("Entity not found");
     await this.repository.findByPk(id).then((entity: any) => entity.destroy());
   }
 }

@@ -1,4 +1,5 @@
-import axios, { AxiosStatic } from "axios";
+import { AxiosStatic } from "axios";
+import { axios } from "../tools";
 
 const axiosRetry = require("axios-retry");
 
