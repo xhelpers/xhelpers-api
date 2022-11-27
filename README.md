@@ -6,14 +6,9 @@
 
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
 
-![Node.js Build](https://github.com/wmkDev/xhelpers-api/workflows/Node.js%20Build/badge.svg?branch=master)
-![npm](https://img.shields.io/npm/dw/xhelpers-api)
-[![HitCount](http://hits.dwyl.com/wmkdev/xhelpers-api.svg)](http://hits.dwyl.com/wmkdev/xhelpers-api)
-
-[![Node.js Version](https://img.shields.io/node/v/xhelpers-api.svg?style=flat-square "Node.js 12")](http://nodejs.org/download/)
+[![Node.js Version](https://img.shields.io/node/v/xhelpers-api.svg?style=flat-square "Node.js 14")](http://nodejs.org/download/)
 [![hapi 20.2.1](https://img.shields.io/badge/hapi-20.2.1-brightgreen.svg?style=flat-square "Latest Hapi.js")](http://nodejs.org/download/)
-
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=wmkDev/xhelpers-api&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Coverage)
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/wmkdev/xhelpers-api)
@@ -21,11 +16,11 @@
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/wmkdev/xhelpers-api)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/wmkdev/xhelpers-api)
 
+![Node.js Build](https://github.com/wmkDev/xhelpers-api/workflows/Node.js%20Build/badge.svg?branch=master)
+![npm](https://img.shields.io/npm/dw/xhelpers-api)
+[![HitCount](http://hits.dwyl.com/wmkdev/xhelpers-api.svg)](http://hits.dwyl.com/wmkdev/xhelpers-api)
+
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/keywords/wmkdev/xhelpers-api)
-
-
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
 
 ## Description
 
@@ -34,26 +29,27 @@ This project was made to simplify the process of creating an new api with nodejs
 ### Stack
 
 - [TypeScript 4.5.5](https://www.typescriptlang.org/).
-- [Node.js 12+](https://nodejs.org/).
+- [Node.js 14.15.4](https://nodejs.org/).
 - [Hapi 20.2.1](https://hapi.dev/).
 - [JWT 10.2.0](https://github.com/dwyl/hapi-auth-jwt2).
 - [Hapi-swagger 14.2.5](https://github.com/glennjones/hapi-swagger).
-- [Mongoose 6.2.8](https://mongoosejs.com/).  
-- [Sequelize 6.17.0](https://sequelize.org/).
+- [Mongoose 6.2.8](https://mongoosejs.com/).
+- [Sequelize 6.21.4](https://sequelize.org/).
 
 ## Versions
 
+- ➕ 3.1.7 - Fix dependencies and include default exports (database, service, tools)
 - ➕ 3.1.0 - Add axios and rabbitmq base service dependency
 - 🔥 3.0.0 - New version (breaking change)
-  - Upgraded packages to @hapi 20.2.1  
+  - Upgraded packages to @hapi 20.2.1
   - Upgraded packages to mongoose 6.2.8
     - Mongoose Migrating from 5.x to 6.x (https://mongoosejs.com/docs/migrating_to_6.html)
   - Removed default route /status 'hapijs-status-monitor'
-  - Removed default packages 'hapi-dev-errors' 
-...
+  - Removed default packages 'hapi-dev-errors'
+    ...
 - ➕ 2.1.19 - Add sentry integration
 - ➕ 2.1.18 - Custom/Override server plugins
-...
+  ...
 - ➕ 2.1.6 - Update SSO integration with @hapi/bell.
 - ➕ 2.1.1-5 - Many minor upgrade versions bumps.
 - ➕ 2.1.0 - New authorization mode 'appkey'.
@@ -67,8 +63,7 @@ This project was made to simplify the process of creating an new api with nodejs
 
 ## Roadmap
 
-- 🔥 Add tests for each base service !!
-- ➕ Create grapql base service
+- 🔥 Upgrade to nodejs 19+ (hapijs 21+)
 - Improve documentation
 - Add more samples
 
@@ -487,6 +482,7 @@ $ npm run test
 $ npm run test:coverage
 $ npm run cover:report
 ```
+
 #### Output
 
 ```bash
@@ -533,4 +529,3 @@ $ npm run cover:report
 ```
 
 ## License
-
