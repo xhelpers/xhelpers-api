@@ -1,7 +1,11 @@
 {
   "all": true,
   "exclude": [
-    "**/test/**"
+    "**/test/**",
+    "lib/**",
+    "coverage/**",
+    ".eslintrc.js",
+    ".prettierrc.js"
   ],
   "excludeNodeModules": true
 }

@@ -118,3 +118,37 @@ export const optionsWithOverridePlugin: createServerOptions = {
     plugins: [],
   },
 };
+
+export const optionsSsoEnabledSecret: createServerOptions = {
+  serverOptions: {
+    ...srvConsts,
+  },
+  options: {
+    enableSSO: true,
+    ssoCallback: async (user: {
+      email: string;
+      name: string;
+      avatar: any;
+      token: string;
+      userType: any;
+      meta: any;
+    }) => {
+      // validate user/create
+      // generate token
+      return {
+        url: "redirect_url",
+      };
+    },
+    ...optConsts,
+  },
+};
+
+export const optionsSsoDisabledSecret: createServerOptions = {
+  serverOptions: {
+    ...srvConsts,
+  },
+  options: {
+    enableSSO: false,
+    ...optConsts,
+  },
+};

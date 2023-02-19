@@ -11,6 +11,8 @@ import {
   optionsWithPrepareServer,
   optionsWithInvalidPrepareServer,
   optionsWithOverridePlugin,
+  optionsSsoEnabledSecret,
+  optionsSsoDisabledSecret,
 } from "./server/options";
 
 use(ChaiAsPromised);
@@ -38,6 +40,75 @@ describe("🚧  Testing Server Configs  🚧", () => {
 
     it("JWT Secret and App Key", async () => {
       server = await createServer(optionsJwtSecretAndAppKey);
+    });
+  });
+
+  describe("SSO Options", async () => {
+    it("SSO enabled without providers (empty environment keys)", async () => {
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("SSO disabled without providers (empty environment keys)", async () => {
+      server = await createServer(optionsSsoDisabledSecret);
+    });
+
+    it("useAuthFacebook invalid - SSO_FACEBOOK_CLIENT_ID", async () => {
+      process.env.SSO_FACEBOOK_CLIENT_ID = "";
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthFacebook invalid - SSO_FACEBOOK_CLIENT_SECRET", async () => {
+      process.env.SSO_FACEBOOK_CLIENT_ID = "SSO_FACEBOOK_CLIENT_ID";
+      process.env.SSO_FACEBOOK_CLIENT_SECRET = "";
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthFacebook valid", async () => {
+      process.env.SSO_FACEBOOK_CLIENT_ID = "SSO_FACEBOOK_CLIENT_ID";
+      process.env.SSO_FACEBOOK_CLIENT_SECRET = "SSO_FACEBOOK_CLIENT_SECRET";
+      process.env.SSO_FACEBOOK_CLIENT_PASSWORD = "SSO_FACEBOOK_CLIENT_PASSWORD";
+      process.env.SSO_FACEBOOK_LOCATION = "SSO_FACEBOOK_LOCATION";
+
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthGitHub invalid - SSO_GITHUB_CLIENT_ID", async () => {
+      process.env.SSO_GITHUB_CLIENT_ID = "";
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthGitHub invalid - SSO_GITHUB_CLIENT_SECRET", async () => {
+      process.env.SSO_GITHUB_CLIENT_ID = "SSO_GITHUB_CLIENT_ID";
+      process.env.SSO_GITHUB_CLIENT_SECRET = "";
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthGitHub valid", async () => {
+      process.env.SSO_GITHUB_CLIENT_ID = "SSO_GITHUB_CLIENT_ID";
+      process.env.SSO_GITHUB_CLIENT_SECRET = "SSO_GITHUB_CLIENT_SECRET";
+      process.env.SSO_GITHUB_CLIENT_PASSWORD = "SSO_GITHUB_CLIENT_PASSWORD";
+      process.env.SSO_GITHUB_LOCATION = "SSO_GITHUB_LOCATION";
+
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthGoogle invalid - SSO_GOOGLE_CLIENT_ID", async () => {
+      process.env.SSO_GOOGLE_CLIENT_ID = "";
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthGoogle invalid - SSO_GOOGLE_CLIENT_SECRET", async () => {
+      process.env.SSO_GITHUB_CLIENT_ID = "SSO_GITHUB_CLIENT_ID";
+      process.env.SSO_GOOGLE_CLIENT_SECRET = "";
+      server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthGoogle valid", async () => {
+      process.env.SSO_GOOGLE_CLIENT_ID = "SSO_GOOGLE_CLIENT_ID";
+      process.env.SSO_GOOGLE_CLIENT_SECRET = "SSO_GOOGLE_CLIENT_SECRET";
+      process.env.SSO_GOOGLE_CLIENT_PASSWORD = "SSO_GOOGLE_CLIENT_PASSWORD";
+      process.env.SSO_GOOGLE_LOCATION = "SSO_GOOGLE_LOCATION";
+      server = await createServer(optionsSsoEnabledSecret);
     });
   });
 

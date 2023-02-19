@@ -1,7 +1,5 @@
 import * as mongoose from "mongoose";
 
-import { ConnectionString } from "connection-string";
-
 export interface options {
   uri: string;
   connectionOptions?: any;
@@ -16,7 +14,6 @@ export const connect = async (options?: options | undefined) => {
     return;
   }
   if (envIsNotTest) console.log("Settings API: Mongoose enabled;");
-  const connectionString = new ConnectionString(options.uri);
   try {
     const defaultOptions: any = {
       useNewUrlParser: true,
@@ -26,22 +23,16 @@ export const connect = async (options?: options | undefined) => {
 
     await mongoose.connect(options.uri, defaultOptions);
 
-    console.log(
-      `🆙  Connected to mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}`
-    );
+    console.log(`🆙  Connected to mongodb: ${mongoose.version}`);
   } catch (err) {
-    handleFailedConnection(connectionString, err, options);
+    handleFailedConnection(err, options);
   }
   return null;
 };
 
-const handleFailedConnection = (
-  connectionString: any,
-  err: any,
-  options: options
-) => {
+const handleFailedConnection = (err: any, options: options) => {
   console.error(
-    `📴 Failed to connect on mongodb: ${mongoose.version}/${connectionString.protocol}://${connectionString.user}:xxxxx@${connectionString.host}\nErr: ${err}`
+    `📴 Failed to connect on mongodb: ${mongoose.version}\nErr: ${err}`
   );
   setTimeout(async () => {
     await connect(options);

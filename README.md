@@ -1,13 +1,9 @@
 # xHelpers API
 
-<p align="center">  
-  <img src="docs/logo.png" />
-</p>
-
 [![npm](https://nodei.co/npm/xhelpers-api.png)](https://www.npmjs.com/package/xhelpers-api)
 
-[![Node.js Version](https://img.shields.io/node/v/xhelpers-api.svg?style=flat-square "Node.js 14")](http://nodejs.org/download/)
-[![hapi 20.2.1](https://img.shields.io/badge/hapi-20.2.1-brightgreen.svg?style=flat-square "Latest Hapi.js")](http://nodejs.org/download/)
+[![Node.js Version](https://img.shields.io/node/v/xhelpers-api.svg?style=flat-square "Node.js 18")](http://nodejs.org/download/)
+[![hapi 21.3.0](https://img.shields.io/badge/hapi-21.3.0-brightgreen.svg?style=flat-square "Latest Hapi.js")](http://nodejs.org/download/)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/d4cf77276a6f463f9b1a097f5d0adcfc)](https://www.codacy.com/gh/wmkDev/xhelpers-api/dashboard?utm_source=github.com&utm_medium=referral&utm_content=wmkDev/xhelpers-api&utm_campaign=Badge_Coverage)
 
@@ -22,48 +18,30 @@
 
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/keywords/wmkdev/xhelpers-api)
 
+<p align="center">  
+  <img src="docs/logo.png" />
+</p>
+
 ## Description
 
-This project was made to simplify the process of creating an new api with nodejs + typescript + orm database.
+Xhelpers is an open source project that enables developers to easily create and manage micro-services into their own environment. It provides a complete suite of easy-to-use tools to help developers quickly create, manage and connect to micro-services.
+
+- The project is a collection of libraries and tools that can be used to create and manage micro-services. It has a comprehensive suite of features such as API caching, API security, API request logging, API documentation, API queue operator (ampq, rabbitmq), SSO (Facebook,Github,Google), database connection for Mongoose and/or Sequelize.
+
+- The project has a CLI tool with usefull functions, check it out: [xhelpers-cli](https://github.com/xhelpers/xhelpers-cli).
+
+- The project is actively maintained and updated to provide the best experience for developers. It is an open source project and anyone can contribute to it and help make it even better.
 
 ### Stack
 
-- [TypeScript 4.5.5](https://www.typescriptlang.org/).
-- [Node.js 14.15.4](https://nodejs.org/).
-- [Hapi 20.2.1](https://hapi.dev/).
-- [JWT 10.2.0](https://github.com/dwyl/hapi-auth-jwt2).
-- [Hapi-swagger 14.2.5](https://github.com/glennjones/hapi-swagger).
-- [Mongoose 6.2.8](https://mongoosejs.com/).
-- [Sequelize 6.21.4](https://sequelize.org/).
-
-## Versions
-
-- ➕ 3.1.7 - Fix dependencies and include default exports (database, service, tools)
-- ➕ 3.1.0 - Add axios and rabbitmq base service dependency
-- 🔥 3.0.0 - New version (breaking change)
-  - Upgraded packages to @hapi 20.2.1
-  - Upgraded packages to mongoose 6.2.8
-    - Mongoose Migrating from 5.x to 6.x (https://mongoosejs.com/docs/migrating_to_6.html)
-  - Removed default route /status 'hapijs-status-monitor'
-  - Removed default packages 'hapi-dev-errors'
-    ...
-- ➕ 2.1.19 - Add sentry integration
-- ➕ 2.1.18 - Custom/Override server plugins
-  ...
-- ➕ 2.1.6 - Update SSO integration with @hapi/bell.
-- ➕ 2.1.1-5 - Many minor upgrade versions bumps.
-- ➕ 2.1.0 - New authorization mode 'appkey'.
-  - [feature] Added basic auth appkey mode [#3](/../../issues/3)
-- 🔥 2.0.0 - New version (breaking change)
-  - Upgraded packages to @hapi/
-  - Added tests
-  - Added default route /status using 'hapijs-status-monitor'
-- ➕ 1.1.0 - Fixed some bugs on JWT auth.
-- ➕ 1.0.\* - alot of mixed code
+- [TypeScript 4.9.5](https://www.typescriptlang.org/).
+- [Node.js 18.14.1](https://nodejs.org/).
+- [Hapi 21.3.0](https://hapi.dev/).
+- [Mongoose 6.9.2](https://mongoosejs.com/).
+- [Sequelize 6.28.0](https://sequelize.org/).
 
 ## Roadmap
 
-- 🔥 Upgrade to nodejs 19+ (hapijs 21+)
 - Improve documentation
 - Add more samples
 
@@ -73,46 +51,40 @@ This project was made to simplify the process of creating an new api with nodejs
 $ npm i xhelpers-api
 ```
 
-### Hapi Server
+## Usage
 
-Basics "createServer" method:
+Default project folder structure:
 
-```code
-Signature:
-createServer({ serverOptions, options }:
-{
-  serverOptions: {
-    port: number;
-    host: string;
-  };
-  options: {
-    app_key_auth?: string;
-    jwt_secret?: string;
-    swaggerOptions?: hapi-swagger.RegisterOptions;
-    routeOptions: {
-      routes: string;
-    };
-    mongooseOptions?: {
-      uri: string;
-      connectionOptions: mongoose.ConnectionOptions;
-    };
-    sequelizeOptions?: sequelize-typescript.SequelizeOptions;
-    enableSSL: boolean;
-    enableSSO: boolean;
-    ssoCallback: Function;
-    plugins?: [];
-  };
-}): Hapi.Server
+```
+my-micro-service/
+├─ node_modules/
+├─ src/
+│  ├─ index.ts
+├──├─ routes/
+│  ├─ todo.route.ts
+├──├─ services/
+│  ├─ todo.service.ts
+├──├─ model/
+│  ├─ todo.model.ts
+├─ package.json
+├─ package-lock.json
+├─ README.md
+├─ .gitignore
 ```
 
-#### Usage
+### Server
+
+Create a new file located on **'src/index.ts'**
 
 ```code
 import { createServer } from "xhelpers-api/lib/server";
+import { dotenv } from "xhelpers-api/lib/tools";
+
+dotenv.config();
 const pkgJson = require("../package.json");
 
 let server: any = {};
-const start = () => {
+export default async function start() {
   const serverOptions: any = {
     port: 5000,
     host: process.env.HOST || "127.0.0.1",
@@ -132,88 +104,32 @@ const start = () => {
       grouping: "tags",
     },
     routeOptions: {
-      routes: "**/routes/*.js",
+      routes: "**/routes/*.route.js",
     }
   };
   server = await createServer({ serverOptions, options });
   await server.start();
+  return server;
 }
-start();
+
+if (typeof require !== "undefined" && require.main === module) {
+	start();
+}
 ```
 
-#### Output
+### Route
+
+Create a new file located on **'src/routes/todo.route.ts'**
 
 ```code
-Starting Xhelpers Hapi server API
-Settings API: Mongoose disabled;
-Settings API: Sequelize disabled;
-Settings API: SSL disabled;
-Settings API: AppKey disabled;
-Settings API: JWT enabled;
-Settings API: SSO disabled;
-====================================================================================================
-🆙  Server api    : http://127.0.0.1:5000/
-🆙  Server doc    : http://127.0.0.1:5000/documentation
-🆙  Server status : http://127.0.0.1:5000/status
-====================================================================================================
-Routing table:
-        🔎  get -         /documentation
-        🔎  get -         /health
-        🔎  get -         /status
-        🔎  get -         /swagger.json
-        🔎  get -         /api/auth
-        🔎  get -         /api/todos
-        🔎  get -    🔑   /api/todos/{id}
-        📄  post -        /api/todos
-        📝  patch -  🔑   /api/todos/{id}
-        📝  put -    🔑   /api/todos/{id}
-        🚩  delete - 🔑   /api/todos/{id}
-====================================================================================================
-```
-
-## Default Routes
-
-```code
-🆙  Server doc    : http://127.0.0.1:5000/documentation
-🆙  Server health : http://127.0.0.1:5000/health
-```
-
-### Swagger /documentation
-
-![Status](docs/swagger.docs.png)
-
-### Routes
-
-```code
-import * as Joi from "@hapi/joi";
-import * as jwt from "jsonwebtoken";
-
-import BaseRouteSimple from "xhelpers-api/lib/base-route-simple";
-
-const httpResourcePath = "todos";
+import { Joi, jwt, Boom } from "xhelpers-api/lib/tools";
+import { BaseRouteSimple } from "xhelpers-api/lib/service";
 
 class TodoRoutes extends BaseRouteSimple {
   constructor() {
-    super([httpResourcePath]);
+    super(["todos"]);
 
-    this.route("GET",`/api/auth`, {
-        description: "Create new JWT to tests API",
-        tags: ["api", "auth"],
-      },
-      false)
-      .handler(async (r, h, u) => {
-        const token = jwt.sign({ user: { id: "99999" } },
-          "v3ryH4Rds3cr3t",
-          {
-            issuer: "ApiTesterIssuer",
-            expiresIn: "2h",
-          }
-        );
-        return h.response({ token: token }).code(200);
-      })
-      .build();
-
-    this.route("GET",`/api/${httpResourcePath}`,{
+    this.route("GET",`/api/todos`,{
         description: "Search 'Todos'",
       },
       false
@@ -224,16 +140,7 @@ class TodoRoutes extends BaseRouteSimple {
       })
       .build();
 
-    this.route("GET", `/api/${httpResourcePath}/{id}`, {
-      description: "Get 'Todo' by id",
-    })
-      .validate({ params: this.defaultIdProperty })
-      .handler(async (r, h, u) => {
-        return h.response(r.params).code(200);
-      })
-      .build();
-
-    this.route("POST", `/api/${httpResourcePath}`, {
+    this.route("POST", `/api/todos`, {
         description: "Create new 'Todo'",
       },
       false
@@ -244,7 +151,7 @@ class TodoRoutes extends BaseRouteSimple {
       })
       .build();
 
-    this.route("PATCH", `/api/${httpResourcePath}/{id}`, {
+    this.route("PATCH", `/api/todos/{id}`, {
       description: "Update 'Todo' by id",
     })
       .validate({ params: this.defaultIdProperty, payload: todoDemoPayload })
@@ -257,38 +164,10 @@ class TodoRoutes extends BaseRouteSimple {
           .code(200);
       })
       .build();
-
-    this.route("PUT", `/api/${httpResourcePath}/{id}`, {
-      description: "Replace 'Todo' by id",
-    })
-      .validate({ params: this.defaultIdProperty, payload: todoDemoPayload })
-      .handler(async (r, h, u) => {
-        return h
-          .response({
-            ...r.params,
-            ...(r.payload as {}),
-          })
-          .code(200);
-      })
-      .build();
-
-    this.route("DELETE", `/api/${httpResourcePath}/{id}`, {
-      description: "Delete 'Todo' by id",
-    })
-      .validate({ params: this.defaultIdProperty })
-      .handler(async (r, h, u) => {
-        return h
-          .response({
-            ...r.params,
-          })
-          .code(200);
-      })
-      .build();
   }
 }
 
-// ****
-// Validation Joi
+// Joi Schema, can be used on routes to validate: params, query, payload etc...
 const todoDemoPayload = Joi.object({
   title: Joi.string()
     .required()
@@ -309,46 +188,14 @@ module.exports = [...new TodoRoutes().buildRoutes()];
 
 ### Service
 
-```code
-//contract
-export interface IBaseService {
-  queryAll(
-    user: any,
-    filter: any,
-    pagination: {
-      offset: number;
-      limit: number;
-      sort: any;
-    },
-    populateOptions?: {
-      path: string | any;
-      select?: string | any;
-    }
-  ): Promise<any[]>;
-  getById(
-    user: any,
-    id: any,
-    projection: any,
-    populateOptions?: {
-      path: string | any;
-      select?: string | any;
-    }
-  ): Promise<any>;
-  create(user: any, payload: any): Promise<any>;
-  update(user: any, id: any, payload: any): Promise<any>;
-  delete(user: any, id: any): Promise<void>;
-}
-```
+Create a new file located on **'src/services/todo.service.ts'**
 
 ```code
 import AccountLogin from "/model/account_login"; // mongoose or sequelize "Model"
-import BaseServiceSequelize from "xhelpers-api/lib/base-service-sequelize";
-import BaseServiceMongoose from "xhelpers-api/lib/base-service-mongoose";
+import { BaseServiceMongoose, BaseServiceSequelize, BaseRabbitOperator } from "xhelpers-api/lib/service";
 
 // mongoose
-export class AccountLoginService extends BaseServiceMongoose<
-  AccountLogin
-> {
+export class AccountLoginService extends BaseServiceMongoose<AccountLogin> {
   constructor() {
     super(AccountLogin);
   }
@@ -361,9 +208,7 @@ export class AccountLoginService extends BaseServiceMongoose<
 }
 
 // sequelize
-export class AccountLoginSqlService extends BaseServiceSequelize<
-  AccountLogin
-> {
+export class AccountLoginSqlService extends BaseServiceSequelize<AccountLogin> {
   constructor() {
     super(AccountLogin);
   }
@@ -462,6 +307,47 @@ fields=
   > Example: sort=[["field name": "ASC|DESC"]]
   >
   > Template based on sequelize: [Ordering and grouping](https://sequelize.org/master/manual/model-querying-basics.html#ordering-and-grouping)
+
+#### Output of running server:
+
+```code
+Starting Xhelpers Hapi server API
+Settings API: Mongoose disabled;
+Settings API: Sequelize disabled;
+Settings API: SSL disabled;
+Settings API: AppKey disabled;
+Settings API: JWT enabled;
+Settings API: SSO disabled;
+====================================================================================================
+🆙  Server api    : http://127.0.0.1:5000/
+🆙  Server doc    : http://127.0.0.1:5000/documentation
+🆙  Server status : http://127.0.0.1:5000/status
+====================================================================================================
+Routing table:
+        🔎  get -         /documentation
+        🔎  get -         /health
+        🔎  get -         /status
+        🔎  get -         /swagger.json
+        🔎  get -         /api/auth
+        🔎  get -         /api/todos
+        🔎  get -    🔑   /api/todos/{id}
+        📄  post -        /api/todos
+        📝  patch -  🔑   /api/todos/{id}
+        📝  put -    🔑   /api/todos/{id}
+        🚩  delete - 🔑   /api/todos/{id}
+====================================================================================================
+```
+
+## Default Routes
+
+```code
+🆙  Server doc    : http://127.0.0.1:5000/documentation
+🆙  Server health : http://127.0.0.1:5000/health
+```
+
+### Swagger /documentation
+
+![Status](docs/swagger.docs.png)
 
 ## Building
 
