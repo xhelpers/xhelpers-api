@@ -13,6 +13,8 @@ import {
   optionsWithOverridePlugin,
   optionsSsoEnabledSecret,
   optionsSsoDisabledSecret,
+  optionsCronJobsDisabled,
+  optionsCronJobsEnabled,
 } from "./server/options";
 
 use(ChaiAsPromised);
@@ -119,6 +121,31 @@ describe("🚧  Testing Server Configs  🚧", () => {
 
     it("Without SSL", async () => {
       server = await createServer(optionsWithoutSSL);
+    });
+  });
+
+  describe("CronJobs options", async () => {
+    it("Enabled CronJobs", async () => {
+      server = await createServer(optionsCronJobsEnabled);
+      const { plugins }: any = server;
+      const service = plugins["cronjobs"].service;
+
+      service.addJob({
+        name: "JobHolderTest",
+        time: "0 0 * * *", // At 00:00.
+        timezone: "America/Sao_Paulo",
+        request: {
+          method: "GET",
+          url: "/health",
+        },
+        onComplete: (res: any) => {
+          console.log("onComplete");
+        },
+      });
+    });
+
+    it("Disabled CronJobs", async () => {
+      server = await createServer(optionsCronJobsDisabled);
     });
   });
 

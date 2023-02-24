@@ -60,6 +60,7 @@ export interface options {
   sentryOptions?: SentryOptions;
   enableSSL?: boolean;
   enableSSO?: boolean;
+  enableCronJobs?: boolean;
   ssoCallback?: Function;
   prepareServer?: (server: Hapi.Server) => void;
 }
@@ -102,6 +103,7 @@ export const createServer = async ({
     plugins: options.plugins || [],
     enableSSL: options.enableSSL || process.env.SSL === "true",
     enableSSO: options.enableSSO || false,
+    enableCronJobs: options.enableCronJobs || false,
     ssoCallback: (user: {
       email: string;
       name: string;
@@ -257,6 +259,14 @@ export const createServer = async ({
     if (envIsNotTest) console.log("Settings API: SSO disabled;");
   }
 
+  // CronJobs
+  if (defaultOptions.enableCronJobs) {
+    if (envIsNotTest) console.log("Settings API: CronJobs enabled;");
+    await server.register(require("./plugins/cronJobs"));
+  } else {
+    if (envIsNotTest) console.log("Settings API: CronJobs disabled;");
+  }
+
   const routeOptions: any = {
     ...defaultOptions.routeOptions,
   };
@@ -316,11 +326,9 @@ export const createServer = async ({
   if (envIsNotTest) {
     server.events.on("start", () => {
       console.log("=".repeat(100));
-      console.log(
-        `🆙  LIB           : ${pkgJson?.name} version: ${pkgJson?.version}`
-      );
-      console.log(`🆙  Server api    : ${server.info.uri}/`);
+      console.log(`🆙  ${pkgJson?.name}  : ${pkgJson?.version}`);
       console.log(`🆙  Server doc    : ${server.info.uri}/documentation`);
+      console.log(`🆙  Server api    : ${server.info.uri}/`);
 
       console.log("=".repeat(100));
 
@@ -352,7 +360,6 @@ export const createServer = async ({
       console.info("⛔️  📴  Server Stoped");
     }
   });
-
   return server;
 };
 

@@ -4,7 +4,8 @@ import * as jwt from "jsonwebtoken";
 import axios from "axios";
 import * as uuid from "uuid";
 import * as amqplib from "amqplib";
+import * as moment from "moment-timezone";
 
 const dotenv = require("dotenv");
 
-export { Boom, Joi, jwt, dotenv, axios, uuid, amqplib };
+export { Boom, Joi, jwt, dotenv, axios, uuid, amqplib, moment };

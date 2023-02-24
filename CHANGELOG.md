@@ -36,7 +36,9 @@ Dependencies have been updated to hapijs 21+ and Nodejs 18.14.1, and all subdepe
 
 ### Added
 
+- New service for cron jobs to use set 'options.enableCronJob: true', base service BaseCronJobService
 - New basic tests for SSO configuration
+- Add momentjs as direct dependency https://momentjs.com/
 
 ### Changed
 
@@ -50,8 +52,11 @@ Dependencies have been updated to hapijs 21+ and Nodejs 18.14.1, and all subdepe
 - Upgraded @hapi/vision to version 7.0.1
 - Upgraded hapi-swagger to version 16.0.0
 - Upgraded hapi-require-https to version 6.0.0
-- Upgraded uuid to version 9.0.0
 - Upgraded mysql2 to version 3.1.2
+- Upgraded sequelize to version 6.28.2
+- Upgraded mongoose to version 6.9.2
+
+- Upgraded uuid to version 9.0.0
 - Upgraded dotenv to version 16.0.3
 - Upgraded axios to version 1.3.3
 - Upgraded jsonwebtoken to version 9.0.0

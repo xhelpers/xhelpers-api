@@ -319,9 +319,9 @@ Settings API: AppKey disabled;
 Settings API: JWT enabled;
 Settings API: SSO disabled;
 ====================================================================================================
-🆙  Server api    : http://127.0.0.1:5000/
+🆙  xhelpers-api  : 4.0.0
 🆙  Server doc    : http://127.0.0.1:5000/documentation
-🆙  Server status : http://127.0.0.1:5000/status
+🆙  Server api    : http://127.0.0.1:5000/
 ====================================================================================================
 Routing table:
         🔎  get -         /documentation
@@ -367,51 +367,6 @@ $ npm run test
 ```bash
 $ npm run test:coverage
 $ npm run cover:report
-```
-
-#### Output
-
-```bash
-  🚧  Testing API Health  🚧
-1589087475331 info server started at: http://127.0.0.1:5005
-    Health API
-[2020-05-10T05:11:15.354Z] GET http://127.0.0.1:5005/documentation 200 (19 ms) {}
-      ✓ /documentation should return 200
-[2020-05-10T05:11:15.358Z] GET http://127.0.0.1:5005/health 200 (1 ms) {}
-      ✓ /health should return 200
-[2020-05-10T05:11:15.360Z] GET http://127.0.0.1:5005/status 200 (1 ms) {}
-      ✓ /status should return 200
-1589087475361 info server stopped at: http://127.0.0.1:5005
-
-  🚧  Resource api/todos  🚧
-1589087476139 info server started at: http://127.0.0.1:5005
-    API api/todos
-[2020-05-10T05:11:16.142Z] POST http://127.0.0.1:5005/api/auth 404 (1 ms) {}
-      ✓ POST api/auth - should return 404 not found
-[2020-05-10T05:11:16.148Z] GET http://127.0.0.1:5005/api/auth 200 (4 ms) {}
-      ✓ GET api/auth - should return 200 with new token
-[2020-05-10T05:11:16.153Z] POST http://127.0.0.1:5005/api/todos 200 (4 ms) {"title":"Test TODO","description":"Description of my todo","done":false}
-      ✓ POST api/todos - should return 200 with new resource created
-[2020-05-10T05:11:16.157Z] POST http://127.0.0.1:5005/api/todos 400 (2 ms) {"title":"","description":"Description of my todo","done":false}
-      ✓ POST api/todos - should return 400 and inform that the title is required
-[2020-05-10T05:11:16.159Z] POST http://127.0.0.1:5005/api/todos 400 (1 ms) {"title":"Test TODO","description":"","done":false}
-      ✓ POST api/todos - should return 400 and inform that the description is required
-[2020-05-10T05:11:16.164Z] PATCH http://127.0.0.1:5005/api/todos/99100 200 (4 ms) {"title":"Test TODO","description":"Description of my todo","done":false}
-      ✓ PATCH api/todos/{id} - should return 200 with modified resource
-[2020-05-10T05:11:16.167Z] PATCH http://127.0.0.1:5005/api/todos/99100 400 (2 ms) {"title":"Test TODO","description":"Description of my todo","done":false,"something":true}
-      ✓ PATCH api/todos/{id} - should return 400 with not allowed keys message
-[2020-05-10T05:11:16.171Z] PATCH http://127.0.0.1:5005/api/todos/99100 401 (1 ms) {}
-      ✓ PATCH api/todos/{id} - should return 401 unauthorized
-[2020-05-10T05:11:16.174Z] GET http://127.0.0.1:5005/api/todos?title=test&description=terr&done=false 200 (2 ms) {}
-      ✓ GET api/todos - should return 200 with one row
-[2020-05-10T05:11:16.177Z] DELETE http://127.0.0.1:5005/api/todos/99100 200 (2 ms) {}
-      ✓ DELETE api/todos/{id} - should return 200
-[2020-05-10T05:11:16.178Z] DELETE http://127.0.0.1:5005/api/todos/99100 401 (0 ms) {}
-      ✓ DELETE api/todos/{id} - should return 401 unauthorized
-1589087476179 info server stopped at: http://127.0.0.1:5005
-
-
-  14 passing (2s)
 ```
 
 ## License

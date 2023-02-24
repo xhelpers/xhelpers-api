@@ -3,6 +3,7 @@ import * as mongoose from "mongoose";
 export interface options {
   uri: string;
   connectionOptions?: any;
+  strictQuery?: boolean;
   [key: string]: any;
 }
 
@@ -21,6 +22,7 @@ export const connect = async (options?: options | undefined) => {
       ...options.connectionOptions,
     };
 
+    mongoose.set("strictQuery", defaultOptions.strictQuery || false);
     await mongoose.connect(options.uri, defaultOptions);
 
     console.log(`🆙  Connected to mongodb: ${mongoose.version}`);

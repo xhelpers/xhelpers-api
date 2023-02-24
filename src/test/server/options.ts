@@ -152,3 +152,23 @@ export const optionsSsoDisabledSecret: createServerOptions = {
     ...optConsts,
   },
 };
+
+export const optionsCronJobsDisabled: createServerOptions = {
+  serverOptions: {
+    ...srvConsts,
+  },
+  options: {
+    enableCronJobs: false,
+    ...optConsts,
+  },
+};
+
+export const optionsCronJobsEnabled: createServerOptions = {
+  serverOptions: {
+    ...srvConsts,
+  },
+  options: {
+    enableCronJobs: true,
+    ...optConsts,
+  },
+};

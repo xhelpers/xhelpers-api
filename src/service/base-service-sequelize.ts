@@ -1,14 +1,7 @@
 import { IBaseService } from "../contracts/IBaseService";
 import { db, Model } from "../database/db-sequelize";
 import BaseServiceToken from "./base-service-token";
-
-type NonAbstract<T> = { [P in keyof T]: T[P] };
-
-type Constructor<T> = new () => T;
-
-type NonAbstractTypeOfModel<T> = Constructor<T> & NonAbstract<typeof Model>;
-
-export type Repository<T> = NonAbstractTypeOfModel<T>;
+import { Repository } from "sequelize-typescript";
 
 export default abstract class BaseServiceSequelize<T extends Model<T>>
   extends BaseServiceToken
@@ -189,3 +182,5 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     await this.repository.findByPk(id).then((entity: any) => entity.destroy());
   }
 }
+
+export { Repository };
