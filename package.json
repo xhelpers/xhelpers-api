@@ -1,7 +1,7 @@
 {
   "name": "xhelpers-api",
   "version": "4.0.0",
-  "description": "",
+  "description": "xhelpers-api is an open source project that enables developers to easily create and manage micro-services into their own environment",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -40,6 +40,10 @@
   "engines": {
     "node": ">=18.14.1"
   },
+  "bugs": {
+    "url": "https://github.com/xhelpers/xhelpers-api/issues"
+  },
+  "homepage": "https://github.com/xhelpers/xhelpers-api#readme",
   "dependencies": {
     "@hapi/bell": "^13.0.1",
     "@hapi/boom": "^10.0.1",
@@ -63,7 +67,7 @@
     "mongoose": "^6.10.0",
     "mysql2": "^3.1.2",
     "reflect-metadata": "^0.1.13",
-    "sequelize": "^6.28.2",
+    "sequelize": "^6.29.0",
     "sequelize-typescript": "^2.1.5",
     "uuid": "^9.0.0"
   },
