@@ -24,9 +24,9 @@
 
 ## Description
 
-Xhelpers is an open source project that enables developers to easily create and manage micro-services into their own environment. It provides a complete suite of easy-to-use tools to help developers quickly create, manage and connect to micro-services.
+Xhelpers is an open source project that enables developers to easily create and manage micro-services into their own environment. It provides a complete suite of easy-to-use tools to help developers quickly create, manage and deploy micro-services.
 
-- The project is a collection of libraries and tools that can be used to create and manage micro-services. It has a comprehensive suite of features such as API caching, API security, API request logging, API documentation, API queue operator (ampq, rabbitmq), SSO (Facebook,Github,Google), database connection for Mongoose and/or Sequelize.
+- The project is a collection of libraries and tools that can be used to create and deploy micro-services. It has a comprehensive suite of features such as ORM/ODM (Sequelize, Mongoose), API SSL, API SSO (Github, Facebook, Google), API security (JWT, AppKey), API logging (AWS, Sentry), API documentation (Swagger), API queue operator (AMQP, RabbitMQ).
 
 - The project has a CLI tool with usefull functions, check it out: [xhelpers-cli](https://github.com/xhelpers/xhelpers-cli).
 

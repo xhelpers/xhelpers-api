@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-WIP.
+- Move NPM package to organization '@xhelpers/api'.
 
 ## [4.0.0] - 2023-03-20
 
@@ -61,6 +61,10 @@ Dependencies have been updated to hapijs 21+ and Nodejs 18.14.1, and all subdepe
 - Upgraded axios to version 1.3.3
 - Upgraded jsonwebtoken to version 9.0.0
 - Upgraded mocha to version 10.2.0
+
+### Removed
+
+- Disabled Sentry until it support @hapijs 21+
 
 ## [3.1.7] - 2022-11-27
 
