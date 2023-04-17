@@ -58,6 +58,7 @@
     "dotenv": "^16.0.3",
     "hapi-auth-jwt2": "^10.4.0",
     "hapi-require-https": "^6.0.0",
+    "hapi-sentry": "^4.0.0-0",
     "hapi-swagger": "^16.0.0",
     "joi": "^17.8.3",
     "jsonwebtoken": "^9.0.0",

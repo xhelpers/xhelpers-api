@@ -1,8 +1,10 @@
-import { createServer, createServerOptions } from "../server";
+import { createServer } from "../server";
+import { ICreateServerOptions } from "../config";
+
 let server: any = {};
 
 const start = async () => {
-  const options: createServerOptions = {
+  const options: ICreateServerOptions = {
     serverOptions: {
       port: 5000,
       host: process.env.HOST || "127.0.0.1",

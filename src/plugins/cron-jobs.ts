@@ -1,22 +1,20 @@
+import { Server } from "@hapi/hapi";
+import { IOptions, envIsNotTest } from "../config";
+
 import { CronJob } from "cron";
+import { ICronJob } from "../config/cronjobs";
 
 const pluginName = "cronjobs";
 
-export interface ICronJob {
-  name: string;
-  time: string;
-  timezone: string;
-  request: {
-    method: string;
-    url: string;
-    params?: any;
-    query?: any;
-    payload?: any;
-    headers?: any;
-    [key: string]: any;
-  };
-  onComplete: (res: any) => void;
-}
+export const registerCronJobs = async (server: Server, options: IOptions) => {
+  // CronJobs
+  if (options.enableCronJobs) {
+    if (envIsNotTest) console.log("Settings API: CronJobs enabled;");
+    await server.register(cronJobPlugin);
+  } else {
+    if (envIsNotTest) console.log("Settings API: CronJobs disabled;");
+  }
+};
 
 export interface IServiceJob {
   addJob: (job: ICronJob) => void;
@@ -129,11 +127,20 @@ const register = (server: any, options: any) => {
     addJob: (job: ICronJob) => addJob(job, server),
     removeJob: (name: string) => removeJob(name, server),
   });
+
+  // server.events.on("addJob", (job: ICronJob) => {
+  //   addJob(job, server);
+  // });
+  // server.events.on("removeJob", (name: string) => {
+  //   removeJob(name, server);
+  // });
+
   server.ext("onPostStart", internals.onPostStart(server));
   server.ext("onPreStop", internals.onPreStop(server));
 };
 
-exports.plugin = {
-  register,
+const cronJobPlugin = {
   name: pluginName,
+  version: "1.0.0",
+  register,
 };

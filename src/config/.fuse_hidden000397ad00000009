@@ -1,0 +1,5 @@
+export interface serverOptions {
+  port?: number | string;
+  host?: string;
+  [key: string]: any;
+}

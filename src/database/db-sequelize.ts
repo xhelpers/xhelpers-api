@@ -4,13 +4,10 @@ import { Op } from "sequelize";
 
 // @ts-ignore
 import mysql2 from "mysql2";
-
-export interface options extends SequelizeOptions {
-  [key: string]: any;
-}
+import { ISequelizeOptions } from "../config";
 
 export const db: any = {};
-export const connect = async (sequelizeOptions?: options) => {
+export const connect = async (sequelizeOptions?: ISequelizeOptions) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";
 
   if (!sequelizeOptions) {

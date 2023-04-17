@@ -1,7 +1,10 @@
-import * as Hapi from "@hapi/hapi";
+import { Server } from "@hapi/hapi";
+import { IOptions } from "../config";
 
-export async function loadRoutes(routeOptions: any, server: Hapi.Server) {
-  const { routes } = routeOptions;
+export const registerLoadRoutes = async (server: Server, options: IOptions) => {
+  if (!options.routeOptions) return;
+
+  const { routes } = options.routeOptions;
   const glob = require("glob");
   const routeFiles: [] = await new Promise((res, rej) =>
     glob(routes, (err: any, files: any) => {
@@ -14,4 +17,4 @@ export async function loadRoutes(routeOptions: any, server: Hapi.Server) {
     const route = require(filePath);
     server.route(route.default || route);
   }
-}
+};

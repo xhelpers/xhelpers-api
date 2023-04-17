@@ -1,13 +1,7 @@
 import * as mongoose from "mongoose";
+import { IMongooseOptions } from "../config";
 
-export interface options {
-  uri: string;
-  connectionOptions?: any;
-  strictQuery?: boolean;
-  [key: string]: any;
-}
-
-export const connect = async (options?: options | undefined) => {
+export const connect = async (options?: IMongooseOptions | undefined) => {
   const envIsNotTest = process.env.NODE_ENV !== "TEST";
 
   if (!options) {
@@ -32,7 +26,7 @@ export const connect = async (options?: options | undefined) => {
   return null;
 };
 
-const handleFailedConnection = (err: any, options: options) => {
+const handleFailedConnection = (err: any, options: IMongooseOptions) => {
   console.error(
     `📴 Failed to connect on mongodb: ${mongoose.version}\nErr: ${err}`
   );

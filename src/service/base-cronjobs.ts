@@ -1,5 +1,6 @@
 import * as Hapi from "@hapi/hapi";
-import { ICronJob, IServiceJob } from "../plugins/cronJobs";
+import { IServiceJob } from "../plugins/cron-jobs";
+import { ICronJob } from "../config";
 
 export default class BaseCronJobService implements IServiceJob {
   jobService: IServiceJob;

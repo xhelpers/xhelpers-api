@@ -1,7 +1,9 @@
 import * as ChaiAsPromised from "chai-as-promised";
 import { expect, use } from "chai";
 import { Server } from "@hapi/hapi";
-import { createServer, createServerOptions } from "../server";
+import { createServer } from "../server";
+import { ICreateServerOptions } from "../config";
+
 import {
   optionsJwtSecret,
   optionsAppKey,
@@ -129,7 +131,6 @@ describe("🚧  Testing Server Configs  🚧", () => {
       server = await createServer(optionsCronJobsEnabled);
       const { plugins }: any = server;
       const service = plugins["cronjobs"].service;
-
       service.addJob({
         name: "JobHolderTest",
         time: "0 0 * * *", // At 00:00.
@@ -173,7 +174,7 @@ describe("🚧  Testing Server Configs  🚧", () => {
     it("Empty options", async () => {
       let err;
       try {
-        server = await createServer({} as createServerOptions);
+        server = await createServer({} as ICreateServerOptions);
         err = false;
       } catch (e) {
         err = true;
