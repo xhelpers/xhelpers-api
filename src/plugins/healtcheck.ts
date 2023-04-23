@@ -1,5 +1,5 @@
 import { Server } from "@hapi/hapi";
-import { IOptions, envIsNotTest } from "../config";
+import { IOptions } from "../config";
 
 export const registerHealthCheck = async (
   server: Server,

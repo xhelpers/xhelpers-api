@@ -1,22 +1,22 @@
 import * as Hapi from "@hapi/hapi";
 import { IOptions } from "../config";
-import { registerServerPrepare } from "../plugins/prepare-server";
-import { registerAuthJwt } from "../plugins/auth-jwt";
-import { registerAuthAppKey } from "../plugins/auth-appkey";
-import { registerAuthSso } from "../plugins/auth-sso";
-import { registerLoadRoutes } from "../plugins/load-routes";
-import { registerCronJobs } from "../plugins/cron-jobs";
-import { registerHealthCheck } from "../plugins/healtcheck";
-import { registerSwagger } from "../plugins/docs-swagger";
-import { registerSentry } from "../plugins/logs-sentry";
-import { registerExternalPlugins } from "../plugins/external-plugins";
-import { registerDisplayRoutes } from "../plugins/display-routes";
-import { registerRequireSsl } from "../plugins/require-ssl";
+import { registerServerPrepare } from "./prepare-server";
+import { registerAuthJwt } from "./auth-jwt";
+import { registerAuthAppKey } from "./auth-appkey";
+import { registerAuthSso } from "./auth-sso";
+import { registerLoadRoutes } from "./load-routes";
+import { registerCronJobs } from "./cron-jobs";
+import { registerHealthCheck } from "./healtcheck";
+import { registerSwagger } from "./docs-swagger";
+import { registerSentry } from "./logs-sentry";
+import { registerExternalPlugins } from "./external-plugins";
+import { registerDisplayRoutes } from "./display-routes";
+import { registerRequireSsl } from "./require-ssl";
 
 import { connect as connectMongoose } from "../database/db-mongoose";
 import { connect as connectSequelize } from "../database/db-sequelize";
 
-export default async function configureMiddlewares(
+export default async function configurePlugins(
   server: Hapi.Server,
   options: IOptions
 ) {
@@ -29,6 +29,10 @@ export default async function configureMiddlewares(
     mongooseContext: await connectMongoose(options.mongooseOptions),
     // Sequelize connect
     sequelizeContext: await connectSequelize(options.sequelizeOptions),
+    auth: {
+      jwt_enabled: !!options.jwt_secret,
+      appkey_enabled: !!options.app_key_auth,
+    },
   };
 
   // swagger
@@ -37,17 +41,11 @@ export default async function configureMiddlewares(
   // register ssl
   await registerRequireSsl(server, options);
 
-  // Sentry
-  await registerSentry(server, options);
-
-  // Auth app key
-  await registerAuthAppKey(server, options);
+  // Auth sso
+  await registerAuthSso(server, options);
 
   // Auth jwt
   await registerAuthJwt(server, options);
-
-  // Auth sso
-  await registerAuthSso(server, options);
 
   // Auth app key
   await registerAuthAppKey(server, options);
@@ -55,14 +53,17 @@ export default async function configureMiddlewares(
   // load default route files
   await registerLoadRoutes(server, options);
 
-  // register default cron job
-  await registerCronJobs(server, options);
-
   // add default health check
   await registerHealthCheck(server, options);
 
   // register plugins
   await registerExternalPlugins(server, options);
+
+  // register default cron job
+  await registerCronJobs(server, options);
+
+  // Sentry
+  await registerSentry(server, options);
 
   // display routes on startup
   await registerDisplayRoutes(server, options);

@@ -1,6 +1,6 @@
 {
   "name": "xhelpers-api",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "xhelpers-api is an open source project that enables developers to easily create and manage micro-services into their own environment",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -8,6 +8,7 @@
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "test": "NODE_ENV=TEST tsc -p tsconfig.json && $(npm root)/.bin/mocha -r ts-node/register --exit --no-timeouts --reporter=spec --recursive src/test/**.spec.ts",
+    "test1": "NODE_ENV=TEST tsc -p tsconfig.json && $(npm root)/.bin/mocha -r ts-node/register --exit --no-timeouts --reporter=spec --recursive src/test/safecall.spec.ts",
     "test:coverage": "$(npm root)/.bin/nyc npm run test",
     "cover:report": "nyc report --reporter=lcov",
     "tsc": "tsc"
@@ -84,6 +85,7 @@
     "@types/mocha": "^10.0.1",
     "@types/mongoose-lean-virtuals": "^0.5.3",
     "@types/node": "^18.14.1",
+    "@types/sinon": "^10.0.14",
     "@types/uuid": "^9.0.0",
     "@types/validator": "^13.7.12",
     "@typescript-eslint/eslint-plugin": "^5.33.1",
@@ -101,6 +103,7 @@
     "nyc": "^15.1.0",
     "openapi-types": "^12.0.2",
     "prettier": "^2.8.0",
+    "sinon": "^15.0.4",
     "ts-node": "^10.9.1",
     "tsc-watch": "^6.0.0",
     "tslib": "^2.5.0",

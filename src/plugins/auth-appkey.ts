@@ -1,44 +1,47 @@
 import * as Boom from "@hapi/boom";
 import { Server } from "@hapi/hapi";
-import { IOptions, envIsNotTest } from "../config";
+import { IOptions } from "../config";
+import { log } from "../utils";
 
 export const registerAuthAppKey = async (server: Server, options: IOptions) => {
   // AppKey Secret
-  if (!options.jwt_secret) {
-    if (envIsNotTest) console.log("Settings API: AppKey disabled;");
-  } else {
-    if (envIsNotTest) console.log("Settings API: AppKey enabled;");
+  const app_key_auth = options.app_key_auth;
+  if (!app_key_auth) {
+    log("Settings API: AppKey disabled;");
+    return;
+  }
 
-    try {
-      server.auth.scheme("appkey", (server: any, options: any) => {
-        return {
-          authenticate: (req: any, resp: any) => {
-            const { appkey } = req.headers;
-            if (!appkey)
-              return Boom.unauthorized(
-                "Header has to include 'appkey' key with value of the application key."
-              );
-            if (appkey !== options.app_key_auth) return Boom.unauthorized();
-            return resp.continue;
-          },
-        };
-      });
+  log("Settings API: AppKey enabled;");
 
-      server.auth.strategy("appkey", "appkey");
+  try {
+    server.auth.scheme("appkey", (server: any, options: any) => {
+      return {
+        authenticate: (req: any, resp: any) => {
+          const { appkey } = req.headers;
+          if (!appkey)
+            return Boom.unauthorized(
+              "Header has to include 'appkey' key with value of the application key."
+            );
+          if (appkey !== app_key_auth) return Boom.unauthorized();
+          return resp.continue;
+        },
+      };
+    });
 
-      if (!options.jwt_secret || !!options.app_key_auth) {
-        server.auth.default("appkey");
-      }
-    } catch (error: any) {
-      if (
-        [
-          "Cannot set default strategy more than once",
-          "Authentication scheme name already exists",
-        ].some((element: any) => error.message.includes(element))
-      ) {
-        return true;
-      }
-      throw error; // If it's a different error, re-throw it
+    server.auth.strategy("appkey", "appkey");
+
+    if (!options.jwt_secret && !!options.app_key_auth) {
+      server.auth.default("appkey");
     }
+  } catch (error: any) {
+    if (
+      [
+        "Cannot set default strategy more than once",
+        "Authentication scheme name already exists",
+      ].some((element: any) => error.message.includes(element))
+    ) {
+      return true;
+    }
+    throw error; // If it's a different error, re-throw it
   }
 };

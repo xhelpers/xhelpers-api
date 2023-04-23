@@ -1,14 +1,13 @@
 import * as mongoose from "mongoose";
 import { IMongooseOptions } from "../config";
+import { log, logger } from "../utils";
 
 export const connect = async (options?: IMongooseOptions | undefined) => {
-  const envIsNotTest = process.env.NODE_ENV !== "TEST";
-
   if (!options) {
-    if (envIsNotTest) console.log("Settings API: Mongoose disabled;");
+    log("Settings API: Mongoose disabled;");
     return;
   }
-  if (envIsNotTest) console.log("Settings API: Mongoose enabled;");
+  log("Settings API: Mongoose enabled;");
   try {
     const defaultOptions: any = {
       useNewUrlParser: true,
@@ -19,7 +18,7 @@ export const connect = async (options?: IMongooseOptions | undefined) => {
     mongoose.set("strictQuery", defaultOptions.strictQuery || false);
     await mongoose.connect(options.uri, defaultOptions);
 
-    console.log(`🆙  Connected to mongodb: ${mongoose.version}`);
+    log(`🆙  Connected to mongodb: ${mongoose.version}`);
   } catch (err) {
     handleFailedConnection(err, options);
   }
@@ -27,9 +26,7 @@ export const connect = async (options?: IMongooseOptions | undefined) => {
 };
 
 const handleFailedConnection = (err: any, options: IMongooseOptions) => {
-  console.error(
-    `📴 Failed to connect on mongodb: ${mongoose.version}\nErr: ${err}`
-  );
+  logger("error", `📴 Failed to connect on mongodb: ${mongoose.version}`, err);
   setTimeout(async () => {
     await connect(options);
   }, 5000);

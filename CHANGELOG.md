@@ -30,6 +30,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Move NPM package to organization '@xhelpers/api'.
 
+## [4.1.0] - 2023-04-16
+
+### Added
+
+- New basic tests for the jwt service and server configurations
+
+### Changed
+
+- Refactored server code to smaller files and plugins.
+- Updated Sentry integration
+
 ## [4.0.0] - 2023-02-26
 
 Dependencies have been updated to hapijs 21+ and Nodejs 18.14.1, and all subdependencies have been upgraded to the most recent version.

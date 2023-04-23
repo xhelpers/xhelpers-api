@@ -37,8 +37,8 @@ Xhelpers is an open source project that enables developers to easily create and 
 - [TypeScript 4.9.5](https://www.typescriptlang.org/).
 - [Node.js 18.14.1](https://nodejs.org/).
 - [Hapi 21.3.0](https://hapi.dev/).
-- [Mongoose 6.9.2](https://mongoosejs.com/).
-- [Sequelize 6.28.0](https://sequelize.org/).
+- [Mongoose 6.10.0](https://mongoosejs.com/).
+- [Sequelize 6.29.0](https://sequelize.org/).
 
 ## Roadmap
 

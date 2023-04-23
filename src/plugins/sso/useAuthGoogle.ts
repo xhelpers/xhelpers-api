@@ -1,31 +1,30 @@
 import { authUser } from "./sso-strategy";
+import { log } from "../../utils";
 
 export const useAuthGoogle = async (server: any, callback: any) => {
   const googleClientId = process.env.SSO_GOOGLE_CLIENT_ID;
   if (!googleClientId || googleClientId.length === 0) {
-    console.log(
-      "Settings API: SSO Google disabled; (SSO_GOOGLE_CLIENT_ID is missing)"
-    );
+    log("Settings API: SSO Google disabled; (SSO_GOOGLE_CLIENT_ID is missing)");
     return;
   }
   if (
     !process.env.SSO_GOOGLE_CLIENT_SECRET ||
     process.env.SSO_GOOGLE_CLIENT_SECRET?.length === 0
   ) {
-    console.log(
+    log(
       "Settings API: SSO Google disabled; (SSO_GOOGLE_CLIENT_SECRET variable is missing)"
     );
     return;
   }
 
   // from now on google is enabled
-  console.log("Settings API: SSO Google enabled;");
+  log("Settings API: SSO Google enabled;");
 
   if (
     !process.env.SSO_GOOGLE_LOCATION ||
     process.env.SSO_GOOGLE_LOCATION?.length === 0
   ) {
-    console.log(
+    log(
       "Settings API: [WARNING] SSO Google; (SSO_GOOGLE_LOCATION variable is missing unexpected things can happen)"
     );
   }
@@ -56,7 +55,7 @@ export const useAuthGoogle = async (server: any, callback: any) => {
       }
 
       const profile = request.auth.credentials.profile;
-      console.log("Google authentication", profile);
+      log("Google authentication", profile);
       const user = {
         ...profile,
         email: profile.email,
@@ -72,7 +71,7 @@ export const useAuthGoogle = async (server: any, callback: any) => {
         const response = await authUser(callback, user, h);
         return response;
       } catch (error: any) {
-        console.log("err sso: ", error);
+        log("err sso: ", error);
         return h.response({
           err: error.message,
         });

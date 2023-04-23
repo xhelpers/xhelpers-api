@@ -8,6 +8,7 @@ const Inert = require("@hapi/inert");
 
 export const registerSwagger = async (server: Server, options: IOptions) => {
   if (!options.swaggerOptions) return;
+
   await server.register([
     Inert,
     Vision,

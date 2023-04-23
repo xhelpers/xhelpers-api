@@ -1,6 +1,7 @@
 import { Boom } from "../tools";
 import { errorHandler } from "./error-handler";
 import { promiseMe } from "./promise-me";
+import { log, logger } from "../utils";
 
 export const safeCall = async (
   request: {
@@ -18,11 +19,9 @@ export const safeCall = async (
   try {
     if (displayLog) {
       console.time("| 5️⃣ | SafeCall time");
-      console.log("| 1️⃣ | Route:", request.method, request.path);
+      log(`| 1️⃣ | Route: ${request.method}  ${request.path}`);
       console.time("| 2️⃣ | Auth time");
     }
-
-    await ensureAuthentication(request);
 
     const user =
       request.auth && request.auth.credentials && request.auth.credentials.user;
@@ -32,7 +31,7 @@ export const safeCall = async (
 
     if (displayLog) {
       console.timeEnd("| 2️⃣ | Auth time");
-      console.log("| 3️⃣ | User:", user && user.email, "id:", user && user.id);
+      log(`| 3️⃣ | User: ${user && user.email} id: ${user && user.id}`);
       console.time("| 4️⃣ | Function time");
     }
 
@@ -43,24 +42,13 @@ export const safeCall = async (
     if (resultErr) throw resultErr;
 
     return Promise.resolve(result).then((r) => {
-      if (displayLog) console.log("| 6️⃣  🎲 | StatusCode:", r.statusCode);
+      if (displayLog) log(`| 6️⃣  🎲 | StatusCode: ${r.statusCode}`);
       return r;
     });
   } catch (error: any) {
-    if (displayLog) console.error("|❗️ 🔥 |", error?.message, error);
+    if (displayLog) logger("error", `|❗️ 🔥 |${error?.message}`, error);
     return errorHandler(error);
   } finally {
     if (displayLog) console.timeEnd("| 5️⃣ | SafeCall time");
-  }
-};
-
-const ensureAuthentication = async (request: {
-  method?: any;
-  path?: any;
-  auth: any;
-}) => {
-  if (!request.auth.isAuthenticated) {
-    const { message } = request.auth.error || "Auth failed";
-    return Boom.unauthorized("Authentication failed due to: " + message);
   }
 };

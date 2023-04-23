@@ -1,21 +1,23 @@
 import { Server } from "@hapi/hapi";
-import { IOptions, ISentryOptions, envIsNotTest } from "../config";
+import { IOptions, ISentryOptions } from "../config";
+import { log } from "../utils";
 
 import * as Sentry from "@sentry/node";
 const HapiSentry = require("hapi-sentry");
 
 export const registerSentry = async (server: Server, options: IOptions) => {
   const sentryDSN = options.sentryOptions?.dsn || process.env.SENTRY_DSN;
-  if (sentryDSN) {
-    if (envIsNotTest) console.log("Settings API: Sentry enabled;");
-    await setUpSentry(server, {
-      ...options.sentryOptions,
-      dsn: sentryDSN,
-      version: options.swaggerOptions?.info?.version || "1",
-    });
-  } else {
-    if (envIsNotTest) console.log("Settings API: Sentry disabled;");
+  if (!sentryDSN) {
+    log("Settings API: Sentry disabled;");
+    return;
   }
+
+  log("Settings API: Sentry enabled;");
+  await setUpSentry(server, {
+    ...options.sentryOptions,
+    dsn: sentryDSN,
+    version: options.swaggerOptions?.info?.version || "1",
+  });
 };
 
 async function setUpSentry(server: Server, options: ISentryOptions) {
@@ -57,7 +59,7 @@ async function setUpSentry(server: Server, options: ISentryOptions) {
         request.info?.remoteAddress;
       const host = request.headers["host"];
       if (isBoom && !ignoreStatusCode && !ignoreRoutes) {
-        console.log("Sending error to Sentry");
+        log("Sending error to Sentry");
         Sentry.withScope((scope: any) => {
           const payloadString =
             request.payload && JSON.stringify(request.payload);

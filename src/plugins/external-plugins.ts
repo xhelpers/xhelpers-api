@@ -1,5 +1,5 @@
 import { Server } from "@hapi/hapi";
-import { IOptions, envIsNotTest } from "../config";
+import { IOptions } from "../config";
 
 export const registerExternalPlugins = async (
   server: Server,

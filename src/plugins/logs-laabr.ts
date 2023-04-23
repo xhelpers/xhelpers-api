@@ -1,5 +1,5 @@
 import { Server } from "@hapi/hapi";
-import { IOptions, envIsNotTest } from "../config";
+import { IOptions } from "../config";
 
 const laabr = require("laabr");
 
@@ -20,7 +20,7 @@ export const registerLogsLaabr = (server: Server, options: IOptions) => {
             hapiPino: {
               logPayload: true,
               mergeHapiLogData: true,
-              ignorePaths: ["/health", "/documentation"],
+              ignorePaths: ["/health", "/liveness", "/documentation"],
             },
           },
         },

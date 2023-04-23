@@ -1,5 +1,6 @@
 import { Server } from "@hapi/hapi";
-import { IOptions, envIsNotTest } from "../config";
+import { IOptions } from "../config";
+import { log, logger } from "../utils";
 
 import { CronJob } from "cron";
 import { ICronJob } from "../config/cronjobs";
@@ -8,12 +9,13 @@ const pluginName = "cronjobs";
 
 export const registerCronJobs = async (server: Server, options: IOptions) => {
   // CronJobs
-  if (options.enableCronJobs) {
-    if (envIsNotTest) console.log("Settings API: CronJobs enabled;");
-    await server.register(cronJobPlugin);
-  } else {
-    if (envIsNotTest) console.log("Settings API: CronJobs disabled;");
+  if (!options.enableCronJobs) {
+    log("Settings API: CronJobs disabled;");
+    return;
   }
+
+  log("Settings API: CronJobs enabled;");
+  await server.register(cronJobPlugin);
 };
 
 export interface IServiceJob {
@@ -64,7 +66,7 @@ const addJob = (job: ICronJob, server: any) => {
 
   const assert = (invalid: any, error: string) => {
     if (invalid) {
-      console.error(invalid, error);
+      logger("error", invalid, error);
     }
     return invalid;
   };
@@ -94,16 +96,17 @@ const addJob = (job: ICronJob, server: any) => {
     );
     service[job.name].start();
     if (process.env.LOG_LEVEL === "HIGH") {
-      console.log("Job created: ", job.name);
+      log("Job created: ", job.name);
     }
   } catch (err: any) {
     if (err.message === "Invalid timezone.") {
-      console.log(
-        err,
-        "Invalid timezone. See https://momentjs.com/timezone for valid timezones"
+      logger(
+        "error",
+        "Invalid timezone. See https://momentjs.com/timezone for valid timezones",
+        err
       );
     } else {
-      console.log(err, "Time is not a cron expression");
+      logger("error", "Time is not a cron expression", err);
     }
   }
 };
@@ -118,7 +121,7 @@ const removeJob = (name: string, server: any) => {
       delete service[name];
     }
   } catch (err: any) {
-    console.log(err);
+    logger("error", err.message, err);
   }
 };
 

@@ -1,6 +1,13 @@
 import { uuid } from "../tools";
+import { envIsTest } from "../config";
 
-export const logger = async (type: string, message: string, data: any) => {
+export const logger = async (
+  type: "error" | "err" | "log" | "info",
+  message: string,
+  data: any
+) => {
+  if (envIsTest) return;
+
   function error() {
     const logGuid = uuid.v4();
     console.error(`| 🔥 |- \t[${logGuid}]`);
@@ -9,10 +16,11 @@ export const logger = async (type: string, message: string, data: any) => {
   }
 
   function log() {
-    console.log(message, data);
+    console.log(message, data || "");
   }
 
   switch (type) {
+    case "error":
     case "err":
       error();
       break;
@@ -22,4 +30,8 @@ export const logger = async (type: string, message: string, data: any) => {
       log();
       break;
   }
+};
+
+export const log = async (message: string, data?: any) => {
+  logger("log", message, data);
 };

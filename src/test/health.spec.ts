@@ -13,7 +13,7 @@ describe("🚧  Testing API Health  🚧", () => {
   before(async () => {
     const options: any = {
       serverOptions: {
-        port: 5005,
+        port: 5004,
         host: process.env.HOST || "127.0.0.1",
       },
       options: {
