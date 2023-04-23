@@ -137,7 +137,6 @@ export default abstract class RabbitOperator {
   public async whenConnected(queue?: string, handler?: any, prefetch?: number) {
     this.startPublisher(queue);
     this.startWorker(queue, handler, prefetch);
-    log(`Connected pub/sub for: ${queue}`);
   }
 
   private async startPublisher(queue?: string) {
