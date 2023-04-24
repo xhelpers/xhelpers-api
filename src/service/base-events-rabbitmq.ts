@@ -57,10 +57,10 @@ export default abstract class RabbitOperator {
   ) {
     const channelId = channel || this.defaultQueue;
     try {
-      log("Pub event on queue:", channelId);
+      log("[AMQP] Pub event on queue:", channelId);
 
       if (!this.pubChannel[channelId]) {
-        throw new Error("Invalid publisher connection, restarting.");
+        throw new Error("[AMQP] Invalid publisher connection, restarting.");
       }
 
       this.pubChannel[channelId].publish(
@@ -141,7 +141,7 @@ export default abstract class RabbitOperator {
 
   private async startPublisher(queue?: string) {
     log(`[AMQP] Connect publisher to ${queue}`);
-    if (!this.amqpConn) throw new Error("Invalid connection");
+    if (!this.amqpConn) throw new Error("[AMQP] Invalid connection");
 
     const channelId = queue || this.defaultQueue;
     if (!this.pubChannel[channelId]) {
@@ -149,7 +149,7 @@ export default abstract class RabbitOperator {
         this.defaultExchange,
         channelId
       );
-      if (!ch) throw new Error("Invalid channel");
+      if (!ch) throw new Error("[AMQP] Invalid channel");
 
       ch.on("error", (err: any) => {
         logger("error", "[AMQP] channel error", err.message);
@@ -186,12 +186,12 @@ export default abstract class RabbitOperator {
   ) {
     log(`[AMQP] Connect consumer to ${queue}`);
 
-    if (!this.amqpConn) throw new Error("Invalid connection");
+    if (!this.amqpConn) throw new Error("[AMQP] Invalid connection");
 
     const channelId = queue || this.defaultQueue;
     if (!this.workChannel[channelId]) {
       const ch = await this.amqpConn.createChannel();
-      if (!ch) throw new Error("Invalid channel");
+      if (!ch) throw new Error("[AMQP] Invalid channel");
 
       ch.on("error", (err: any) => {
         logger("error", "[AMQP] channel error", err.message);
@@ -229,15 +229,17 @@ export default abstract class RabbitOperator {
             : await this.handleNewEvent(jsonData);
           if (ok) {
             this.workChannel[routingKey].ack(msg);
-            log(`Ack event on queue '${msg.fields.routingKey}' - id:'${id}'`);
+            log(
+              `[AMQP] Ack event on queue '${msg.fields.routingKey}' - id:'${id}'`
+            );
           } else {
             this.workChannel[routingKey].reject(msg, true);
             log(
-              `Reject event on queue '${msg.fields.routingKey}' - id:'${id}'`
+              `[AMQP] Reject event on queue '${msg.fields.routingKey}' - id:'${id}'`
             );
           }
         } catch (e) {
-          logger("error", `Reject err event on queue '${channelId}'`, e);
+          logger("error", `[AMQP] Reject err event on queue '${channelId}'`, e);
           this.workChannel[channelId].reject(msg, true);
           if (!this.workChannel[channelId])
             this.startWorker(channelId, handler, prefetch);
