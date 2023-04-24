@@ -47,7 +47,7 @@ export const connect = async (sequelizeOptions?: ISequelizeOptions) => {
   return null;
 
   function handleFailedConnection(err: unknown) {
-    logger("error", `📴 Failed to connect on Sequelize:`, err);
+    logger("error", "📴 Failed to connect on Sequelize:", err);
     setTimeout(async () => {
       await connect(sequelizeOptions);
     }, 5000);

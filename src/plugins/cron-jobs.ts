@@ -7,17 +7,6 @@ import { ICronJob } from "../config/cronjobs";
 
 const pluginName = "cronjobs";
 
-export const registerCronJobs = async (server: Server, options: IOptions) => {
-  // CronJobs
-  if (!options.enableCronJobs) {
-    log("Settings API: CronJobs disabled;");
-    return;
-  }
-
-  log("Settings API: CronJobs enabled;");
-  await server.register(cronJobPlugin);
-};
-
 export interface IServiceJob {
   addJob: (job: ICronJob) => void;
   removeJob: (name: string) => void;
@@ -146,4 +135,15 @@ const cronJobPlugin = {
   name: pluginName,
   version: "1.0.0",
   register,
+};
+
+export const registerCronJobs = async (server: Server, options: IOptions) => {
+  // CronJobs
+  if (!options.enableCronJobs) {
+    log("Settings API: CronJobs disabled;");
+    return;
+  }
+
+  log("Settings API: CronJobs enabled;");
+  await server.register(cronJobPlugin);
 };

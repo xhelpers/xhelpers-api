@@ -29,10 +29,6 @@ export default async function configurePlugins(
     mongooseContext: await connectMongoose(options.mongooseOptions),
     // Sequelize connect
     sequelizeContext: await connectSequelize(options.sequelizeOptions),
-    auth: {
-      jwt_enabled: !!options.jwt_secret,
-      appkey_enabled: !!options.app_key_auth,
-    },
   };
 
   // swagger

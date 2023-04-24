@@ -5,8 +5,8 @@ import { log } from "../utils";
 
 export const registerAuthAppKey = async (server: Server, options: IOptions) => {
   // AppKey Secret
-  const app_key_auth = options.app_key_auth;
-  if (!app_key_auth) {
+  const appKeyAuth = options.app_key_auth;
+  if (!appKeyAuth) {
     log("Settings API: AppKey disabled;");
     return;
   }
@@ -22,7 +22,7 @@ export const registerAuthAppKey = async (server: Server, options: IOptions) => {
             return Boom.unauthorized(
               "Header has to include 'appkey' key with value of the application key."
             );
-          if (appkey !== app_key_auth) return Boom.unauthorized();
+          if (appkey !== appKeyAuth) return Boom.unauthorized();
           return resp.continue;
         },
       };

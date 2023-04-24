@@ -100,7 +100,7 @@ export default abstract class RabbitOperator {
   }
 
   protected async start(handlerConnected?: any) {
-    log(`[AMQP] Rabbitmq trying connection`);
+    log("[AMQP] Rabbitmq trying connection");
     if (this.isRestarting) return;
     if (handlerConnected) this.handlerConnected = handlerConnected;
 

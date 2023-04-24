@@ -1,6 +1,6 @@
 import { Server } from "@hapi/hapi";
-import { IOptions, envIsTest } from "../config";
-import { log, logger } from "../utils";
+import { IOptions } from "../config";
+import { log } from "../utils";
 
 export const registerAuthJwt = async (server: Server, options: IOptions) => {
   // JWT Secret
@@ -18,6 +18,13 @@ export const registerAuthJwt = async (server: Server, options: IOptions) => {
 
   // Hapi JWT auth
   await server.register(require("hapi-auth-jwt2"));
+
+  const validateFunc = async (decoded: any) => {
+    return {
+      isValid: true,
+      credentials: decoded,
+    };
+  };
 
   try {
     server.auth.strategy("jwt", "jwt", {
@@ -40,11 +47,4 @@ export const registerAuthJwt = async (server: Server, options: IOptions) => {
     }
     throw error; // If it's a different error, re-throw it
   }
-};
-
-const validateFunc = async (decoded: any) => {
-  return {
-    isValid: true,
-    credentials: decoded,
-  };
 };

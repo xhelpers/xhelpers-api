@@ -9,10 +9,10 @@ export const registerLoadRoutes = async (server: Server, options: IOptions) => {
 
   const { routes } = options.routeOptions;
   const glob = require("glob");
-  const routeFiles: [] = await new Promise((res, rej) =>
+  const routeFiles: [] = await new Promise((resolve, reject) =>
     glob(routes, (err: any, files: any) => {
-      if (err != null) rej(err);
-      else res(files);
+      if (err != null) reject(err);
+      else resolve(files);
     })
   );
 

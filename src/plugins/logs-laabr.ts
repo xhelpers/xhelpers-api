@@ -7,7 +7,7 @@ export const registerLogsLaabr = (server: Server, options: IOptions) => {
   return {
     name: "laabr-default",
     version: "1.0.0",
-    register: async function () {
+    register: async () => {
       await server.register([
         {
           plugin: laabr,

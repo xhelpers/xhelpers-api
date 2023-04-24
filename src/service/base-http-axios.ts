@@ -50,10 +50,10 @@ export default abstract class AxiosService {
   defaultCatch(error: any) {
     if (error.response) {
       log(
-        `[Axios] The request was made and the server responded with a status code that falls out of the range`
+        "[Axios] The request was made and the server responded with a status code that falls out of the range"
       );
     } else if (error.request) {
-      log(`[Axios] The request was made but no response was received`);
+      log("[Axios] The request was made but no response was received");
     } else {
       log(
         "[Axios] Error Something happened in setting up the request that triggered an Error",
