@@ -65,55 +65,40 @@ import { Boom, uuid, Joi, dotenv } from "xhelpers-api/lib/tools";
 dotenv.config();
 
 class RequestService {
-  async createJob(u: any, server: any) {
-    return uuid.v4();
-  }
+	async createJob(u: any, server: any): Promise<string | Boom.Boom> {
+		return uuid.v4();
+	}
 }
 
 class Routes extends BaseRouteSimple {
-  service: RequestService;
-
-  constructor() {
-    super(["api", "Jobs"]);
-    this.service = new RequestService();
-
-    this.route("POST", "/api/jobs", {}, false)
-      .validate({
-        payload: Joi.object({
-          id: Joi.string().required().description("id"),
-        }).label("createJob"),
-      })
-      .handler(async (r, h, u) => {
-        const result = await this.service.createJob(u, r.server);
-        if (Boom.isBoom(result)) return result;
-        return h.response(result).code(200);
-      })
-      .build();
-  }
+	constructor(private service = new RequestService()) {
+		super(["api", "Jobs"]);
+		this.route("POST", "/api/jobs", {}, false)
+			.validate({
+				payload: Joi.object({
+					id: Joi.string().required().description("id"),
+				}),
+			})
+			.handler(async (r, h, u) => {
+				const result = await this.service.createJob(u, r.server);
+				return Boom.isBoom(result) ? result : h.response(result).code(200);
+			})
+			.build();
+	}
 }
 
-let server: any = {};
-export default async function start() {
-  const serverOptions: any = {
-    // ...more options
-  };
-  const options: any = {
-    routeOptions: {
-      routes: "",
-    },
-    // ...more options
-  };
-
-  // create hapijs server with xhelpers options
-  server = await createServer({ serverOptions, options });
-
-  // register local routes
-  server.route(new Routes().buildRoutes());
-
-  // start server
-  server.start();
-  return server;
-}
+export const start = async () => {
+	// create hapijs server with xhelpers options
+	const server = await createServer({
+		serverOptions: {},
+		options: { routeOptions: { routes: "" } },
+	});
+	// register local routes
+	server.route(new Routes().buildRoutes());
+	// start server
+	server.start();
+	return server;
+};
 
 start();
 ```
@@ -150,7 +135,7 @@ You can define services by creating a class and implementing the required method
 
 ```js
 class RequestService {
-  async createJob(u: any, server: any) {
+  async createJob(u: any, server: any): Promise<string | Boom.Boom> {
     return uuid.v4();
   }
 }
@@ -162,7 +147,20 @@ Routes can be defined by extending the BaseRoute/BaseRouteSimple class and imple
 
 ```js
 class Routes extends BaseRouteSimple {
-  // ...
+	constructor(private service = new RequestService()) {
+		super(["api", "Jobs"]);
+		this.route("POST", "/api/jobs", {}, false)
+			.validate({
+				payload: Joi.object({
+					id: Joi.string().required().description("id"),
+				}),
+			})
+			.handler(async (r, h, u) => {
+				const result = await this.service.createJob(u, r.server);
+				return Boom.isBoom(result) ? result : h.response(result).code(200);
+			})
+			.build();
+	}
 }
 ```
 
@@ -171,7 +169,11 @@ class Routes extends BaseRouteSimple {
 The server is started by calling the start function, which initializes the server with the provided options, registers the routes, and starts the server.
 
 ```js
-start();
+const server = await createServer({
+  serverOptions: {},
+  options: { routeOptions: { routes: "" } },
+});
+server.start();
 ```
 
 #### Output of running server:
