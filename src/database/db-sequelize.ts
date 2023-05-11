@@ -54,4 +54,13 @@ export const connect = async (sequelizeOptions?: ISequelizeOptions) => {
   }
 };
 
-export { Sequelize, SequelizeOptions, Model, SequelizeTypescript, Op };
+const getRepository = (model: Model) => db.sequelize.getRepository(model);
+
+export {
+  Sequelize,
+  SequelizeOptions,
+  Model,
+  SequelizeTypescript,
+  Op,
+  getRepository,
+};
