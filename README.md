@@ -91,7 +91,15 @@ export const start = async () => {
 	// create hapijs server with xhelpers options
 	const server = await createServer({
 		serverOptions: {},
-		options: { routeOptions: { routes: "" } },
+		options: {
+			swaggerOptions: {
+				info: {
+					title: "Minified demo",
+					version: "1.0",
+				},
+			},
+			routeOptions: { routes: "" },
+		},
 	});
 	// register local routes
 	server.route(new Routes().buildRoutes());
