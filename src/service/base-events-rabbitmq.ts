@@ -60,7 +60,8 @@ export default abstract class RabbitOperator {
       log("[AMQP] Pub event on queue:", channelId);
 
       if (!this.pubChannel[channelId]) {
-        throw new Error("[AMQP] Invalid publisher connection, restarting.");
+        logger("error", "[AMQP] Invalid publisher", channelId);
+        return;
       }
 
       this.pubChannel[channelId].publish(
@@ -141,15 +142,16 @@ export default abstract class RabbitOperator {
 
   private async startPublisher(queue?: string) {
     log(`[AMQP] Connect publisher to ${queue}`);
-    if (!this.amqpConn) throw new Error("[AMQP] Invalid connection");
+    if (!this.amqpConn) return;
 
     const channelId = queue || this.defaultQueue;
     if (!this.pubChannel[channelId]) {
-      const ch = await this.amqpConn.createConfirmChannel(
-        this.defaultExchange,
-        channelId
-      );
-      if (!ch) throw new Error("[AMQP] Invalid channel");
+      const ch = await this.amqpConn
+        .createConfirmChannel(this.defaultExchange, channelId)
+        .catch((err: any) => {
+          logger("error", "[AMQP] channel confirm error", err.message);
+        });
+      if (!ch) return;
 
       ch.on("error", (err: any) => {
         logger("error", "[AMQP] channel error", err.message);
@@ -186,12 +188,14 @@ export default abstract class RabbitOperator {
   ) {
     log(`[AMQP] Connect consumer to ${queue}`);
 
-    if (!this.amqpConn) throw new Error("[AMQP] Invalid connection");
+    if (!this.amqpConn) return;
 
     const channelId = queue || this.defaultQueue;
     if (!this.workChannel[channelId]) {
-      const ch = await this.amqpConn.createChannel();
-      if (!ch) throw new Error("[AMQP] Invalid channel");
+      const ch = await this.amqpConn.createChannel().catch((err: any) => {
+        logger("error", "[AMQP] channel create error", err.message);
+      });
+      if (!ch) return;
 
       ch.on("error", (err: any) => {
         logger("error", "[AMQP] channel error", err.message);
