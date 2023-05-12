@@ -1,9 +1,10 @@
 import { authUser } from "./sso-strategy";
+import { log } from "../../utils";
 
 export const useAuthFacebook = async (server: any, callback: any) => {
   const facebookClientId = process.env.SSO_FACEBOOK_CLIENT_ID;
   if (!facebookClientId || facebookClientId.length === 0) {
-    console.log(
+    log(
       "Settings API: SSO Facebook disabled; (SSO_FACEBOOK_CLIENT_ID is missing)"
     );
     return;
@@ -12,20 +13,20 @@ export const useAuthFacebook = async (server: any, callback: any) => {
     !process.env.SSO_FACEBOOK_CLIENT_SECRET ||
     process.env.SSO_FACEBOOK_CLIENT_SECRET?.length === 0
   ) {
-    console.log(
+    log(
       "Settings API: SSO Facebook disabled; (SSO_FACEBOOK_CLIENT_SECRET variable is missing)"
     );
     return;
   }
 
   // from now on facebook is enabled
-  console.log("Settings API: SSO Facebook enabled;");
+  log("Settings API: SSO Facebook enabled;");
 
   if (
     !process.env.SSO_FACEBOOK_LOCATION ||
     process.env.SSO_FACEBOOK_LOCATION?.length === 0
   ) {
-    console.log(
+    log(
       "Settings API: [WARNING] SSO Facebook; (SSO_FACEBOOK_LOCATION variable is missing unexpected things can happen)"
     );
   }
@@ -55,7 +56,7 @@ export const useAuthFacebook = async (server: any, callback: any) => {
         }
 
         const profile = request.auth.credentials.profile;
-        console.log("Facebook authentication", profile);
+        log("Facebook authentication", profile);
         const user = {
           ...profile,
           email: profile.email,
@@ -70,7 +71,7 @@ export const useAuthFacebook = async (server: any, callback: any) => {
           const response = await authUser(callback, user, h);
           return response;
         } catch (error: any) {
-          console.log("err sso: ", error);
+          log("err sso: ", error);
           return h.response({
             err: error.message,
           });

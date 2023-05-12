@@ -1,22 +1,11 @@
+import { Server } from "@hapi/hapi";
+import { IOptions } from "../config";
+import { log, logger } from "../utils";
+
 import { CronJob } from "cron";
+import { ICronJob } from "../config/cronjobs";
 
 const pluginName = "cronjobs";
-
-export interface ICronJob {
-  name: string;
-  time: string;
-  timezone: string;
-  request: {
-    method: string;
-    url: string;
-    params?: any;
-    query?: any;
-    payload?: any;
-    headers?: any;
-    [key: string]: any;
-  };
-  onComplete: (res: any) => void;
-}
 
 export interface IServiceJob {
   addJob: (job: ICronJob) => void;
@@ -66,7 +55,7 @@ const addJob = (job: ICronJob, server: any) => {
 
   const assert = (invalid: any, error: string) => {
     if (invalid) {
-      console.error(invalid, error);
+      logger("error", invalid, error);
     }
     return invalid;
   };
@@ -96,16 +85,17 @@ const addJob = (job: ICronJob, server: any) => {
     );
     service[job.name].start();
     if (process.env.LOG_LEVEL === "HIGH") {
-      console.log("Job created: ", job.name);
+      log("Job created: ", job.name);
     }
   } catch (err: any) {
     if (err.message === "Invalid timezone.") {
-      console.log(
-        err,
-        "Invalid timezone. See https://momentjs.com/timezone for valid timezones"
+      logger(
+        "error",
+        "Invalid timezone. See https://momentjs.com/timezone for valid timezones",
+        err
       );
     } else {
-      console.log(err, "Time is not a cron expression");
+      logger("error", "Time is not a cron expression", err);
     }
   }
 };
@@ -120,7 +110,7 @@ const removeJob = (name: string, server: any) => {
       delete service[name];
     }
   } catch (err: any) {
-    console.log(err);
+    logger("error", err.message, err);
   }
 };
 
@@ -129,11 +119,31 @@ const register = (server: any, options: any) => {
     addJob: (job: ICronJob) => addJob(job, server),
     removeJob: (name: string) => removeJob(name, server),
   });
+
+  // server.events.on("addJob", (job: ICronJob) => {
+  //   addJob(job, server);
+  // });
+  // server.events.on("removeJob", (name: string) => {
+  //   removeJob(name, server);
+  // });
+
   server.ext("onPostStart", internals.onPostStart(server));
   server.ext("onPreStop", internals.onPreStop(server));
 };
 
-exports.plugin = {
-  register,
+const cronJobPlugin = {
   name: pluginName,
+  version: "1.0.0",
+  register,
+};
+
+export const registerCronJobs = async (server: Server, options: IOptions) => {
+  // CronJobs
+  if (!options.enableCronJobs) {
+    log("Settings API: CronJobs disabled;");
+    return;
+  }
+
+  log("Settings API: CronJobs enabled;");
+  await server.register(cronJobPlugin);
 };

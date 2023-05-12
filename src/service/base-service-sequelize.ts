@@ -2,6 +2,7 @@ import { IBaseService } from "../contracts/IBaseService";
 import { db, Model } from "../database/db-sequelize";
 import BaseServiceToken from "./base-service-token";
 import { Repository } from "sequelize-typescript";
+import { logger } from "../utils";
 
 export default abstract class BaseServiceSequelize<T extends Model<T>>
   extends BaseServiceToken
@@ -24,7 +25,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     payload: T
   ): Promise<Boolean>;
 
-  protected getRepository<TRepo>(sequelizeModel: TRepo): any {
+  protected getRepository<TRepo>(sequelizeModel: TRepo): Repository<T> {
     return db.sequelize.getRepository(sequelizeModel);
   }
 
@@ -36,7 +37,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     try {
       sortFields = JSON.parse(sort);
     } catch (error) {
-      console.log("Invalid sort parameter", error);
+      logger("error", "Invalid sort parameter", error);
       throw Error(
         "Invalid parameter 'sort', it MUST be a valid JSON / sort sintax"
       );
@@ -52,7 +53,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     try {
       filterQuery = JSON.parse(query);
     } catch (error) {
-      console.log("Invalid filter parameter", error);
+      logger("error", "Invalid filter parameter", error);
       throw Error(
         "Invalid parameter 'filter', it MUST be a valid JSON / query sintax"
       );
@@ -71,7 +72,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     try {
       parseField = parseInt(field.toString());
     } catch (error) {
-      console.log("Invalid limit or offset parameter", error);
+      logger("error", "Invalid limit or offset parameter", error);
       throw Error(
         "Invalid parameter 'limit' or 'offset', it MUST be a valid JSON / sintax"
       );

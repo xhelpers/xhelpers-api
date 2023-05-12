@@ -13,7 +13,7 @@ describe("🚧  Testing API Health  🚧", () => {
   before(async () => {
     const options: any = {
       serverOptions: {
-        port: 5005,
+        port: 5004,
         host: process.env.HOST || "127.0.0.1",
       },
       options: {
@@ -56,6 +56,12 @@ describe("🚧  Testing API Health  🚧", () => {
       return Promise.resolve();
     });
 
+    it("/swagger.json should return 200", async () => {
+      const response = await server.inject("/swagger.json");
+      expect(response.statusCode).to.equal(200);
+      return Promise.resolve();
+    });
+
     it("/health should return 200", async () => {
       const options = {
         method: "GET",
@@ -68,14 +74,16 @@ describe("🚧  Testing API Health  🚧", () => {
       return Promise.resolve();
     });
 
-    // it("/status should return 200", async () => {
-    //   const options = {
-    //     method: "GET",
-    //     url: "/status",
-    //   };
-    //   const response = await server.inject(options);
-    //   expect(response.statusCode).to.equal(200);
-    //   return Promise.resolve();
-    // });
+    it("/liveness should return 200", async () => {
+      const options = {
+        method: "GET",
+        url: "/liveness",
+      };
+      const response = await server.inject(options);
+      expect(response.statusCode).to.equal(200);
+      expect(response.result.status).to.equal("Server running");
+      expect(response.result.code).to.equal(200);
+      return Promise.resolve();
+    });
   });
 });

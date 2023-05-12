@@ -1,5 +1,5 @@
-import { createServerOptions } from "../../server";
 import { Server } from "@hapi/hapi";
+import { ICreateServerOptions } from "../../config";
 
 const srvConsts = {
   port: process.env.PORT || 3100,
@@ -25,7 +25,7 @@ const optConsts = {
   },
 };
 
-export const optionsJwtSecret: createServerOptions = {
+export const optionsJwtSecret: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -35,7 +35,7 @@ export const optionsJwtSecret: createServerOptions = {
   },
 };
 
-export const optionsAppKey: createServerOptions = {
+export const optionsAppKey: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -45,7 +45,7 @@ export const optionsAppKey: createServerOptions = {
   },
 };
 
-export const optionsJwtSecretAndAppKey: createServerOptions = {
+export const optionsJwtSecretAndAppKey: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -56,7 +56,7 @@ export const optionsJwtSecretAndAppKey: createServerOptions = {
   },
 };
 
-export const optionsWithSSL: createServerOptions = {
+export const optionsWithSSL: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -66,7 +66,7 @@ export const optionsWithSSL: createServerOptions = {
   },
 };
 
-export const optionsWithoutSSL: createServerOptions = {
+export const optionsWithoutSSL: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -76,7 +76,7 @@ export const optionsWithoutSSL: createServerOptions = {
   },
 };
 
-export const optionsWithPrepareServer: createServerOptions = {
+export const optionsWithPrepareServer: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -97,7 +97,7 @@ export const optionsWithPrepareServer: createServerOptions = {
   },
 };
 
-export const optionsWithInvalidPrepareServer: createServerOptions = {
+export const optionsWithInvalidPrepareServer: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -109,7 +109,7 @@ export const optionsWithInvalidPrepareServer: createServerOptions = {
   },
 };
 
-export const optionsWithOverridePlugin: createServerOptions = {
+export const optionsWithOverridePlugin: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -119,7 +119,7 @@ export const optionsWithOverridePlugin: createServerOptions = {
   },
 };
 
-export const optionsSsoEnabledSecret: createServerOptions = {
+export const optionsSsoEnabledSecret: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -143,7 +143,7 @@ export const optionsSsoEnabledSecret: createServerOptions = {
   },
 };
 
-export const optionsSsoDisabledSecret: createServerOptions = {
+export const optionsSsoDisabledSecret: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -153,7 +153,7 @@ export const optionsSsoDisabledSecret: createServerOptions = {
   },
 };
 
-export const optionsCronJobsDisabled: createServerOptions = {
+export const optionsCronJobsDisabled: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },
@@ -163,7 +163,7 @@ export const optionsCronJobsDisabled: createServerOptions = {
   },
 };
 
-export const optionsCronJobsEnabled: createServerOptions = {
+export const optionsCronJobsEnabled: ICreateServerOptions = {
   serverOptions: {
     ...srvConsts,
   },

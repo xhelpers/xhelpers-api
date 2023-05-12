@@ -1,10 +1,14 @@
 import { Boom } from "../tools";
 import { logger } from "./logger";
 
-export const errorHandler = async (err: any) => {
-  logger("err", "LogInfo:", err);
+class GenericError extends Error {
+  code?: string;
+  errmsg?: string;
+}
+
+export const errorHandler = async (err: GenericError | string) => {
   if (process.env.LOGLEVEL === "HIGH") {
-    logger("info", "Info:", err);
+    logger("error", "errorHandler:", err);
   }
   if (Boom.isBoom(err)) {
     return err;

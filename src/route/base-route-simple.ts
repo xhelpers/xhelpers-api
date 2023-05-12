@@ -7,7 +7,6 @@ import {
 } from "../contracts/IRouteAdd";
 
 import { IRouteBuild } from "../contracts/IRouteBuild";
-import { currentOptions } from "../server";
 import { safeCall } from "../utils/safe-call";
 
 export default abstract class BaseRouteSimple
@@ -63,7 +62,7 @@ export default abstract class BaseRouteSimple
 
     if (!options?.auth) {
       auth = requireAuth
-        ? currentOptions.appkey_enabled
+        ? process.env.APPKEY_ENABLED === "true"
           ? "appkey"
           : "jwt"
         : false;

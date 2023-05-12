@@ -1,6 +1,7 @@
 import { mongoose } from "../database/db-mongoose";
 import { IBaseService } from "../contracts/IBaseService";
 import BaseServiceToken from "./base-service-token";
+import { log, logger } from "../utils";
 
 export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   extends BaseServiceToken
@@ -28,7 +29,7 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
     try {
       auxField = JSON.parse(field);
     } catch (error) {
-      console.log("Invalid filter parameter", error);
+      logger("error", "Invalid filter parameter", error);
       throw Error("Invalid parameter 'field' it should be a valid JSON");
     }
     return auxField;

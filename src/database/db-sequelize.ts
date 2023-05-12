@@ -1,23 +1,19 @@
 import { Sequelize, SequelizeOptions, Model } from "sequelize-typescript";
 import * as SequelizeTypescript from "sequelize-typescript";
 import { Op } from "sequelize";
+import { log, logger } from "../utils";
 
 // @ts-ignore
 import mysql2 from "mysql2";
-
-export interface options extends SequelizeOptions {
-  [key: string]: any;
-}
+import { ISequelizeOptions } from "../config";
 
 export const db: any = {};
-export const connect = async (sequelizeOptions?: options) => {
-  const envIsNotTest = process.env.NODE_ENV !== "TEST";
-
+export const connect = async (sequelizeOptions?: ISequelizeOptions) => {
   if (!sequelizeOptions) {
-    if (envIsNotTest) console.log("Settings API: Sequelize disabled;");
+    log("Settings API: Sequelize disabled;");
     return;
   }
-  if (envIsNotTest) console.log("Settings API: Sequelize enabled;");
+  log("Settings API: Sequelize enabled;");
   const options: SequelizeOptions = {
     dialect: "mysql",
     dialectModule: mysql2,
@@ -39,7 +35,7 @@ export const connect = async (sequelizeOptions?: options) => {
     }).then(
       async () => {
         const dbVersion = await sequelize.databaseVersion();
-        console.log(`🆙  Connected to Sequelize: ${dbVersion}`);
+        log(`🆙  Connected to Sequelize: ${dbVersion}`);
       },
       async (err) => {
         handleFailedConnection(err);
@@ -51,11 +47,20 @@ export const connect = async (sequelizeOptions?: options) => {
   return null;
 
   function handleFailedConnection(err: unknown) {
-    console.error(`📴 Failed to connect on Sequelize: \nErr: ${err}`);
+    logger("error", "📴 Failed to connect on Sequelize:", err);
     setTimeout(async () => {
       await connect(sequelizeOptions);
     }, 5000);
   }
 };
 
-export { Sequelize, SequelizeOptions, Model, SequelizeTypescript, Op };
+const getRepository = (model: Model) => db.sequelize.getRepository(model);
+
+export {
+  Sequelize,
+  SequelizeOptions,
+  Model,
+  SequelizeTypescript,
+  Op,
+  getRepository,
+};

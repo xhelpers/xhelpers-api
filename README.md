@@ -18,13 +18,9 @@
 
 ![GitHub package.json dynamic](https://img.shields.io/github/package-json/keywords/wmkdev/xhelpers-api)
 
-<p align="center">  
-  <img src="docs/logo.png" />
-</p>
-
 ## Description
 
-Xhelpers is an open source project that enables developers to easily create and manage micro-services into their own environment. It provides a complete suite of easy-to-use tools to help developers quickly create, manage and deploy micro-services.
+xhelpers-api is an open-source project that aims to simplify the implementation of RESTful APIs. It provides a set of helper functions and plugins to help developers build efficient, secure, and scalable APIs. This documentation will guide you through the different sections and configurations of the project..
 
 - The project is a collection of libraries and tools that can be used to create and deploy micro-services. It has a comprehensive suite of features such as ORM/ODM (Sequelize, Mongoose), API SSL, API SSO (Github, Facebook, Google), API security (JWT, AppKey), API logging (AWS, Sentry), API documentation (Swagger), API queue operator (AMQP, RabbitMQ).
 
@@ -37,276 +33,156 @@ Xhelpers is an open source project that enables developers to easily create and 
 - [TypeScript 4.9.5](https://www.typescriptlang.org/).
 - [Node.js 18.14.1](https://nodejs.org/).
 - [Hapi 21.3.0](https://hapi.dev/).
-- [Mongoose 6.9.2](https://mongoosejs.com/).
-- [Sequelize 6.28.0](https://sequelize.org/).
+- [Mongoose 6.10.0](https://mongoosejs.com/).
+- [Sequelize 6.29.0](https://sequelize.org/).
 
 ## Roadmap
 
 - Improve documentation
 - Add more samples
 
-## Installation
+# Getting Started
+
+To start using xhelpers-api in your project, you need to install it as a dependency:
 
 ```bash
 $ npm i xhelpers-api
 ```
 
-## Usage
+# Configuration
 
-Default project folder structure:
+xhelpers-api allows you to configure different aspects of your API, such as logging, database connections, and security settings. To configure these settings, you can use the options on the method `createServer`.
 
-```
-my-micro-service/
-├─ node_modules/
-├─ src/
-│  ├─ index.ts
-├──├─ routes/
-│  ├─ todo.route.ts
-├──├─ services/
-│  ├─ todo.service.ts
-├──├─ model/
-│  ├─ todo.model.ts
-├─ package.json
-├─ package-lock.json
-├─ README.md
-├─ .gitignore
-```
+## Example: Microservice API using xhelpers-api in a single file
 
-### Server
+Here's an minified example of a microservice API using xhelpers-api:
 
-Create a new file located on **'src/index.ts'**
-
-```code
+```js
 import { createServer } from "xhelpers-api/lib/server";
-import { dotenv } from "xhelpers-api/lib/tools";
+import { BaseRouteSimple } from "xhelpers-api/lib/route";
+import { Boom, uuid, Joi, dotenv } from "xhelpers-api/lib/tools";
 
 dotenv.config();
-const pkgJson = require("../package.json");
 
-let server: any = {};
-export default async function start() {
-  const serverOptions: any = {
-    port: 5000,
-    host: process.env.HOST || "127.0.0.1",
-  };
-  const options: any = {
-    jwt_secret: "v3ryH4Rds3cr3t",
-    swaggerOptions: {
-      info: {
-        title: "Test API",
-        version: "1.0",
-        contact: {
-          name: "todo test",
-          email: "tester@test.com",
-        },
-      },
-      schemes: [process.env.SSL === "true" ? "https" : "http"],
-      grouping: "tags",
-    },
-    routeOptions: {
-      routes: "**/routes/*.route.js",
-    }
-  };
-  server = await createServer({ serverOptions, options });
-  await server.start();
-  return server;
+class RequestService {
+	async createJob(u: any, server: any): Promise<string | Boom.Boom> {
+		return uuid.v4();
+	}
 }
 
-if (typeof require !== "undefined" && require.main === module) {
-	start();
+class Routes extends BaseRouteSimple {
+	constructor(private service = new RequestService()) {
+		super(["api", "Jobs"]);
+		this.route("POST", "/api/jobs", {}, false)
+			.validate({
+				payload: Joi.object({
+					id: Joi.string().required().description("id"),
+				}),
+			})
+			.handler(async (r, h, u) => {
+				const result = await this.service.createJob(u, r.server);
+				return Boom.isBoom(result) ? result : h.response(result).code(200);
+			})
+			.build();
+	}
 }
+
+export const start = async () => {
+	// create hapijs server with xhelpers options
+	const server = await createServer({
+		serverOptions: {},
+		options: {
+			swaggerOptions: {
+				info: {
+					title: "Minified demo",
+					version: "1.0",
+				},
+			},
+			routeOptions: { routes: "" },
+		},
+	});
+	// register local routes
+	server.route(new Routes().buildRoutes());
+	// start server
+	server.start();
+	return server;
+};
+
+start();
 ```
 
-### Route
+## Key Components
 
-Create a new file located on **'src/routes/todo.route.ts'**
+### createServer
 
-```code
-import { Joi, jwt, Boom } from "xhelpers-api/lib/tools";
-import { BaseRouteSimple } from "xhelpers-api/lib/service";
+The createServer function from the xhelpers-api/lib/server module is used to create a HapiJS server with the provided xhelpers-api options.
 
-class TodoRoutes extends BaseRouteSimple {
-  constructor() {
-    super(["todos"]);
-
-    this.route("GET",`/api/todos`,{
-        description: "Search 'Todos'",
-      },
-      false
-    )
-      .validate({ query: todoDemoPayload })
-      .handler(async (r, h, u) => {
-        return h.response([r.query]).code(200);
-      })
-      .build();
-
-    this.route("POST", `/api/todos`, {
-        description: "Create new 'Todo'",
-      },
-      false
-    )
-      .validate({ payload: todoDemoPayload })
-      .handler(async (r, h, u) => {
-        return h.response(r.payload).code(200);
-      })
-      .build();
-
-    this.route("PATCH", `/api/todos/{id}`, {
-      description: "Update 'Todo' by id",
-    })
-      .validate({ params: this.defaultIdProperty, payload: todoDemoPayload })
-      .handler(async (r, h, u) => {
-        return h
-          .response({
-            ...r.params,
-            ...(r.payload as {}),
-          })
-          .code(200);
-      })
-      .build();
-  }
-}
-
-// Joi Schema, can be used on routes to validate: params, query, payload etc...
-const todoDemoPayload = Joi.object({
-  title: Joi.string()
-    .required()
-    .description("Title"),
-  description: Joi.string()
-    .required()
-    .description("Description"),
-  done: Joi.boolean()
-    .required()
-    .default(false)
-    .description("Todo is done"),
-})
-  .description("Todo payload")
-  .label("TodoPayload");
-
-module.exports = [...new TodoRoutes().buildRoutes()];
+```js
+import { createServer } from "xhelpers-api/lib/server";
 ```
 
-### Service
+### BaseRouteSimple
 
-Create a new file located on **'src/services/todo.service.ts'**
+The BaseRoute/BaseRouteSimple class from the xhelpers-api/lib/route module is used to define routes and their handlers. It provides a simple and organized way to manage routes.
 
-```code
-import AccountLogin from "/model/account_login"; // mongoose or sequelize "Model"
-import { BaseServiceMongoose, BaseServiceSequelize, BaseRabbitOperator } from "xhelpers-api/lib/service";
+```js
+import { BaseRouteSimple } from "xhelpers-api/lib/route";
+```
 
-// mongoose
-export class AccountLoginService extends BaseServiceMongoose<AccountLogin> {
-  constructor() {
-    super(AccountLogin);
-  }
-  sentitiveInfo: any = ["-__v", "password"];
-  protected async validate(entity: AccountLogin, payload: AccountLogin): Promise<boolean> {
-    const invalid = false;
-    if (invalid) throw new Error("Invalid payload.");
-    return Promise.resolve(true);
-  }
-}
+### Tools
 
-// sequelize
-export class AccountLoginSqlService extends BaseServiceSequelize<AccountLogin> {
-  constructor() {
-    super(AccountLogin);
-  }
-  sentitiveInfo: any = ["id"];
-  protected async validate(
-    entity: AccountLogin,
-    payload: AccountLogin
-  ): Promise<boolean> {
-    const invalid = false;
-    if (invalid) throw new Error("Invalid payload.");
-    return Promise.resolve(true);
+The xhelpers-api/lib/tools module provides a set of utilities and tools that simplify common tasks, such as generating UUIDs, validating payloads using Joi, and handling errors with Boom.
+
+```js
+import { Boom, uuid, Joi, dotenv } from "xhelpers-api/lib/tools";
+```
+
+## Defining Services
+
+You can define services by creating a class and implementing the required methods. In the example above, a RequestService class is defined with a createJob method.
+
+```js
+class RequestService {
+  async createJob(u: any, server: any): Promise<string | Boom.Boom> {
+    return uuid.v4();
   }
 }
 ```
 
-### Models - Mongoose / Sequelize
+## Defining Routes
 
-### Mongoose: account_login
+Routes can be defined by extending the BaseRoute/BaseRouteSimple class and implementing the required routes. In the example above, a Routes class is defined with a single route for creating a job.
 
-```code
-import * as mongoose from 'mongoose';
-
-export interface AccountLogin extends mongoose.Document {
-  ip_number: string;
-  browser: string;
-  created_at: Date;
+```js
+class Routes extends BaseRouteSimple {
+	constructor(private service = new RequestService()) {
+		super(["api", "Jobs"]);
+		this.route("POST", "/api/jobs", {}, false)
+			.validate({
+				payload: Joi.object({
+					id: Joi.string().required().description("id"),
+				}),
+			})
+			.handler(async (r, h, u) => {
+				const result = await this.service.createJob(u, r.server);
+				return Boom.isBoom(result) ? result : h.response(result).code(200);
+			})
+			.build();
+	}
 }
+```
 
-const schema = new mongoose.Schema({
-  ip_number: { type: String , required: true},
-  browser: { type: String },
-  created_at: { type: Date, required: true },
+# Starting the Server
+
+The server is started by calling the start function, which initializes the server with the provided options, registers the routes, and starts the server.
+
+```js
+const server = await createServer({
+  serverOptions: {},
+  options: { routeOptions: { routes: "" } },
 });
-
-schema.set('toJSON', { virtuals: true });
-
-export default mongoose.model<AccountLogin>('AccountLogin', schema, 'account_login');
+server.start();
 ```
-
-### Sequelize: account_login
-
-```code
-import {
-  BelongsTo,
-  Column,
-  CreatedAt,
-  ForeignKey,
-  Model,
-  Scopes,
-  Table
-} from "sequelize-typescript";
-
-@Scopes(() => ({}))
-@Table({ tableName: "account_login", updatedAt: false })
-export default class AccountLogin extends Model<AccountLogin> {
-  @Column
-  ip_number: string;
-  @Column
-  browser: string;
-  /* auto */
-  @CreatedAt
-  @Column
-  created_at: Date;
-}
-```
-
-### Sequelize: Using parameters in route "queryAll"
-
-```
-?
-fields=
-&offset=
-&limit=
-&sort=[["", "ASC|DESC"]]
-&filter={"":""}
-```
-
-- **fields**: Select the existing fields in model, comma separeted.
-
-- **offset**: To skip lines before starting to return the lines.
-
-  > OFFSET 0 is the same as omitting the OFFSET parameter
-
-- **limit**: If the limit is specified, no more than this number of lines will be returned.
-
-  > When using LIMIT it is important to use the SORT parameter to establish a single order for the result lines
-
-- **filter**: Select the existing fields in model and values filter, based in JSON.
-
-  > Example: filter=[{"field name":, "field value"}]
-  >
-  > Template based on sequelize: [Applyng where clauses](https://sequelize.org/master/manual/model-querying-basics.html#applying-where-clauses)
-
-- **sort**: Select the existing fields in the model to order the result, based in JSON.
-
-  > Example: sort=[["field name": "ASC|DESC"]]
-  >
-  > Template based on sequelize: [Ordering and grouping](https://sequelize.org/master/manual/model-querying-basics.html#ordering-and-grouping)
 
 #### Output of running server:
 
@@ -315,26 +191,21 @@ Starting Xhelpers Hapi server API
 Settings API: Mongoose disabled;
 Settings API: Sequelize disabled;
 Settings API: SSL disabled;
-Settings API: AppKey disabled;
-Settings API: JWT enabled;
 Settings API: SSO disabled;
+Settings API: JWT disabled;
+Settings API: AppKey disabled;
+Settings API: CronJobs disabled;
+Settings API: Sentry disabled;
 ====================================================================================================
-🆙  xhelpers-api  : 4.0.0
-🆙  Server doc    : http://127.0.0.1:5000/documentation
-🆙  Server api    : http://127.0.0.1:5000/
+🆙  Server doc    : http://localhost:5000/documentation
+🆙  Server api    : http://localhost:5000/
 ====================================================================================================
 Routing table:
-        🔎  get -         /documentation
-        🔎  get -         /health
-        🔎  get -         /status
-        🔎  get -         /swagger.json
-        🔎  get -         /api/auth
-        🔎  get -         /api/todos
-        🔎  get -    🔑   /api/todos/{id}
-        📄  post -        /api/todos
-        📝  patch -  🔑   /api/todos/{id}
-        📝  put -    🔑   /api/todos/{id}
-        🚩  delete - 🔑   /api/todos/{id}
+        🔎  get -       /documentation
+        🔎  get -       /swagger.json
+        🔎  get -       /health
+        🔎  get -       /liveness
+        📄  post -      /api/jobs
 ====================================================================================================
 ```
 
@@ -343,13 +214,20 @@ Routing table:
 ```code
 🆙  Server doc    : http://127.0.0.1:5000/documentation
 🆙  Server health : http://127.0.0.1:5000/health
+🆙  Server health : http://127.0.0.1:5000/liveness
 ```
 
-### Swagger /documentation
+## Examples
 
-![Status](docs/swagger.docs.png)
+You can find example code in the examples directory of the [xhelpers-api GitHub repository](https://github.com/xhelpers/xhelpers-api/network/dependents). These examples demonstrate how to use the different features and configurations of xhelpers-api in a real-world scenario.
 
-## Building
+Feel free to explore these examples and use them as a reference when building your own APIs with xhelpers-api.
+
+# Building/Contributing
+
+Contributions to xhelpers-api are welcome! Please refer to the CONTRIBUTING.md file for detailed guidelines on submitting pull requests, reporting issues, and more.
+
+If you have any questions or need assistance, feel free to open an issue on the xhelpers-api GitHub repository.
 
 ```bash
 # build tsc
@@ -368,5 +246,3 @@ $ npm run test
 $ npm run test:coverage
 $ npm run cover:report
 ```
-
-## License

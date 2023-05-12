@@ -1,7 +1,9 @@
 import * as ChaiAsPromised from "chai-as-promised";
 import { expect, use } from "chai";
 import { Server } from "@hapi/hapi";
-import { createServer, createServerOptions } from "../server";
+import { createServer } from "../server";
+import { ICreateServerOptions } from "../config";
+
 import {
   optionsJwtSecret,
   optionsAppKey,
@@ -16,6 +18,7 @@ import {
   optionsCronJobsDisabled,
   optionsCronJobsEnabled,
 } from "./server/options";
+import { authUser } from "../plugins/sso/sso-strategy";
 
 use(ChaiAsPromised);
 
@@ -100,9 +103,23 @@ describe("🚧  Testing Server Configs  🚧", () => {
     });
 
     it("useAuthGoogle invalid - SSO_GOOGLE_CLIENT_SECRET", async () => {
-      process.env.SSO_GITHUB_CLIENT_ID = "SSO_GITHUB_CLIENT_ID";
+      process.env.SSO_GOOGLE_CLIENT_ID = "SSO_GOOGLE_CLIENT_ID";
       process.env.SSO_GOOGLE_CLIENT_SECRET = "";
       server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("useAuthGoogle invalid - SSO_GOOGLE_LOCATION", async () => {
+      process.env.SSO_GOOGLE_CLIENT_ID = "SSO_GOOGLE_CLIENT_ID";
+      process.env.SSO_GOOGLE_CLIENT_SECRET = "SSO_GOOGLE_CLIENT_SECRET";
+      process.env.SSO_GOOGLE_CLIENT_PASSWORD = "SSO_GOOGLE_CLIENT_PASSWORD";
+      process.env.SSO_GOOGLE_LOCATION = "";
+      try {
+        server = await createServer(optionsSsoEnabledSecret);
+      } catch (error: any) {
+        expect(
+          error.message.includes('"location" is not allowed to be empty')
+        ).to.equal(true);
+      }
     });
 
     it("useAuthGoogle valid", async () => {
@@ -111,6 +128,30 @@ describe("🚧  Testing Server Configs  🚧", () => {
       process.env.SSO_GOOGLE_CLIENT_PASSWORD = "SSO_GOOGLE_CLIENT_PASSWORD";
       process.env.SSO_GOOGLE_LOCATION = "SSO_GOOGLE_LOCATION";
       server = await createServer(optionsSsoEnabledSecret);
+    });
+
+    it("SSO should redirect to the provided URL", async () => {
+      const user = {
+        email: "example@example.com",
+        name: "John Doe",
+        avatar: "https://example.com/avatar.png",
+        token: "sample-token",
+        userType: "user",
+        meta: {},
+      };
+
+      const callback = async (u: any) => {
+        return { url: "https://example.com/redirect" };
+      };
+
+      const h = {
+        redirect: (url: string) => {
+          return { url };
+        },
+      };
+
+      const response = await authUser(callback, user, h);
+      expect(response.url).to.equal("https://example.com/redirect");
     });
   });
 
@@ -126,10 +167,10 @@ describe("🚧  Testing Server Configs  🚧", () => {
 
   describe("CronJobs options", async () => {
     it("Enabled CronJobs", async () => {
+      process.env.LOG_LEVEL = "HIGH";
       server = await createServer(optionsCronJobsEnabled);
       const { plugins }: any = server;
       const service = plugins["cronjobs"].service;
-
       service.addJob({
         name: "JobHolderTest",
         time: "0 0 * * *", // At 00:00.
@@ -145,6 +186,7 @@ describe("🚧  Testing Server Configs  🚧", () => {
     });
 
     it("Disabled CronJobs", async () => {
+      process.env.LOG_LEVEL = "LOW";
       server = await createServer(optionsCronJobsDisabled);
     });
   });
@@ -173,7 +215,7 @@ describe("🚧  Testing Server Configs  🚧", () => {
     it("Empty options", async () => {
       let err;
       try {
-        server = await createServer({} as createServerOptions);
+        server = await createServer({} as ICreateServerOptions);
         err = false;
       } catch (e) {
         err = true;
@@ -220,6 +262,30 @@ describe("🚧  Testing Server Configs  🚧", () => {
         },
       ] as any;
 
+      server = await createServer(optionsWithOverridePlugin);
+    });
+
+    it("With Sentry Plugin Enabled", async () => {
+      optionsWithOverridePlugin.options.sentryOptions = {
+        dsn: "test-sentry-enabled",
+        version: "1.0",
+      };
+
+      server = await createServer(optionsWithOverridePlugin);
+    });
+  });
+
+  describe("Plugins settings", async () => {
+    it("With Sentry Plugin Disabled", async () => {
+      optionsWithOverridePlugin.options.sentryOptions = undefined;
+      server = await createServer(optionsWithOverridePlugin);
+    });
+
+    it("With Sentry Plugin Enabled", async () => {
+      optionsWithOverridePlugin.options.sentryOptions = {
+        dsn: "test-sentry-enabled",
+        version: "1.0",
+      };
       server = await createServer(optionsWithOverridePlugin);
     });
   });
