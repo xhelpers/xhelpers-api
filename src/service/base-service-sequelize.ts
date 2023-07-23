@@ -25,7 +25,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
     payload: T
   ): Promise<Boolean>;
 
-  protected getRepository<TRepo>(sequelizeModel: TRepo): Repository<T> {
+  protected getRepository<TRepo>(sequelizeModel: TRepo): Repository<TRepo> {
     return db.sequelize.getRepository(sequelizeModel);
   }
 
