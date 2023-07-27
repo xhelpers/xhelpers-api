@@ -26,9 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ```
 
-## [Unreleased]
+## [4.1.2] - 2023-07-27
 
-- Move NPM package to organization '@xhelpers/api'.
+### Added
+
+- Introduced a new service, BaseEventRoute, which establishes a connection between the API route and a RabbitMQ queue.
+- Enhanced the BaseRabbitOperator with 'exchange' support. The default type is set to 'topic'.
+- Added a new service, EventFluxBuilder, that enables the creation of an event flow using the base service BaseRabbitOperator.
+- Increased the robustness of our base services and functions with additional tests.
+
+### Fixed
+
+- Corrected the return type of getRepository in the BaseServiceSequelize service.
 
 ## [4.1.0] - 2023-04-16
 
