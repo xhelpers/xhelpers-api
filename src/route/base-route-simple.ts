@@ -9,8 +9,8 @@ import {
 import { IRouteBuild } from "../contracts/IRouteBuild";
 import { safeCall } from "../utils/safe-call";
 
-export default abstract class BaseRouteSimple
-  implements IRouteAdd, IRouteBuild
+export default abstract class BaseRouteSimple<T = HandlerActionParams>
+  implements IRouteAdd<T>, IRouteBuild
 {
   protected tags: any;
   constructor(tags: any = ["."]) {
@@ -32,6 +32,11 @@ export default abstract class BaseRouteSimple
         output?: string;
         [key: string]: any;
       };
+      event?: {
+        queue?: string;
+        exchange?: string;
+        exchange_type?: string;
+      };
       [key: string]: any;
     };
   };
@@ -52,11 +57,16 @@ export default abstract class BaseRouteSimple
         [key: string]: any;
       };
       plugins?: any;
+      event?: {
+        queue?: string;
+        exchange?: string;
+        exchange_type?: string;
+      };
       [key: string]: any;
     },
     requireAuth: boolean = true,
     headers?: Joi.ObjectSchema
-  ): IRouteAdd {
+  ): IRouteAdd<T> {
     let _headers;
     let auth;
 
@@ -95,12 +105,12 @@ export default abstract class BaseRouteSimple
     return this;
   }
 
-  public validate(validate: IValidateParams): IRouteAdd {
+  public validate(validate: IValidateParams): IRouteAdd<T> {
     Object.assign(this.curentRoute.options.validate, validate);
     return this;
   }
 
-  public handler(action: HandlerActionParams): IRouteBuild {
+  public handler(action: T | any): IRouteBuild {
     this.curentRoute.handler = async (request: any, h: any) => {
       return safeCall(request, async (user: any) => {
         return await action(request, h, user);

@@ -55,7 +55,7 @@ export const safeCall = async (
     if (resultErr) throw resultErr;
 
     return Promise.resolve(result).then((r) => {
-      if (displayLog) log(`|6| StatusCode: ${r.status || r.statusCode}`);
+      if (displayLog) log(`|6| StatusCode: ${r?.status || r?.statusCode}`);
       return r;
     });
   } catch (error: any) {

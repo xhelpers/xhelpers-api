@@ -2,8 +2,6 @@ import { amqplib } from "../tools";
 import { log, logger } from "../utils";
 
 export default abstract class RabbitOperator {
-  defaultExchange = "";
-
   defaultQueue = "";
 
   amqpUrl: string = "";
@@ -21,23 +19,25 @@ export default abstract class RabbitOperator {
   handlerConnected: any;
 
   isRestarting = false;
+  socketOptions: any;
 
-  constructor() {
+  constructor(socketOptions: any = "heartbeat=10") {
     if (!process.env.RABBITMQ_URL) {
       log("Rabbit env not set - RABBITMQ_URL", process.env.RABBITMQ_URL);
       return;
     }
+    this.socketOptions = socketOptions;
     this.amqpUrl = process.env.RABBITMQ_URL;
     this.prefetch = Number(process.env.RABBITMQ_PREFETCH_SUB || 1);
   }
 
+  delayed = (ms: number = 1000) => {
+    return new Promise((res) => setTimeout(res, ms));
+  };
+
   private restartServer(handlerConnected?: any): Promise<any> {
     log("[AMQP] Restarting connection");
-    return new Promise(() =>
-      setTimeout(() => {
-        this.start(handlerConnected);
-      }, 5000)
-    );
+    return this.delayed(5000).then(() => this.start(handlerConnected));
   }
 
   private closeOnErr(err: any) {
@@ -57,26 +57,28 @@ export default abstract class RabbitOperator {
   ) {
     const channelId = channel || this.defaultQueue;
     try {
-      log("[AMQP] Pub event on queue:", channelId);
-
       if (!this.pubChannel[channelId]) {
-        logger("error", "[AMQP] Invalid publisher", channelId);
+        this.logInternal("[AMQP] Invalid publisher", channelId);
+        this.offlinePubQueue.push([exchange, channelId, payload]);
+        this.startPublisher(channelId, exchange);
         return;
       }
 
+      log("[AMQP] Pub event on queue:", channelId);
+
       this.pubChannel[channelId].publish(
-        exchange || this.defaultExchange,
-        channel || this.defaultQueue,
+        exchange,
+        channelId,
         Buffer.from(JSON.stringify(payload)),
         { persistent: true, priority },
         (err: any) => {
           if (err) {
             logger("error", "[AMQP] publish external", err);
-            this.offlinePubQueue.push([exchange, channel, payload]);
+            this.offlinePubQueue.push([exchange, channelId, payload]);
             try {
               this.pubChannel[channelId].connection.close();
               this.pubChannel[channelId] = null;
-              this.startPublisher(channelId);
+              this.startPublisher(channelId, exchange);
             } catch (error) {
               logger(
                 "error",
@@ -89,10 +91,10 @@ export default abstract class RabbitOperator {
       );
     } catch (e: any) {
       logger("error", "[AMQP] publish", e.message);
-      this.offlinePubQueue.push([exchange, channel, payload]);
+      this.offlinePubQueue.push([exchange, channelId, payload]);
       try {
         this.pubChannel[channelId] = null;
-        this.startPublisher(channelId);
+        this.startPublisher(channelId, exchange);
       } catch (error) {
         logger("error", "[AMQP] channel connection failed, restarting.", error);
         this.restartServer(this.handlerConnected);
@@ -100,8 +102,12 @@ export default abstract class RabbitOperator {
     }
   }
 
+  logInternal = (message: string, data?: any) => {
+    if (process.env.LOG_LEVEL === "UHIGH") log(message, data);
+  };
+
   protected async start(handlerConnected?: any) {
-    log("[AMQP] Rabbitmq trying connection");
+    this.logInternal("[AMQP] Rabbitmq connecting");
     if (this.isRestarting) return;
     if (handlerConnected) this.handlerConnected = handlerConnected;
 
@@ -109,7 +115,7 @@ export default abstract class RabbitOperator {
       this.isRestarting = true;
       const conn: amqplib.Connection = await amqplib.connect(
         this.amqpUrl,
-        "heartbeat=120"
+        this.socketOptions
       );
       if (!conn) {
         logger("error", "[AMQP] err", conn);
@@ -125,7 +131,7 @@ export default abstract class RabbitOperator {
         return this.restartServer(handlerConnected);
       });
       this.amqpConn = conn;
-      log("[AMQP] connected");
+      this.logInternal("[AMQP] connected");
       if (this.amqpConn && handlerConnected) handlerConnected();
       this.isRestarting = false;
     } catch (error: any) {
@@ -135,19 +141,27 @@ export default abstract class RabbitOperator {
     }
   }
 
-  public async whenConnected(queue?: string, handler?: any, prefetch?: number) {
-    this.startPublisher(queue);
-    this.startWorker(queue, handler, prefetch);
+  public async whenConnected(
+    queue?: string,
+    handler?: any,
+    prefetch?: number,
+    exchange: string = "",
+    exchange_type: string = ""
+  ) {
+    this.startPublisher(queue, exchange);
+    this.startWorker(queue, handler, prefetch, exchange, exchange_type);
   }
 
-  private async startPublisher(queue?: string) {
-    log(`[AMQP] Connect publisher to ${queue}`);
+  public async startPublisher(queue?: string, exchange: string = "") {
+    this.logInternal(
+      `[AMQP] Connect publisher to ${queue} exchange: ${exchange}`
+    );
     if (!this.amqpConn) return;
 
     const channelId = queue || this.defaultQueue;
     if (!this.pubChannel[channelId]) {
       const ch = await this.amqpConn
-        .createConfirmChannel(this.defaultExchange, channelId)
+        .createConfirmChannel(exchange, channelId)
         .catch((err: any) => {
           logger("error", "[AMQP] channel confirm error", err.message);
         });
@@ -162,31 +176,41 @@ export default abstract class RabbitOperator {
         log("[AMQP] channel closed");
         this.pubChannel[channelId] = null;
         setTimeout(() => {
-          this.startPublisher(channelId);
+          this.startPublisher(channelId, exchange);
         }, 5000);
       });
 
       this.pubChannel[channelId] = ch;
     }
 
+    this.delayed().then(() => {
+      this.syncOffline();
+    });
+  }
+
+  private syncOffline() {
     while (this.offlinePubQueue.length > 0) {
       const [exchange, routingKey, content, priority] =
         this.offlinePubQueue.shift();
       this.publish(
         content,
-        exchange || this.defaultExchange,
+        exchange,
         routingKey || this.defaultQueue,
         priority
       );
     }
   }
 
-  protected async startWorker(
+  public async startWorker(
     queue?: string,
     handler?: any,
-    prefetch?: number
+    prefetch?: number,
+    exchange: string = "",
+    exchange_type: string = "topic"
   ) {
-    log(`[AMQP] Connect consumer to ${queue}`);
+    this.logInternal(
+      `[AMQP] Connect consumer to ${queue} exchange: ${exchange} type: ${exchange_type}`
+    );
 
     if (!this.amqpConn) return;
 
@@ -213,6 +237,15 @@ export default abstract class RabbitOperator {
     await this.workChannel[channelId].assertQueue(channelId, {
       arguments: { maxPriority: 3 },
     });
+
+    if (exchange) {
+      this.workChannel[channelId].assertExchange(exchange, exchange_type, {
+        durable: true,
+      });
+      const routeKey = channelId.split(":").pop();
+      this.workChannel[channelId].bindQueue(channelId, exchange, routeKey);
+    }
+
     await this.workChannel[channelId].consume(
       channelId,
       async (msg: any) => {
@@ -232,12 +265,12 @@ export default abstract class RabbitOperator {
             ? await handler(jsonData)
             : await this.handleNewEvent(jsonData);
           if (ok) {
-            this.workChannel[routingKey].ack(msg);
+            this.workChannel[channelId].ack(msg);
             log(
               `[AMQP] Ack event on queue '${msg.fields.routingKey}' - id:'${id}'`
             );
           } else {
-            this.workChannel[routingKey].reject(msg, true);
+            this.workChannel[channelId].reject(msg, true);
             log(
               `[AMQP] Reject event on queue '${msg.fields.routingKey}' - id:'${id}'`
             );
@@ -246,7 +279,13 @@ export default abstract class RabbitOperator {
           logger("error", `[AMQP] Reject err event on queue '${channelId}'`, e);
           this.workChannel[channelId].reject(msg, true);
           if (!this.workChannel[channelId])
-            this.startWorker(channelId, handler, prefetch);
+            this.startWorker(
+              channelId,
+              handler,
+              prefetch,
+              exchange,
+              exchange_type
+            );
         }
       },
       {

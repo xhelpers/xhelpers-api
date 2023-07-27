@@ -4,7 +4,7 @@ import { log } from "../utils";
 
 const axiosRetry = require("axios-retry");
 
-interface IRetryOptions {
+export interface IRetryOptions {
   retries: number;
   shouldResetTimeout: true;
   retryDelay: (retryCount: number) => number;

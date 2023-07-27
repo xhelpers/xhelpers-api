@@ -17,7 +17,7 @@ export default abstract class BaseServiceSequelize<T extends Model<T>>
   constructor(model: Repository<T>) {
     super();
     this.Model = model;
-    this.repository = db.sequelize.getRepository(this.Model);
+    this.repository = this.getRepository<T>(this.Model as any);
   }
 
   protected abstract validate(
