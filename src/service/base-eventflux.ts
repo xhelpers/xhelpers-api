@@ -93,10 +93,14 @@ export interface IEventFluxBuilder<T = void> {
 
 export interface IEventFlux {
   addEvent(event: DefaultEvent, queue?: string, exchange?: string): void;
+  closeChannel(channel: string): void;
+  closeAll(): void;
 }
 
 export interface IOperatorDefault {
   publishEvent(payload: DefaultEvent, queue?: string, exchange?: string): void;
+  closeChannel(channel: string): void;
+  closeAll(): void;
 }
 
 export abstract class EventServiceFactory<T> {
@@ -311,6 +315,14 @@ export class EventFlux implements IEventFlux {
 
   addEvent(event: DefaultEvent, queue?: string, exchange?: string): void {
     this.operator.publishEvent(event, queue, exchange);
+  }
+
+  closeChannel(channel: string): void {
+    this.operator.closeChannel(channel);
+  }
+
+  closeAll(): void {
+    this.operator.closeAll();
   }
 }
 

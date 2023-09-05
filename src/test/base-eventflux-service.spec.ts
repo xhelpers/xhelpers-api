@@ -118,6 +118,8 @@ describe("🚧 Testing service EventFluxBuilder", () => {
 describe("🚧 Testing service EventFlux", () => {
   let operator = {
     publishEvent: (event: any, queue: string, exchange: string) => {},
+    closeAll: () => {},
+    closeChannel: () => {},
   };
   let flux = new EventFlux(operator);
 

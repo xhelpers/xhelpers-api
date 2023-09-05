@@ -81,6 +81,8 @@ describe("🚧  Testing Server route service BaseEventRoute", () => {
 
     const eventFluxMock = {
       addEvent: sinon.spy(),
+      closeAll: sinon.spy(),
+      closeChannel: sinon.spy(),
     };
     const codeAction = {
       code: sinon.spy(),

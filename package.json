@@ -1,6 +1,6 @@
 {
   "name": "xhelpers-api",
-  "version": "4.1.2",
+  "version": "4.1.3",
   "description": "xhelpers-api is an open source project that enables developers to easily create and manage micro-services into their own environment",
   "scripts": {
     "build": "tsc -p tsconfig.json",

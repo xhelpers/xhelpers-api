@@ -49,6 +49,22 @@ export default abstract class RabbitOperator {
 
   abstract handleNewEvent(evt: any): Promise<any>;
 
+  async closeChannel(channel: string) {
+    // Close the channel
+    if (this.pubChannel[channel]) await this.pubChannel[channel].close();
+    if (this.workChannel[channel]) await this.workChannel[channel].close();
+  }
+
+  async closeAll() {
+    // Close the channel
+    Object.keys(this.pubChannel).forEach(async (key) => {
+      if (this.pubChannel[key]) await this.pubChannel[key].close();
+    });
+    Object.keys(this.workChannel).forEach(async (key) => {
+      if (this.workChannel[key]) await this.workChannel[key].close();
+    });
+  }
+
   public publish(
     payload: any,
     exchange: string = "",
