@@ -229,7 +229,7 @@ describe("🚧  Testing Server Configs  🚧", () => {
     it("With Custom Override Plugin", async () => {
       optionsWithOverridePlugin.options.plugins = [
         {
-          plugin: require("laabr"),
+          plugin: { name: "swagger", register: () => {} },
           options: {
             colored: false,
             formats: {
@@ -248,7 +248,7 @@ describe("🚧  Testing Server Configs  🚧", () => {
     it("With new Override Plugin", async () => {
       optionsWithOverridePlugin.options.plugins = [
         {
-          plugin: require("laabr"),
+          plugin: { name: "swagger", register: () => {} },
           options: {
             colored: false,
             formats: {
