@@ -7,7 +7,7 @@ import { ISwaggerOptions } from "./swagger";
 import { ICronJob } from "./cronjobs";
 
 // internal tests must ignore some logs
-const envIsTest = process.env.NODE_ENV === "TEST";
+const envIsTest = () => process.env.NODE_ENV === "TEST";
 
 export {
   IOptions,

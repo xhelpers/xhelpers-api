@@ -6,7 +6,7 @@ export const registerDisplayRoutes = async (
   server: Server,
   options: IOptions
 ) => {
-  if (envIsTest) return;
+  if (envIsTest()) return;
 
   server.events.on("start", () => {
     log("=".repeat(100));

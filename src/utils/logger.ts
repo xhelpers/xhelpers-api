@@ -6,7 +6,7 @@ export const logger = async (
   message: string,
   data: any
 ) => {
-  if (envIsTest) return;
+  if (envIsTest()) return;
 
   function error() {
     const logGuid = uuid.v4();
