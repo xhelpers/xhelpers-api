@@ -32,9 +32,9 @@ xhelpers-api is an open-source project that aims to simplify the implementation 
 
 - [TypeScript 4.9.5](https://www.typescriptlang.org/).
 - [Node.js 18.14.1](https://nodejs.org/).
-- [Hapi 21.3.0](https://hapi.dev/).
-- [Mongoose 6.10.0](https://mongoosejs.com/).
-- [Sequelize 6.29.0](https://sequelize.org/).
+- [Hapi 21.3.10](https://hapi.dev/).
+- [Mongoose 8.9.5](https://mongoosejs.com/).
+- [Sequelize 6.37.4](https://sequelize.org/).
 
 ## Roadmap
 
