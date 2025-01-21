@@ -44,7 +44,7 @@ export const safeCall = async (
 
   const { credentials } = request?.auth || {};
   const user = credentials?.user || credentials;
-  if (user) {
+  if (typeof user === "object" && user !== null) {
     user.id = user?.id || user?._id;
     user.token = request?.auth?.token;
   }

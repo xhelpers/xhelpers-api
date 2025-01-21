@@ -34,7 +34,7 @@ describe("🚧  Testing Server compression", () => {
   beforeEach(async () => {
     const options: any = {
       serverOptions: {
-        port: 3000,
+        port: 3001,
       },
       options: {
         routeOptions: {

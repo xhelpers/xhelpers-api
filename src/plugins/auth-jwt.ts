@@ -26,13 +26,13 @@ export const registerAuthJwt = async (server: Server, options: IOptions) => {
     };
   };
 
-  try {
-    server.auth.strategy("jwt", "jwt", {
-      key: options.jwt_secret,
-      validate: validateFunc,
-      verifyOptions: { algorithms: ["HS256"] },
-    });
+  server.auth.strategy("jwt", "jwt", {
+    key: options.jwt_secret,
+    validate: validateFunc,
+    verifyOptions: { algorithms: ["HS256"] },
+  });
 
+  try {
     if (!!options.jwt_secret && !options.app_key_auth) {
       server.auth.default("jwt");
     }

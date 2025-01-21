@@ -2,6 +2,7 @@ import * as ChaiAsPromised from "chai-as-promised";
 
 import { expect, use } from "chai";
 
+import { jwt } from "../tools";
 import { createServer } from "../server";
 
 use(ChaiAsPromised);
@@ -16,15 +17,17 @@ const defaultMock = {
   done: false,
 };
 
-describe("🚧  Resource api/todos  🚧", () => {
+describe("🚧  Resource api/todos - jwt 🚧", () => {
   before(async () => {
+    const authKey = "SecretTests";
+
     const options: any = {
       serverOptions: {
-        port: 5005,
+        port: 3002,
         host: process.env.HOST || "127.0.0.1",
       },
       options: {
-        jwt_secret: "SecretTests",
+        jwt_secret: authKey,
         swaggerOptions: {
           info: {
             title: "Test API",
@@ -34,8 +37,6 @@ describe("🚧  Resource api/todos  🚧", () => {
               email: "tester@test.com",
             },
           },
-          schemes: [process.env.SSL === "true" ? "https" : "http"],
-          grouping: "tags",
         },
         routeOptions: {
           routes: "**/routes/*route.js",
@@ -45,6 +46,8 @@ describe("🚧  Resource api/todos  🚧", () => {
 
     server = await createServer(options);
     await server.start();
+
+    _authToken = jwt.sign({ user: { id: 9999 } }, authKey);
 
     return Promise.resolve();
   });
@@ -76,8 +79,6 @@ describe("🚧  Resource api/todos  🚧", () => {
       expect(response.statusCode).to.equal(200);
       expect(response.result).to.be.a("object");
       expect(response.result.token).to.exist;
-
-      _authToken = response.result.token;
 
       return response;
     });
@@ -177,6 +178,24 @@ describe("🚧  Resource api/todos  🚧", () => {
       const options = {
         method: "PATCH",
         url: `/api/todos/${_todoId}`,
+        payload: {
+          ...defaultMock,
+          something: true,
+        },
+      };
+      const response = await server.inject(options);
+      expect(response.statusCode).to.equal(401);
+      return response;
+    });
+
+    it("PATCH api/todos/{id} - should return 401 unauthorized invalid token", async () => {
+      const testToken = jwt.sign({ user: { id: 999 } }, "invalidSourceKey");
+      const options = {
+        method: "PATCH",
+        url: `/api/todos/${_todoId}`,
+        headers: {
+          authorization: testToken,
+        },
         payload: {
           ...defaultMock,
           something: true,

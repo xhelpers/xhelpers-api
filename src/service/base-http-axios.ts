@@ -2,7 +2,7 @@ import { AxiosStatic } from "axios";
 import { axios } from "../tools";
 import { log } from "../utils";
 
-const axiosRetry = require("axios-retry");
+import axiosRetry from "axios-retry";
 
 export interface IRetryOptions {
   retries: number;
