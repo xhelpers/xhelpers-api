@@ -125,10 +125,12 @@ export default abstract class BaseServiceMongoose<T extends mongoose.Document>
   ): Promise<T | null> {
     Object.assign(projection, this.sentitiveInfo);
     try {
-      return await this.Model.findById(id)
-        // .populate({ ...populateOptions })
-        .select([...projection])
-        .lean({ virtuals: populateOptions.virtuals });
+      return (
+        (await this.Model.findById(id)
+          // .populate({ ...populateOptions })
+          .select([...projection])
+          .lean({ virtuals: populateOptions.virtuals })) as any
+      );
     } catch (err) {
       if (err instanceof mongoose.Error.CastError) {
         return null;
